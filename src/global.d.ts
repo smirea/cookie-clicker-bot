@@ -8,4 +8,5 @@ interface LogMessage {
     msg: string;
     count: number;
     extra?: string;
+    eta?: number;
 }

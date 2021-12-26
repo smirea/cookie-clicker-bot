@@ -91,7 +91,7 @@ const $424feee8fe7c6c95$export$e251d23bea783311 = (number, { cookies: cookies = 
 
 
 var $4e50deb68dcb59a4$exports = {};
-$4e50deb68dcb59a4$exports = JSON.parse("{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.3.0\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; parcel watch --no-source-maps\",\"build\":\"rm -rf dist; parcel build --no-source-maps\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"parcel\":\"^2.0.1\"}}");
+$4e50deb68dcb59a4$exports = JSON.parse("{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.4.0\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; parcel watch --no-source-maps\",\"build\":\"rm -rf dist; parcel build --no-source-maps\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"parcel\":\"^2.0.1\"}}");
 
 
 class $fe57486f6f15e392$export$2e2bcd8739ae039 {
@@ -99,8 +99,8 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         this.options = {
             cookieClickTimeout: 1000 / 15.1,
             showLogs: 20,
-            buildingWait: 0.4,
-            upgradeWait: 0.3,
+            buildingWait: 0.35,
+            upgradeWait: 0.35,
             wrinklerPopTime: 300000,
             bannedUpgrades: {
                 'Elder Covenant': true
@@ -172,17 +172,20 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
     get realCps() {
         return Math.round($424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs + $424feee8fe7c6c95$export$985739bfa5723e08.computedMouseCps * (1000 / this.options.cookieClickTimeout));
     }
-    log(msg, extra) {
+    log(msg, { eta: eta , extra: extra  } = {
+    }) {
         const last = this.logMessages[this.logMessages.length - 1];
         if (last && last.msg === msg) {
             ++last.count;
             last.extra = extra;
+            last.eta = eta;
         } else {
             if (last) delete last.extra;
             this.logMessages.push({
                 time: Date.now(),
                 msg: msg,
                 count: 1,
+                eta: eta,
                 extra: extra
             });
         }
@@ -313,10 +316,13 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         ).sort((a, b)=>getPrice(a) - getPrice(b)
         );
         const next = active[0]?.canBuy() ? active[0] : null;
-        const nextWait = $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= 30000 && active[0]?.getPrice() >= this.options.upgradeWait * this.upgradeFatigue ? active[0] : null;
+        const waitPrice = active[0].getPrice() * this.options.upgradeWait * this.upgradeFatigue;
+        const nextWait = active[0] && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= 30000 && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= waitPrice ? active[0] : null;
+        const waitPct = nextWait && Math.round($424feee8fe7c6c95$export$985739bfa5723e08.cookies / active[0].getPrice() * 100) + '%' || undefined;
         return {
             next: next,
-            nextWait: nextWait
+            nextWait: nextWait,
+            waitPct: waitPct
         };
     }
     getSantaStats() {
@@ -357,6 +363,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         return options[0];
     }
     buyTimer() {
+        console.clear();
         this._cpsCache = {
         };
         let timeout = 1000;
@@ -364,15 +371,14 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         const upgrades = this.getUpgradeStats();
         const santa = this.getSantaStats();
         const threshold = this.getAchievementThresholdStats();
-        const waitTime = (targetCookies)=>{
-            if (targetCookies <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies) return 'SOON!';
-            return 'ETA: ' + $424feee8fe7c6c95$export$bc733b0c5cbb3e8a((targetCookies - $424feee8fe7c6c95$export$985739bfa5723e08.cookies) / this.realCps);
+        const getEta = (targetCookies)=>{
+            if (targetCookies <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies) return undefined;
+            return (targetCookies - $424feee8fe7c6c95$export$985739bfa5723e08.cookies) / this.realCps;
         };
         const run = ()=>{
-            console.clear();
             if (buildings.nextHighValue) {
                 this.buy(buildings.nextHighValue);
-                return this.log(`💲 So cheap it just can't wait: ${buildings.nextHighValue.name}`);
+                return this.log(`💰 So cheap it just can't wait: ${buildings.nextHighValue.name}`);
             }
             if (upgrades.next) {
                 this.buy(upgrades.next);
@@ -382,7 +388,10 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             }
             if (upgrades.nextWait) {
                 timeout *= 10;
-                this.log(`🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`, waitTime(upgrades.nextWait.getPrice()));
+                this.log(`🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`, {
+                    eta: getEta(upgrades.nextWait.getPrice()),
+                    extra: upgrades.waitPct
+                });
                 return;
             }
             if (threshold?.available) {
@@ -393,7 +402,9 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
                 return;
             }
             if (threshold?.wait) {
-                this.log(`🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${$424feee8fe7c6c95$export$e251d23bea783311(threshold.nextPrice)}`, waitTime(threshold.nextPrice));
+                this.log(`🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${$424feee8fe7c6c95$export$e251d23bea783311(threshold.nextPrice)}`, {
+                    eta: getEta(threshold.nextPrice)
+                });
                 timeout *= 10;
                 return;
             }
@@ -404,14 +415,18 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
                 timeout *= 5;
                 return this.log('🎅 Ho Ho Ho!');
             }
-            if (santa.wait) return this.log(`🎅 Twas the night before X-MAS!`, waitTime(santa.price));
+            if (santa.wait) return this.log(`🎅 Twas the night before X-MAS!`, {
+                eta: getEta(santa.price)
+            });
             if (buildings.nextNew) {
                 this.buy(buildings.nextNew);
                 this.log(`🏛 Bought new building type: ${buildings.nextNew.name}`);
                 return;
             }
             if (buildings.nextWait) {
-                this.log(`🟡 Waiting to buy new building type: ${buildings.nextWait.name}`, waitTime(buildings.nextWait.price));
+                this.log(`🟡 Waiting to buy new building type: ${buildings.nextWait.name}`, {
+                    eta: getEta(buildings.nextWait.price)
+                });
                 timeout *= 10;
                 return;
             }
@@ -421,11 +436,13 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
                     this.log(`🏛 Bought building: ${buildings.next.name}`);
                     return;
                 }
-                this.log(`⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`, waitTime(buildings.sorted[0].price));
+                this.log(`⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`, {
+                    eta: getEta(buildings.sorted[0].price)
+                });
                 timeout *= 5;
                 return;
             }
-            this.log("💰 You're too poor... but that's a good thing!");
+            this.log("You're too poor... but that's a good thing!");
             timeout *= 5;
         };
         run();
@@ -441,7 +458,12 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         console.log('%cBuy Order:', 'font-weight:bold');
         for (const obj of buildings.sorted)console.log('   - %s: %sx', obj.name, obj.relativeValue);
         // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
-        for (const { time: time , msg: msg , count: count , extra: extra  } of this.logMessages.slice(-1 * this.options.showLogs))console.log('%c%s%c %s %c%s %c%s', 'color:gray', new Date(time).toISOString().slice(11, 19), 'color:white', msg, 'color:gray', count > 1 ? `✕ ${count}` : '', 'color:gray', extra ? '| ' + extra : '');
+        for (const { time: time , msg: msg , count: count , eta: eta , extra: extra  } of this.logMessages.slice(-1 * this.options.showLogs))console.log(`%c%s%c %s %c%s`, 'color:gray', new Date(time).toISOString().slice(11, 19), 'color:white', msg, 'color:gray', [
+            count > 1 ? `✕ ${count}` : '',
+            extra,
+            eta ? 'ETA: ' + $424feee8fe7c6c95$export$bc733b0c5cbb3e8a(eta) : '', 
+        ].filter((x)=>x
+        ).join(' | '));
     }
 }
 

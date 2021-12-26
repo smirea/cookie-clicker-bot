@@ -6,8 +6,8 @@ export default class CookieAutomator {
     options = {
         cookieClickTimeout: 1000 / 15.1, // sneaky
         showLogs: 20,
-        buildingWait: 0.4, // what % [0-1] of the building price to start waiting to buy
-        upgradeWait: 0.3, // what % [0-1] of the upgrade price to start waiting to buy
+        buildingWait: 0.35, // what % [0-1] of the building price to start waiting to buy
+        upgradeWait: 0.35, // what % [0-1] of the upgrade price to start waiting to buy
         wrinklerPopTime: 5 * 60e3, // pop a wrinkler every X ms
         bannedUpgrades: {
             'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse
@@ -56,14 +56,15 @@ export default class CookieAutomator {
         return Math.round(Game.cookiesPs + Game.computedMouseCps * (1000 / this.options.cookieClickTimeout));
     }
 
-    log(msg: string, extra?: string) {
+    log(msg: string, { eta, extra }: { extra?: string; eta?: number } = {}) {
         const last = this.logMessages[this.logMessages.length - 1];
         if (last && last.msg === msg) {
             ++last.count;
             last.extra = extra;
+            last.eta = eta;
         } else {
             if (last) delete last.extra;
-            this.logMessages.push({ time: Date.now(), msg, count: 1, extra });
+            this.logMessages.push({ time: Date.now(), msg, count: 1, eta, extra });
         }
 
         if (this.logMessages.length > 1000) {
@@ -221,14 +222,15 @@ export default class CookieAutomator {
             .filter(x => !x.bought && x.unlocked && !this.options.bannedUpgrades[x.name])
             .sort((a, b) => getPrice(a) - getPrice(b));
         const next = active[0]?.canBuy() ? active[0] : null;
+        const waitPrice = active[0].getPrice() * this.options.upgradeWait * this.upgradeFatigue;
         const nextWait = (
-            Game.cookies >= 30e3 &&
-            active[0]?.getPrice() >= this.options.upgradeWait * this.upgradeFatigue
+            active[0] && Game.cookies >= 30e3 && Game.cookies >= waitPrice
                 ? active[0]
                 : null
         );
+        const waitPct = nextWait && (Math.round(Game.cookies / active[0].getPrice() * 100) + '%') || undefined;
 
-        return { next, nextWait };
+        return { next, nextWait, waitPct };
     }
 
     getSantaStats() {
@@ -269,23 +271,22 @@ export default class CookieAutomator {
     }
 
     buyTimer() {
+        console.clear();
         this._cpsCache = {};
         let timeout = 1000;
         const buildings = this.getBuildingStats();
         const upgrades = this.getUpgradeStats();
         const santa = this.getSantaStats();
         const threshold = this.getAchievementThresholdStats();
-        const waitTime = (targetCookies: number) => {
-            if (targetCookies <= Game.cookies) return 'SOON!';
-            return 'ETA: ' + formatDuration((targetCookies - Game.cookies) / this.realCps);
+        const getEta = (targetCookies: number) => {
+            if (targetCookies <= Game.cookies) return undefined;
+            return (targetCookies - Game.cookies) / this.realCps;
         }
 
         const run = () => {
-            console.clear();
-
             if (buildings.nextHighValue) {
                 this.buy(buildings.nextHighValue);
-                return this.log(`💲 So cheap it just can't wait: ${buildings.nextHighValue.name}`);
+                return this.log(`💰 So cheap it just can't wait: ${buildings.nextHighValue.name}`);
             }
 
             if (upgrades.next) {
@@ -299,7 +300,7 @@ export default class CookieAutomator {
                 timeout *= 10;
                 this.log(
                     `🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`,
-                    waitTime(upgrades.nextWait.getPrice())
+                    { eta: getEta(upgrades.nextWait.getPrice()), extra: upgrades.waitPct }
                 );
                 return;
             }
@@ -315,7 +316,7 @@ export default class CookieAutomator {
             if (threshold?.wait) {
                 this.log(
                     `🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${formatAmount(threshold.nextPrice)}`,
-                    waitTime(threshold.nextPrice)
+                    { eta: getEta(threshold.nextPrice) }
                 );
                 timeout *= 10;
                 return;
@@ -328,7 +329,7 @@ export default class CookieAutomator {
             }
 
             if (santa.wait) {
-                return this.log(`🎅 Twas the night before X-MAS!`, waitTime(santa.price));
+                return this.log(`🎅 Twas the night before X-MAS!`, { eta: getEta(santa.price) });
             }
 
             if (buildings.nextNew) {
@@ -340,7 +341,7 @@ export default class CookieAutomator {
             if (buildings.nextWait) {
                 this.log(
                     `🟡 Waiting to buy new building type: ${buildings.nextWait.name}`,
-                    waitTime(buildings.nextWait.price)
+                    { eta: getEta(buildings.nextWait.price) }
                 );
                 timeout *= 10;
                 return;
@@ -354,13 +355,13 @@ export default class CookieAutomator {
                 }
                 this.log(
                     `⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`,
-                    waitTime(buildings.sorted[0].price)
+                    { eta: getEta(buildings.sorted[0].price) }
                 );
                 timeout *= 5;
                 return
             }
 
-            this.log("💰 You're too poor... but that's a good thing!");
+            this.log("You're too poor... but that's a good thing!");
             timeout *= 5;
         }
 
@@ -383,17 +384,19 @@ export default class CookieAutomator {
             console.log('   - %s: %sx', obj.name, obj.relativeValue);
         }
         // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
-        for (const { time, msg, count, extra } of this.logMessages.slice(-1 * this.options.showLogs)) {
+        for (const { time, msg, count, eta, extra } of this.logMessages.slice(-1 * this.options.showLogs)) {
             console.log(
-                '%c%s%c %s %c%s %c%s',
+                `%c%s%c %s %c%s`,
                 'color:gray',
                 new Date(time).toISOString().slice(11, 19),
                 'color:white',
                 msg,
                 'color:gray',
-                count > 1 ? `✕ ${count}` : '',
-                'color:gray',
-                extra ? '| ' + extra : '',
+                [
+                    count > 1 ? `✕ ${count}` : '',
+                    extra,
+                    eta ? 'ETA: ' + formatDuration(eta) : '',
+                ].filter(x => x).join(' | ')
             );
         }
     }
