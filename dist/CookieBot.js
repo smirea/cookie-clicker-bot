@@ -2,6 +2,8 @@ const $424feee8fe7c6c95$export$3d8c2f653ac9d0b9 = (selector)=>document.querySele
 ;
 const $424feee8fe7c6c95$export$fe324b23443c13e2 = (selector)=>Array.from(document.querySelectorAll(selector))
 ;
+const $424feee8fe7c6c95$export$90b4d2ff6acb88af = window.unsafeWindow || window;
+const $424feee8fe7c6c95$export$985739bfa5723e08 = $424feee8fe7c6c95$export$90b4d2ff6acb88af.Game;
 
 
 class $fe57486f6f15e392$export$2e2bcd8739ae039 {
@@ -54,7 +56,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             existingLog = JSON.parse(localStorage.CookieAutomator_logMessages);
         } catch (ex) {
         }
-        this.logMessages = window.__automateLog = window.__automateLog || existingLog;
+        this.logMessages = $424feee8fe7c6c95$export$90b4d2ff6acb88af.__automateLog = $424feee8fe7c6c95$export$90b4d2ff6acb88af.__automateLog || existingLog;
     }
     start() {
         this.clickBigCookieTimer();
@@ -87,8 +89,8 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         return obj2.buy(amount1);
     }
     maybeClickLumpTimer() {
-        if ((Date.now() - Game.lumpT) / 1000 / 3600 < 23) return;
-        Game.clickLump();
+        if ((Date.now() - $424feee8fe7c6c95$export$985739bfa5723e08.lumpT) / 1000 / 3600 < 23) return;
+        $424feee8fe7c6c95$export$985739bfa5723e08.clickLump();
     }
     shimmerTimer() {
         $424feee8fe7c6c95$export$3d8c2f653ac9d0b9('.shimmer')?.click();
@@ -105,7 +107,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         this._cpsCache = this._cpsCache || {
         };
         if (this._cpsCache[name]) return this._cpsCache[name];
-        const obj = Game.Objects[name];
+        const obj = $424feee8fe7c6c95$export$985739bfa5723e08.Objects[name];
         const tooltip = obj.tooltip();
         const match = tooltip.replace(/,/g, '').replace(/\d+(\.\d+)?\s+million/gi, (x)=>String(parseFloat(x) * 1000000)
         ).replace(/\d+(\.\d+)?\s+billion/gi, (x)=>String(parseFloat(x) * 1000000000)
@@ -114,7 +116,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         ).match(/produces <b>([^c]+) cookies/) || [];
         let cps = parseFloat(match[1] || '');
         if (Number.isNaN(cps)) return obj.bought ? obj.baseCps : 0;
-        if (obj.name === 'Grandma') for (const x1 of Game.ObjectsById){
+        if (obj.name === 'Grandma') for (const x1 of $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById){
             if (x1.name === 'Grandma') continue;
             if (!x1.grandma?.bought) continue;
             const match = x1.grandma.desc.match(/gain <b>\+(\d+).*<\/b> per (\d+)? grandma/i) || [];
@@ -123,13 +125,13 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             if (!pct || !multiplier || Number.isNaN(pct) || Number.isNaN(multiplier)) continue;
             const childCps = x1.cps(x1);
             // console.log(x.name, pct, multiplier, childCps);
-            cps = cps + childCps * (pct / 100) * Math.floor(Game.Objects.Grandma.amount / multiplier);
+            cps = cps + childCps * (pct / 100) * Math.floor($424feee8fe7c6c95$export$985739bfa5723e08.Objects.Grandma.amount / multiplier);
         }
         this._cpsCache[name] = cps;
         return cps;
     }
     getBuildingStats() {
-        const sorted = Game.ObjectsById.map((obj, index)=>({
+        const sorted = $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById.map((obj, index)=>({
                 name: obj.name,
                 price: obj.price,
                 cps: this.getCps(obj.name),
@@ -154,15 +156,15 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         //     console.table(table);
         // }
         for (const obj1 of sorted)obj1.relativeValue = Math.round(obj1.pricePerCps / min * 10) / 10;
-        const active = Game.ObjectsById.filter((x)=>!x.locked && !x.bought
+        const active = $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById.filter((x)=>!x.locked && !x.bought
         );
         const next = sorted[0]?.obj;
-        const nextWait = active.find((x)=>Game.cookies >= x.price * this.options.buildingWait
+        const nextWait = active.find((x)=>$424feee8fe7c6c95$export$985739bfa5723e08.cookies >= x.price * this.options.buildingWait
         );
-        const nextNew = active.find((x)=>x.price <= Game.cookies
+        const nextNew = active.find((x)=>x.price <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies
         );
         const nextHighValue = sorted.slice(1).find((item, index)=>{
-            return sorted[0].price <= Game.cookies && item.relativeValue - sorted[0].relativeValue >= 10 + 2.5 ** (index + 2);
+            return sorted[0].price <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies && item.relativeValue - sorted[0].relativeValue >= 10 + 2.5 ** (index + 2);
         }) ? sorted[0].obj : null;
         return {
             next: next,
@@ -180,12 +182,12 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             else if (/grandmas|twice/i.test(upg.desc)) result *= 0.6;
             return result;
         };
-        const active = Object.values(Game.Upgrades).filter((x)=>!x.bought && x.unlocked
+        const active = Object.values($424feee8fe7c6c95$export$985739bfa5723e08.Upgrades).filter((x)=>!x.bought && x.unlocked
         ).sort((a, b)=>getPrice(a) - getPrice(b)
         );
         const next = active.find((x)=>x.canBuy()
         );
-        const nextWait = Game.cookies >= 30000 && active.find((x)=>!x.canBuy() && Game.cookies >= x.getPrice() * this.options.upgradeWait * this.upgradeFatigue
+        const nextWait = $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= 30000 && active.find((x)=>!x.canBuy() && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= x.getPrice() * this.options.upgradeWait * this.upgradeFatigue
         );
         return {
             next: next,
@@ -193,9 +195,9 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         };
     }
     getSantaStats() {
-        const price = Math.pow(Game.santaLevel + 1, Game.santaLevel + 1);
-        const buy = Game.cookies >= price && Game.santaLevel < 14;
-        const wait = !buy && Game.cookies >= price * 0.75 && Game.santaLevel < 14;
+        const price = Math.pow($424feee8fe7c6c95$export$985739bfa5723e08.santaLevel + 1, $424feee8fe7c6c95$export$985739bfa5723e08.santaLevel + 1);
+        const buy = $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= price && $424feee8fe7c6c95$export$985739bfa5723e08.santaLevel < 14;
+        const wait = !buy && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= price * 0.75 && $424feee8fe7c6c95$export$985739bfa5723e08.santaLevel < 14;
         return {
             wait: wait,
             buy: buy
@@ -205,7 +207,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         const options = [];
         const getNCost = (obj, end)=>obj.basePrice * (1.15 ** end - 1.15 ** obj.amount) / 0.15
         ;
-        for (const obj3 of Game.ObjectsById){
+        for (const obj3 of $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById){
             if (!obj3.bought || obj3.amount <= 1) continue;
             const ranges = this.achievementThresholds[obj3.name] || this.achievementThresholds.Default;
             if (obj3.amount >= ranges[ranges.length - 1]) continue;
@@ -219,8 +221,8 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
                 toBuy: toBuy,
                 nextAmount: nextAmount,
                 nextPrice: nextPrice,
-                available: nextPrice <= Game.cookies,
-                wait: Game.cookies >= nextPrice * 0.8
+                available: nextPrice <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies,
+                wait: $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= nextPrice * 0.8
             });
         }
         options.sort((a, b)=>a.nextPrice - b.nextPrice
@@ -263,7 +265,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             }
             if (santa.buy) {
                 this.buy({
-                    buy: ()=>Game.UpgradeSanta()
+                    buy: ()=>$424feee8fe7c6c95$export$985739bfa5723e08.UpgradeSanta()
                 });
                 return this.log('🎅 Ho Ho Ho!');
             }
@@ -279,7 +281,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
                 return;
             }
             if (buildings.next) {
-                if (buildings.next.price <= Game.cookies) {
+                if (buildings.next.price <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies) {
                     this.buy(buildings.next);
                     this.log(`🏛 Bought building: ${buildings.next.name}`);
                     return;
@@ -308,13 +310,14 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
 }
 
 
+
 setTimeout(()=>{
-    window.myCookieAutomator?.stop();
-    window.myCookieAutomator = new $fe57486f6f15e392$export$2e2bcd8739ae039;
-    window.myCookieAutomator.start();
+    $424feee8fe7c6c95$export$90b4d2ff6acb88af.myCookieAutomator?.stop();
+    $424feee8fe7c6c95$export$90b4d2ff6acb88af.myCookieAutomator = new $fe57486f6f15e392$export$2e2bcd8739ae039;
+    $424feee8fe7c6c95$export$90b4d2ff6acb88af.myCookieAutomator.start();
 // console.log('>>', myCookieAutomator.getCps('Cursor'));
 // console.log('% =', Math.round(myCookieAutomator.getCps('Grandma') / 341437 * 100));
-}, 1);
+}, 100);
 '🍪🚜';
 
 

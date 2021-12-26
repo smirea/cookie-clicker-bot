@@ -1,4 +1,5 @@
-import { $ } from './utils';
+import type { Building, BuildingName, Buyable, Upgrade } from './typeDefs';
+import { $, Game, global } from './utils';
 
 export default class CookieAutomator {
     options = {
@@ -21,7 +22,7 @@ export default class CookieAutomator {
         try {
             existingLog = JSON.parse(localStorage.CookieAutomator_logMessages);
         } catch (ex) {}
-        this.logMessages = window.__automateLog = window.__automateLog || existingLog;
+        this.logMessages = global.__automateLog = global.__automateLog || existingLog;
     }
 
     start() {
