@@ -3,11 +3,11 @@
     "private": true,
     "version": "1.0.0",
     "description": "",
-    "main": "dist/CookieAutomator.js",
+    "main": "dist/CookieBot.js",
     "source": "src/index.ts",
     "scripts": {
-        "watch": "parcel watch --no-source-maps",
-        "build": "parcel build --no-source-maps"
+        "watch": "rm -rf dist; parcel watch --no-source-maps",
+        "build": "rm -rf dist; parcel build --no-source-maps"
     },
     "repository": {
         "type": "git",
