@@ -37,43 +37,43 @@ const $424feee8fe7c6c95$export$e251d23bea783311 = (number, { cookies: cookies = 
     number = Math.floor(number);
     const labels = [
         [
-            'Million',
+            'million',
             'M'
         ],
         [
-            'Billion',
+            'billion',
             'B'
         ],
         [
-            'Trillion',
+            'trillion',
             'T'
         ],
         [
-            'Quadrillion',
+            'quadrillion',
             'Quad'
         ],
         [
-            'Quintillion',
+            'quintillion',
             'Quint'
         ],
         [
-            'Sextillion',
+            'sextillion',
             'Sext😏'
         ],
         [
-            'Septillion',
+            'septillion',
             'Sept'
         ],
         [
-            'Octillion',
+            'octillion',
             'Oct'
         ],
         [
-            'Nonillion',
+            'nonillion',
             'Non'
         ],
         [
-            'Decillion',
+            'decillion',
             'Dec'
         ], 
     ];
@@ -83,7 +83,8 @@ const $424feee8fe7c6c95$export$e251d23bea783311 = (number, { cookies: cookies = 
     const floorPower = Math.floor(power / 3) * 3;
     const label = labels[floorPower / 3 - 2];
     let value = Math.floor(number / Math.pow(10, floorPower));
-    value += Math.floor(number / Math.pow(10, floorPower - 2)) % 100 / 100;
+    value += Math.round(Math.floor(number / Math.pow(10, floorPower - 2)) % 100) / 100;
+    value = Math.round(value * 100) / 100;
     const unit = format === 'full' ? ' ' + label[0] : format === 'small' ? ' ' + label[1] : 'e' + floorPower;
     return (cookies ? '🍪' : '') + String(value) + unit;
 };
@@ -167,7 +168,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         }
     }
     get realCps() {
-        return $424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs + $424feee8fe7c6c95$export$985739bfa5723e08.computedMouseCps * (1000 / this.options.cookieClickTimeout);
+        return Math.round($424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs + $424feee8fe7c6c95$export$985739bfa5723e08.computedMouseCps * (1000 / this.options.cookieClickTimeout));
     }
     log(msg, extra) {
         const last = this.logMessages[this.logMessages.length - 1];
@@ -408,10 +409,10 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
     }
     printLog({ buildings: buildings  }) {
         console.log('%c%s v%s', 'color:gray', (/*@__PURE__*/$parcel$interopDefault($4e50deb68dcb59a4$exports)).name, (/*@__PURE__*/$parcel$interopDefault($4e50deb68dcb59a4$exports)).version);
+        console.log(`upgradeFatigue: %sx | realCps: %s`, Math.round(this.upgradeFatigue * 100) / 100, $424feee8fe7c6c95$export$e251d23bea783311(this.realCps));
         console.log('%cBuy Order:', 'font-weight:bold');
         for (const obj of buildings.sorted)console.log('   - %s: %sx', obj.name, obj.relativeValue);
-        console.log(`upgradeFatigue: %sx | realCps: %s`, Math.round(this.upgradeFatigue * 100) / 100, $424feee8fe7c6c95$export$e251d23bea783311(this.realCps));
-        console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
+        // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
         for (const { time: time , msg: msg , count: count , extra: extra  } of this.logMessages.slice(-1 * this.options.showLogs))console.log('%c%s%c %s %c%s %c%s', 'color:gray', new Date(time).toISOString().slice(11, 19), 'color:white', msg, 'color:gray', count > 1 ? `✕ ${count}` : '', 'color:gray', extra ? '| ' + extra : '');
     }
 }

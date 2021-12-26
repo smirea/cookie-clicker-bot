@@ -37,16 +37,16 @@ export const formatAmount = (
     number = Math.floor(number);
 
     const labels: Array<[string, string]> = [
-        ['Million', 'M'],
-        ['Billion', 'B'],
-        ['Trillion', 'T'],
-        ['Quadrillion', 'Quad'],
-        ['Quintillion', 'Quint'],
-        ['Sextillion', 'Sext😏'],
-        ['Septillion', 'Sept'],
-        ['Octillion', 'Oct'],
-        ['Nonillion', 'Non'],
-        ['Decillion', 'Dec'],
+        ['million', 'M'],
+        ['billion', 'B'],
+        ['trillion', 'T'],
+        ['quadrillion', 'Quad'],
+        ['quintillion', 'Quint'],
+        ['sextillion', 'Sext😏'],
+        ['septillion', 'Sept'],
+        ['octillion', 'Oct'],
+        ['nonillion', 'Non'],
+        ['decillion', 'Dec'],
     ];
 
     if (number < 1e3) return String(number);
@@ -56,7 +56,8 @@ export const formatAmount = (
     const floorPower = Math.floor(power / 3) * 3;
     const label = labels[floorPower / 3 - 2];
     let value = Math.floor(number / Math.pow(10, floorPower));
-    value += Math.floor(number / Math.pow(10, floorPower - 2)) % 100 / 100;
+    value += Math.round(Math.floor(number / Math.pow(10, floorPower - 2)) % 100) / 100;
+    value = Math.round(value * 100) / 100;
     const unit = (
         format === 'full' ? ' ' + label[0] :
         format === 'small' ? ' ' + label[1] :

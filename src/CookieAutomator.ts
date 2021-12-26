@@ -48,7 +48,7 @@ export default class CookieAutomator {
     }
 
     get realCps() {
-        return Game.cookiesPs + Game.computedMouseCps * (1000 / this.options.cookieClickTimeout);
+        return Math.round(Game.cookiesPs + Game.computedMouseCps * (1000 / this.options.cookieClickTimeout));
     }
 
     log(msg: string, extra?: string) {
@@ -334,17 +334,16 @@ export default class CookieAutomator {
         buildings: ReturnType<typeof CookieAutomator['prototype']['getBuildingStats']>;
     }) {
         console.log('%c%s v%s', 'color:gray', packageJson.name, packageJson.version);
-        console.log('%cBuy Order:', 'font-weight:bold');
-        for (const obj of buildings.sorted) {
-            console.log('   - %s: %sx', obj.name, obj.relativeValue);
-        }
-
         console.log(
             `upgradeFatigue: %sx | realCps: %s`,
             Math.round(this.upgradeFatigue * 100) / 100,
             formatAmount(this.realCps)
         );
-        console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
+        console.log('%cBuy Order:', 'font-weight:bold');
+        for (const obj of buildings.sorted) {
+            console.log('   - %s: %sx', obj.name, obj.relativeValue);
+        }
+        // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
         for (const { time, msg, count, extra } of this.logMessages.slice(-1 * this.options.showLogs)) {
             console.log(
                 '%c%s%c %s %c%s %c%s',
