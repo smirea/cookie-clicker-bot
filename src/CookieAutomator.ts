@@ -28,6 +28,7 @@ export default class CookieAutomator {
     }
 
     start() {
+        this.stop();
         this.clickBigCookieTimer();
         this.maybeClickLumpTimer();
         this.shimmerTimer();
@@ -35,6 +36,8 @@ export default class CookieAutomator {
         this.timers.saveLog = setInterval(() => {
             localStorage.CookieAutomator_logMessages = JSON.stringify(this.logMessages.slice(-100));
         }, 2e3);
+        // random periodic influx of cash
+        this.timers.wrinklerTimer = setInterval(() => { Game.PopRandomWrinkler(); }, 5 * 60e3);
     }
 
     stop() {
@@ -339,7 +342,7 @@ export default class CookieAutomator {
         console.log(
             `upgradeFatigue: %sx | realCps: %s`,
             Math.round(this.upgradeFatigue * 100) / 100,
-            this.realCps
+            formatAmount(this.realCps)
         );
         console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
         for (const { time, msg, count, extra } of this.logMessages.slice(-1 * this.options.showLogs)) {

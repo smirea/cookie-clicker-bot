@@ -90,7 +90,7 @@ const $424feee8fe7c6c95$export$e251d23bea783311 = (number, { cookies: cookies = 
 
 
 var $4e50deb68dcb59a4$exports = {};
-$4e50deb68dcb59a4$exports = JSON.parse("{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.1.1\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; parcel watch --no-source-maps\",\"build\":\"rm -rf dist; parcel build --no-source-maps\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"parcel\":\"^2.0.1\"}}");
+$4e50deb68dcb59a4$exports = JSON.parse("{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.2.0\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; parcel watch --no-source-maps\",\"build\":\"rm -rf dist; parcel build --no-source-maps\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"parcel\":\"^2.0.1\"}}");
 
 
 class $fe57486f6f15e392$export$2e2bcd8739ae039 {
@@ -147,6 +147,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         this.options.cookieClickTimeout = Math.max(5, this.options.cookieClickTimeout);
     }
     start() {
+        this.stop();
         this.clickBigCookieTimer();
         this.maybeClickLumpTimer();
         this.shimmerTimer();
@@ -154,6 +155,10 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         this.timers.saveLog = setInterval(()=>{
             localStorage.CookieAutomator_logMessages = JSON.stringify(this.logMessages.slice(-100));
         }, 2000);
+        // random periodic influx of cash
+        this.timers.wrinklerTimer = setInterval(()=>{
+            $424feee8fe7c6c95$export$985739bfa5723e08.PopRandomWrinkler();
+        }, 300000);
     }
     stop() {
         for (const x of Object.values(this.timers)){
@@ -405,7 +410,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         console.log('%c%s v%s', 'color:gray', (/*@__PURE__*/$parcel$interopDefault($4e50deb68dcb59a4$exports)).name, (/*@__PURE__*/$parcel$interopDefault($4e50deb68dcb59a4$exports)).version);
         console.log('%cBuy Order:', 'font-weight:bold');
         for (const obj of buildings.sorted)console.log('   - %s: %sx', obj.name, obj.relativeValue);
-        console.log(`upgradeFatigue: %sx | realCps: %s`, Math.round(this.upgradeFatigue * 100) / 100, this.realCps);
+        console.log(`upgradeFatigue: %sx | realCps: %s`, Math.round(this.upgradeFatigue * 100) / 100, $424feee8fe7c6c95$export$e251d23bea783311(this.realCps));
         console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
         for (const { time: time , msg: msg , count: count , extra: extra  } of this.logMessages.slice(-1 * this.options.showLogs))console.log('%c%s%c %s %c%s %c%s', 'color:gray', new Date(time).toISOString().slice(11, 19), 'color:white', msg, 'color:gray', count > 1 ? `✕ ${count}` : '', 'color:gray', extra ? '| ' + extra : '');
     }

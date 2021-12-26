@@ -17,6 +17,8 @@ export interface GameT {
     /** >= 1 <= 14 */
     readonly santaLevel: number;
     readonly UpgradeSanta: () => number;
+    readonly PopRandomWrinkler: () => void;
+    readonly CollectWrinklers: () => void;
 }
 
 export type BuildingName = 'Cursor' | 'Grandma' | 'Farm' | 'Mine' | 'Factory' | 'Bank' | 'Temple' | 'Wizard tower' | 'Shipment' | 'Alchemy lab' | 'Portal' | 'Time machine' | 'Antimatter condenser' | 'Prism' | 'Chancemaker' | 'Fractal engine' | 'Javascript console' | 'Idleverse' | 'Cortex baker';
