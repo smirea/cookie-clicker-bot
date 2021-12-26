@@ -91,7 +91,7 @@ const $424feee8fe7c6c95$export$e251d23bea783311 = (number, { cookies: cookies = 
 
 
 var $4e50deb68dcb59a4$exports = {};
-$4e50deb68dcb59a4$exports = JSON.parse("{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.2.0\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; parcel watch --no-source-maps\",\"build\":\"rm -rf dist; parcel build --no-source-maps\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"parcel\":\"^2.0.1\"}}");
+$4e50deb68dcb59a4$exports = JSON.parse("{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.3.0\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; parcel watch --no-source-maps\",\"build\":\"rm -rf dist; parcel build --no-source-maps\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"parcel\":\"^2.0.1\"}}");
 
 
 class $fe57486f6f15e392$export$2e2bcd8739ae039 {
@@ -99,8 +99,9 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         this.options = {
             cookieClickTimeout: 1000 / 15.1,
             showLogs: 20,
-            buildingWait: 0.35,
-            upgradeWait: 0.2
+            buildingWait: 0.4,
+            upgradeWait: 0.3,
+            wrinklerPopTime: 180000
         };
         this.timers = {
         };
@@ -156,10 +157,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         this.timers.saveLog = setInterval(()=>{
             localStorage.CookieAutomator_logMessages = JSON.stringify(this.logMessages.slice(-100));
         }, 2000);
-        // random periodic influx of cash
-        this.timers.wrinklerTimer = setInterval(()=>{
-            $424feee8fe7c6c95$export$985739bfa5723e08.PopRandomWrinkler();
-        }, 300000);
+        this.wrinklerTimer();
     }
     stop() {
         for (const x of Object.values(this.timers)){
@@ -175,13 +173,26 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         if (last && last.msg === msg) {
             ++last.count;
             last.extra = extra;
-        } else this.logMessages.push({
-            time: Date.now(),
-            msg: msg,
-            count: 1,
-            extra: extra
-        });
+        } else {
+            delete last.extra;
+            this.logMessages.push({
+                time: Date.now(),
+                msg: msg,
+                count: 1,
+                extra: extra
+            });
+        }
         if (this.logMessages.length > 1000) this.logMessages.splice(0, this.logMessages.length - 1000);
+    }
+    getBuffs() {
+        let cpsMultiple = 1;
+        for (const buff of Object.values($424feee8fe7c6c95$export$985739bfa5723e08.buffs)){
+            if (!buff.visible || !buff.multCpS) continue;
+            cpsMultiple *= buff.multCpS;
+        }
+        return {
+            cpsMultiple: cpsMultiple
+        };
     }
     buy(obj2, amount1 = 1) {
         if (obj2.type === 'upgrade') this.upgradeFatigue = Math.min(this.upgradeFatigue + 2, 10);
@@ -203,6 +214,13 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         this.timers.clickBigCookieTimer = setTimeout(()=>this.clickBigCookieTimer()
         , this.options.cookieClickTimeout);
     }
+    wrinklerTimer() {
+        const { cpsMultiple: cpsMultiple  } = this.getBuffs();
+        if (cpsMultiple < 1) $424feee8fe7c6c95$export$985739bfa5723e08.CollectWrinklers();
+        else if (cpsMultiple === 1) $424feee8fe7c6c95$export$985739bfa5723e08.PopRandomWrinkler();
+        this.timers.wrinklerTimer = setInterval(()=>this.wrinklerTimer()
+        , this.options.wrinklerPopTime);
+    }
     getCps(name) {
         this._cpsCache = this._cpsCache || {
         };
@@ -214,6 +232,11 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         ).replace(/\d+(\.\d+)?\s+trillion/gi, (x)=>String(parseFloat(x) * 1000000000000)
         ).replace(/\d+(\.\d+)?\s+quadrillion/gi, (x)=>String(parseFloat(x) * 1000000000000000)
         ).replace(/\d+(\.\d+)?\s+quintillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000)
+        ).replace(/\d+(\.\d+)?\s+sextillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000)
+        ).replace(/\d+(\.\d+)?\s+septillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000000)
+        ).replace(/\d+(\.\d+)?\s+octillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000000000)
+        ).replace(/\d+(\.\d+)?\s+nonillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000000000000)
+        ).replace(/\d+(\.\d+)?\s+decillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000000000000000)
         ).match(/produces <b>([^c]+) cookies/) || [];
         let cps = parseFloat(match[1] || '');
         if (Number.isNaN(cps)) return obj.bought ? obj.baseCps : 0;
@@ -285,10 +308,8 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         const active = Object.values($424feee8fe7c6c95$export$985739bfa5723e08.Upgrades).filter((x)=>!x.bought && x.unlocked
         ).sort((a, b)=>getPrice(a) - getPrice(b)
         );
-        const next = active.find((x)=>x.canBuy()
-        );
-        const nextWait = $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= 30000 && active.find((x)=>!x.canBuy() && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= x.getPrice() * this.options.upgradeWait * this.upgradeFatigue
-        );
+        const next = active[0]?.canBuy() ? active[0] : null;
+        const nextWait = $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= 30000 && active[0]?.getPrice() >= this.options.upgradeWait * this.upgradeFatigue ? active[0] : null;
         return {
             next: next,
             nextWait: nextWait
@@ -352,7 +373,8 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             if (upgrades.next) {
                 this.buy(upgrades.next);
                 const desc = upgrades.next.desc.replace(/<q>.*<\/q>/g, '').replace(/<.>([^<]+)<\/.>/g, '$1');
-                return this.log(`📈 Bought new upgrade: ${upgrades.next.name}\n(${desc})`);
+                timeout *= 5;
+                return this.log(`💹 Bought new upgrade: ${upgrades.next.name}\n(${desc})`);
             }
             if (upgrades.nextWait) {
                 timeout *= 10;
@@ -368,12 +390,14 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             }
             if (threshold?.wait) {
                 this.log(`🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${$424feee8fe7c6c95$export$e251d23bea783311(threshold.nextPrice)}`, waitTime(threshold.nextPrice));
+                timeout *= 10;
                 return;
             }
             if (santa.buy) {
                 this.buy({
                     buy: ()=>$424feee8fe7c6c95$export$985739bfa5723e08.UpgradeSanta()
                 });
+                timeout *= 5;
                 return this.log('🎅 Ho Ho Ho!');
             }
             if (santa.wait) return this.log(`🎅 Twas the night before X-MAS!`, waitTime(santa.price));
@@ -425,7 +449,7 @@ setTimeout(()=>{
     $424feee8fe7c6c95$export$90b4d2ff6acb88af.myCookieAutomator.start();
 // console.log('>>', myCookieAutomator.getCps('Cursor'));
 // console.log('% =', Math.round(myCookieAutomator.getCps('Grandma') / 341437 * 100));
-}, 100);
+}, 500);
 '🍪🚜';
 
 

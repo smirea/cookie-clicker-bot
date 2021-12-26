@@ -6,8 +6,9 @@ export default class CookieAutomator {
     options = {
         cookieClickTimeout: 1000 / 15.1, // sneaky
         showLogs: 20,
-        buildingWait: 0.35, // what % [0-1] of the building price to start waiting to buy
-        upgradeWait: 0.20, // what % [0-1] of the upgrade price to start waiting to buy
+        buildingWait: 0.4, // what % [0-1] of the building price to start waiting to buy
+        upgradeWait: 0.3, // what % [0-1] of the upgrade price to start waiting to buy
+        wrinklerPopTime: 3 * 60e3, // pop a wrinkler every X ms
     };
     logMessages: LogMessage[];
     private timers: Record<string, NodeJS.Timeout> = {};
@@ -36,8 +37,7 @@ export default class CookieAutomator {
         this.timers.saveLog = setInterval(() => {
             localStorage.CookieAutomator_logMessages = JSON.stringify(this.logMessages.slice(-100));
         }, 2e3);
-        // random periodic influx of cash
-        this.timers.wrinklerTimer = setInterval(() => { Game.PopRandomWrinkler(); }, 5 * 60e3);
+        this.wrinklerTimer();
     }
 
     stop() {
@@ -56,11 +56,23 @@ export default class CookieAutomator {
         if (last && last.msg === msg) {
             ++last.count;
             last.extra = extra;
-        } else this.logMessages.push({ time: Date.now(), msg, count: 1, extra });
+        } else {
+            delete last.extra;
+            this.logMessages.push({ time: Date.now(), msg, count: 1, extra });
+        }
 
         if (this.logMessages.length > 1000) {
             this.logMessages.splice(0, this.logMessages.length - 1000);
         }
+    }
+
+    getBuffs() {
+        let cpsMultiple = 1;
+        for (const buff of Object.values(Game.buffs)) {
+            if (!buff.visible || !buff.multCpS) continue;
+            cpsMultiple *= buff.multCpS;
+        }
+        return { cpsMultiple };
     }
 
     buy(obj: Pick<Buyable, 'buy'>, amount = 1) {
@@ -91,6 +103,18 @@ export default class CookieAutomator {
         );
     }
 
+    wrinklerTimer() {
+        const { cpsMultiple } = this.getBuffs();
+
+        if (cpsMultiple < 1) Game.CollectWrinklers();
+        else if (cpsMultiple === 1) Game.PopRandomWrinkler();
+
+        this.timers.wrinklerTimer = setInterval(
+            () => this.wrinklerTimer(),
+            this.options.wrinklerPopTime
+        );
+    }
+
     getCps(name: BuildingName): number {
         this._cpsCache = this._cpsCache || {};
         if (this._cpsCache[name]) return this._cpsCache[name]!;
@@ -103,6 +127,11 @@ export default class CookieAutomator {
             .replace(/\d+(\.\d+)?\s+trillion/gi, x => String(parseFloat(x) * 1e12))
             .replace(/\d+(\.\d+)?\s+quadrillion/gi, x => String(parseFloat(x) * 1e15))
             .replace(/\d+(\.\d+)?\s+quintillion/gi, x => String(parseFloat(x) * 1e18))
+            .replace(/\d+(\.\d+)?\s+sextillion/gi, x => String(parseFloat(x) * 1e21))
+            .replace(/\d+(\.\d+)?\s+septillion/gi, x => String(parseFloat(x) * 1e24))
+            .replace(/\d+(\.\d+)?\s+octillion/gi, x => String(parseFloat(x) * 1e27))
+            .replace(/\d+(\.\d+)?\s+nonillion/gi, x => String(parseFloat(x) * 1e30))
+            .replace(/\d+(\.\d+)?\s+decillion/gi, x => String(parseFloat(x) * 1e33))
             .match(/produces <b>([^c]+) cookies/) || [];
         let cps = parseFloat(match[1] || '');
 
@@ -186,10 +215,12 @@ export default class CookieAutomator {
         const active = Object.values(Game.Upgrades)
             .filter(x => !x.bought && x.unlocked)
             .sort((a, b) => getPrice(a) - getPrice(b));
-        const next = active.find(x => x.canBuy());
-        const nextWait = Game.cookies >= 30e3 && active.find(x =>
-            !x.canBuy() &&
-            Game.cookies >= x.getPrice() * this.options.upgradeWait * this.upgradeFatigue
+        const next = active[0]?.canBuy() ? active[0] : null;
+        const nextWait = (
+            Game.cookies >= 30e3 &&
+            active[0]?.getPrice() >= this.options.upgradeWait * this.upgradeFatigue
+                ? active[0]
+                : null
         );
 
         return { next, nextWait };
@@ -255,7 +286,8 @@ export default class CookieAutomator {
             if (upgrades.next) {
                 this.buy(upgrades.next);
                 const desc = upgrades.next.desc.replace(/<q>.*<\/q>/g, '').replace(/<.>([^<]+)<\/.>/g, '$1');
-                return this.log(`📈 Bought new upgrade: ${upgrades.next.name}\n(${desc})`);
+                timeout *= 5;
+                return this.log(`💹 Bought new upgrade: ${upgrades.next.name}\n(${desc})`);
             }
 
             if (upgrades.nextWait) {
@@ -280,11 +312,13 @@ export default class CookieAutomator {
                     `🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${formatAmount(threshold.nextPrice)}`,
                     waitTime(threshold.nextPrice)
                 );
+                timeout *= 10;
                 return;
             }
 
             if (santa.buy) {
                 this.buy({ buy: () => Game.UpgradeSanta() });
+                timeout *= 5;
                 return this.log('🎅 Ho Ho Ho!');
             }
 

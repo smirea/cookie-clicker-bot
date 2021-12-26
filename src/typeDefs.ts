@@ -19,6 +19,7 @@ export interface GameT {
     readonly UpgradeSanta: () => number;
     readonly PopRandomWrinkler: () => void;
     readonly CollectWrinklers: () => void;
+    buffs: Record<string, Buff>;
 }
 
 export type BuildingName = 'Cursor' | 'Grandma' | 'Farm' | 'Mine' | 'Factory' | 'Bank' | 'Temple' | 'Wizard tower' | 'Shipment' | 'Alchemy lab' | 'Portal' | 'Time machine' | 'Antimatter condenser' | 'Prism' | 'Chancemaker' | 'Fractal engine' | 'Javascript console' | 'Idleverse' | 'Cortex baker';
@@ -49,4 +50,15 @@ export interface Upgrade extends Buyable {
     unlocked: boolean;
     getPrice: () => number;
     canBuy: () => boolean;
+}
+
+export interface Buff {
+    name: string;
+    add: boolean;
+    time: number;
+    maxTime: number;
+    visible: boolean;
+    desc: string;
+    multCpS: number;
+    aura: number;
 }
