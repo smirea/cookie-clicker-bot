@@ -223,6 +223,8 @@ export default class CookieAutomator {
             });
         }
 
+        if (!options.length) return null;
+
         options.sort((a, b) => a.nextPrice - b.nextPrice);
         return options[0];
     }
@@ -262,7 +264,7 @@ export default class CookieAutomator {
                 return;
             }
 
-            if (threshold.available) {
+            if (threshold?.available) {
                 const { obj, toBuy, nextAmount } = threshold;
                 const { amount } = obj;
                 this.buy(obj, toBuy);
@@ -270,7 +272,7 @@ export default class CookieAutomator {
                 return;
             }
 
-            if (threshold.wait) {
+            if (threshold?.wait) {
                 this.log(
                     `🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${formatAmount(threshold.nextPrice)}`,
                     waitTime(threshold.nextPrice)
@@ -334,7 +336,11 @@ export default class CookieAutomator {
             console.log('   - %s: %sx', obj.name, obj.relativeValue);
         }
 
-        console.log(`upgradeFatigue: ${Math.round(this.upgradeFatigue * 100) / 100}x`);
+        console.log(
+            `upgradeFatigue: %sx | realCps: %s`,
+            Math.round(this.upgradeFatigue * 100) / 100,
+            this.realCps
+        );
         console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
         for (const { time, msg, count, extra } of this.logMessages.slice(-1 * this.options.showLogs)) {
             console.log(
