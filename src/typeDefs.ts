@@ -2,8 +2,8 @@
  * window.Game
  */
 export interface GameT {
-    version: number;
-    beta: number;
+    readonly version: number;
+    readonly beta: number;
     /** total cookies */
     readonly cookies: number;
     /** total CPS */
@@ -21,14 +21,22 @@ export interface GameT {
     readonly UpgradeSanta: () => number;
     readonly PopRandomWrinkler: () => void;
     readonly CollectWrinklers: () => void;
-    buffs: Record<string, Buff>;
+    readonly buffs: Record<string, Buff>;
+    readonly dragonLevel: number;
+    readonly dragonLevels: DragonLevel[];
+    readonly UpgradeDragon: () => void;
+    readonly SetDragonAura: (aura: number, slot: 0 | 1) => void;
+    readonly dragonAuras: Array<{ name: string; desc: string }>;
+    /** returns if the aura is the currently active one, NOT if it is available */
+    readonly hasAura: (name: string) => boolean;
+    readonly ClosePrompt: () => void;
 }
 
 export type BuildingName = 'Cursor' | 'Grandma' | 'Farm' | 'Mine' | 'Factory' | 'Bank' | 'Temple' | 'Wizard tower' | 'Shipment' | 'Alchemy lab' | 'Portal' | 'Time machine' | 'Antimatter condenser' | 'Prism' | 'Chancemaker' | 'Fractal engine' | 'Javascript console' | 'Idleverse' | 'Cortex baker';
 
 export interface Buyable {
     name: string;
-    buy: (amount: number) => number;
+    buy: (amount: number) => void;
     bought: number;
 }
 
@@ -43,6 +51,8 @@ export interface Building extends Buyable {
     amount: number;
     locked: boolean;
     price: number;
+    plural: string;
+    sell: (amount?: number) => void;
 }
 
 export interface Upgrade extends Buyable {
@@ -64,3 +74,20 @@ export interface Buff {
     multCpS: number;
     aura: number;
 }
+
+export interface DragonLevel {
+    name: string;
+    action: string;
+    /** @deprecated only sells shit, doesn't actually upgrade. DO NOT CALL */
+    buy: () => void;
+    cost: () => boolean;
+    costStr: () => string;
+}
+
+export type DragonLevelGoal = (
+    { cookies: number; amount: number } & (
+        | { type: 'cookie' }
+        | { type: 'all' }
+        | { type: 'building', value: BuildingName }
+    )
+);
