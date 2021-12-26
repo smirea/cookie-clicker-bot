@@ -8,7 +8,10 @@ export default class CookieAutomator {
         showLogs: 20,
         buildingWait: 0.4, // what % [0-1] of the building price to start waiting to buy
         upgradeWait: 0.3, // what % [0-1] of the upgrade price to start waiting to buy
-        wrinklerPopTime: 3 * 60e3, // pop a wrinkler every X ms
+        wrinklerPopTime: 5 * 60e3, // pop a wrinkler every X ms
+        bannedUpgrades: {
+            'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse
+        } as Record<string, boolean>,
     };
     logMessages: LogMessage[];
     private timers: Record<string, NodeJS.Timeout> = {};
@@ -19,10 +22,12 @@ export default class CookieAutomator {
     upgradeFatigue = 1; // prevent buying too many updates one after another
     _cpsCache: { [key in BuildingName]?: number } = {};
 
+    localStorageLog = `CookieAutomator_logMessages_${Game.version}_${Game.beta}`;
+
     constructor() {
         let existingLog = [];
         try {
-            existingLog = JSON.parse(localStorage.CookieAutomator_logMessages);
+            existingLog = JSON.parse(localStorage[this.localStorageLog]);
         } catch (ex) {}
         this.logMessages = global.__automateLog = global.__automateLog || existingLog;
         this.options.cookieClickTimeout = Math.max(5, this.options.cookieClickTimeout);
@@ -35,7 +40,7 @@ export default class CookieAutomator {
         this.shimmerTimer();
         this.buyTimer();
         this.timers.saveLog = setInterval(() => {
-            localStorage.CookieAutomator_logMessages = JSON.stringify(this.logMessages.slice(-100));
+            localStorage[this.localStorageLog] = JSON.stringify(this.logMessages.slice(-100));
         }, 2e3);
         this.wrinklerTimer();
     }
@@ -57,7 +62,7 @@ export default class CookieAutomator {
             ++last.count;
             last.extra = extra;
         } else {
-            delete last.extra;
+            if (last) delete last.extra;
             this.logMessages.push({ time: Date.now(), msg, count: 1, extra });
         }
 
@@ -213,7 +218,7 @@ export default class CookieAutomator {
             return result;
         }
         const active = Object.values(Game.Upgrades)
-            .filter(x => !x.bought && x.unlocked)
+            .filter(x => !x.bought && x.unlocked && !this.options.bannedUpgrades[x.name])
             .sort((a, b) => getPrice(a) - getPrice(b));
         const next = active[0]?.canBuy() ? active[0] : null;
         const nextWait = (

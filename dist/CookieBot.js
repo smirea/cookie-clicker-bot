@@ -101,7 +101,10 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             showLogs: 20,
             buildingWait: 0.4,
             upgradeWait: 0.3,
-            wrinklerPopTime: 180000
+            wrinklerPopTime: 300000,
+            bannedUpgrades: {
+                'Elder Covenant': true
+            }
         };
         this.timers = {
         };
@@ -140,9 +143,10 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
          = 1;
         this._cpsCache = {
         };
+        this.localStorageLog = `CookieAutomator_logMessages_${$424feee8fe7c6c95$export$985739bfa5723e08.version}_${$424feee8fe7c6c95$export$985739bfa5723e08.beta}`;
         let existingLog = [];
         try {
-            existingLog = JSON.parse(localStorage.CookieAutomator_logMessages);
+            existingLog = JSON.parse(localStorage[this.localStorageLog]);
         } catch (ex) {
         }
         this.logMessages = $424feee8fe7c6c95$export$90b4d2ff6acb88af.__automateLog = $424feee8fe7c6c95$export$90b4d2ff6acb88af.__automateLog || existingLog;
@@ -155,7 +159,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         this.shimmerTimer();
         this.buyTimer();
         this.timers.saveLog = setInterval(()=>{
-            localStorage.CookieAutomator_logMessages = JSON.stringify(this.logMessages.slice(-100));
+            localStorage[this.localStorageLog] = JSON.stringify(this.logMessages.slice(-100));
         }, 2000);
         this.wrinklerTimer();
     }
@@ -174,7 +178,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             ++last.count;
             last.extra = extra;
         } else {
-            delete last.extra;
+            if (last) delete last.extra;
             this.logMessages.push({
                 time: Date.now(),
                 msg: msg,
@@ -305,7 +309,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             else if (/grandmas|twice/i.test(upg.desc)) result *= 0.6;
             return result;
         };
-        const active = Object.values($424feee8fe7c6c95$export$985739bfa5723e08.Upgrades).filter((x)=>!x.bought && x.unlocked
+        const active = Object.values($424feee8fe7c6c95$export$985739bfa5723e08.Upgrades).filter((x)=>!x.bought && x.unlocked && !this.options.bannedUpgrades[x.name]
         ).sort((a, b)=>getPrice(a) - getPrice(b)
         );
         const next = active[0]?.canBuy() ? active[0] : null;

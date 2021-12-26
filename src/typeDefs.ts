@@ -2,6 +2,8 @@
  * window.Game
  */
 export interface GameT {
+    version: number;
+    beta: number;
     /** total cookies */
     readonly cookies: number;
     /** total CPS */
