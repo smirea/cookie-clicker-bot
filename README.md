@@ -2,6 +2,8 @@
 
 Automates [Cookie Clicker](https://orteil.dashnet.org/cookieclicker) purchasing, click and more!
 
+![](./example.png?v=2)
+
 ## Usage
 
 ### Quick and dirty
