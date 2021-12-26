@@ -63,7 +63,7 @@ export default class CookieAutomator {
         return Math.round(Game.cookiesPs + Game.computedMouseCps * (1000 / this.options.cookieClickTimeout));
     }
 
-    log(msg: string, { eta, extra }: { extra?: string; eta?: number } = {}) {
+    log(msg: string, { eta, extra, color }: Pick<LogMessage, 'color' | 'extra' | 'eta'> = {}) {
         const last = this.logMessages[this.logMessages.length - 1];
         if (last && last.msg === msg) {
             ++last.count;
@@ -74,7 +74,7 @@ export default class CookieAutomator {
                 delete last.eta;
                 delete last.extra;
             }
-            this.logMessages.push({ time: Date.now(), msg, count: 1, eta, extra });
+            this.logMessages.push({ time: Date.now(), msg, count: 1, eta, extra, color });
         }
 
         if (this.logMessages.length > 1000) {
@@ -92,10 +92,13 @@ export default class CookieAutomator {
     }
 
     buy(obj: Pick<Buyable, 'buy'>, amount = 1) {
-        if ((obj as Upgrade).type === 'upgrade') {
-            this.upgradeFatigue = Math.min(this.upgradeFatigue + 2, 10);
-        } else {
-            this.upgradeFatigue = Math.max(this.upgradeFatigue - 0.2 * amount, 1);
+        if (this.upgradeFatigue) {
+            if ((obj as Upgrade).type === 'upgrade') {
+                const increment = Math.min(2, 0.1 + Math.floor(Game.cookiesPs / 1e3));
+                this.upgradeFatigue = Math.min(this.upgradeFatigue + increment, 10);
+            } else {
+                this.upgradeFatigue = Math.max(this.upgradeFatigue - 0.2 * amount, 1);
+            }
         }
 
         return obj.buy(amount);
@@ -232,7 +235,7 @@ export default class CookieAutomator {
             .filter(x => !x.bought && x.unlocked && !this.options.bannedUpgrades[x.name])
             .sort((a, b) => getPrice(a) - getPrice(b));
         const next = active[0]?.canBuy() ? active[0] : null;
-        const waitPrice = active[0].getPrice() * this.options.upgradeWait * this.upgradeFatigue;
+        const waitPrice = active[0].getPrice() * this.options.upgradeWait * (this.upgradeFatigue || 1);
         const nextWait = (
             active[0] && Game.cookies >= 30e3 && Game.cookies >= waitPrice
                 ? active[0]
@@ -284,6 +287,11 @@ export default class CookieAutomator {
         console.clear();
         this._cpsCache = {};
         let timeout = 1000;
+
+        if (this.upgradeFatigue > 0 && Game.cookiesPs >= 1e9) {
+            this.upgradeFatigue = 0;
+        }
+
         const buildings = this.getBuildingStats();
         const upgrades = this.getUpgradeStats();
         const santa = this.getSantaStats();
@@ -303,7 +311,7 @@ export default class CookieAutomator {
                 this.buy(upgrades.next);
                 const desc = upgrades.next.desc.replace(/<q>.*<\/q>/g, '').replace(/<[^>]+>/g, '');
                 timeout *= 5;
-                return this.log(`💹 Bought new upgrade: ${upgrades.next.name}\n(${desc})`);
+                return this.log(`💹 Bought new upgrade: ${upgrades.next.name}\n(${desc})`, { color: 'green' });
             }
 
             if (upgrades.nextWait) {
@@ -385,8 +393,8 @@ export default class CookieAutomator {
     }) {
         console.log('%c%s v%s', 'color:gray', packageJson.name, packageJson.version);
         console.log(
-            `upgradeFatigue: %sx | realCps: %s`,
-            Math.round(this.upgradeFatigue * 100) / 100,
+            `upgradeFatigue: %s | realCps: %s`,
+            this.upgradeFatigue ? Math.round(this.upgradeFatigue * 100) / 100 + 'x' : 'disabled',
             formatAmount(this.realCps)
         );
         console.log('%cBuy Order:', 'font-weight:bold');
@@ -394,12 +402,12 @@ export default class CookieAutomator {
             console.log('   - %s: %sx', obj.name, obj.relativeValue);
         }
         // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
-        for (const { time, msg, count, eta, extra } of this.logMessages.slice(-1 * this.options.showLogs)) {
+        for (const { time, msg, count, eta, extra, color = 'white' } of this.logMessages.slice(-1 * this.options.showLogs)) {
             console.log(
                 `%c%s%c %s %c%s`,
                 'color:gray',
                 new Date(time).toISOString().slice(11, 19),
-                'color:white',
+                `color:${color}`,
                 msg,
                 'color:gray',
                 [

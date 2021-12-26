@@ -91,7 +91,7 @@ const $424feee8fe7c6c95$export$e251d23bea783311 = (number, { cookies: cookies = 
 
 
 var $4e50deb68dcb59a4$exports = {};
-$4e50deb68dcb59a4$exports = JSON.parse("{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.4.0\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; parcel watch --no-source-maps\",\"build\":\"rm -rf dist; parcel build --no-source-maps\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"parcel\":\"^2.0.1\"}}");
+$4e50deb68dcb59a4$exports = JSON.parse("{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.5.0\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; parcel watch --no-source-maps\",\"build\":\"rm -rf dist; parcel build --no-source-maps\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"parcel\":\"^2.0.1\"}}");
 
 
 class $fe57486f6f15e392$export$2e2bcd8739ae039 {
@@ -178,7 +178,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
     get realCps() {
         return Math.round($424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs + $424feee8fe7c6c95$export$985739bfa5723e08.computedMouseCps * (1000 / this.options.cookieClickTimeout));
     }
-    log(msg, { eta: eta , extra: extra  } = {
+    log(msg, { eta: eta , extra: extra , color: color  } = {
     }) {
         const last = this.logMessages[this.logMessages.length - 1];
         if (last && last.msg === msg) {
@@ -195,7 +195,8 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
                 msg: msg,
                 count: 1,
                 eta: eta,
-                extra: extra
+                extra: extra,
+                color: color
             });
         }
         if (this.logMessages.length > 1000) this.logMessages.splice(0, this.logMessages.length - 1000);
@@ -211,8 +212,12 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         };
     }
     buy(obj2, amount1 = 1) {
-        if (obj2.type === 'upgrade') this.upgradeFatigue = Math.min(this.upgradeFatigue + 2, 10);
-        else this.upgradeFatigue = Math.max(this.upgradeFatigue - 0.2 * amount1, 1);
+        if (this.upgradeFatigue) {
+            if (obj2.type === 'upgrade') {
+                const increment = Math.min(2, 0.1 + Math.floor($424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs / 1000));
+                this.upgradeFatigue = Math.min(this.upgradeFatigue + increment, 10);
+            } else this.upgradeFatigue = Math.max(this.upgradeFatigue - 0.2 * amount1, 1);
+        }
         return obj2.buy(amount1);
     }
     maybeClickLumpTimer() {
@@ -325,7 +330,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         ).sort((a, b)=>getPrice(a) - getPrice(b)
         );
         const next = active[0]?.canBuy() ? active[0] : null;
-        const waitPrice = active[0].getPrice() * this.options.upgradeWait * this.upgradeFatigue;
+        const waitPrice = active[0].getPrice() * this.options.upgradeWait * (this.upgradeFatigue || 1);
         const nextWait = active[0] && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= 30000 && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= waitPrice ? active[0] : null;
         const waitPct = nextWait && Math.round($424feee8fe7c6c95$export$985739bfa5723e08.cookies / active[0].getPrice() * 100) + '%' || undefined;
         return {
@@ -376,6 +381,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
         this._cpsCache = {
         };
         let timeout = 1000;
+        if (this.upgradeFatigue > 0 && $424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs >= 1000000000) this.upgradeFatigue = 0;
         const buildings = this.getBuildingStats();
         const upgrades = this.getUpgradeStats();
         const santa = this.getSantaStats();
@@ -393,7 +399,9 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
                 this.buy(upgrades.next);
                 const desc = upgrades.next.desc.replace(/<q>.*<\/q>/g, '').replace(/<[^>]+>/g, '');
                 timeout *= 5;
-                return this.log(`💹 Bought new upgrade: ${upgrades.next.name}\n(${desc})`);
+                return this.log(`💹 Bought new upgrade: ${upgrades.next.name}\n(${desc})`, {
+                    color: 'green'
+                });
             }
             if (upgrades.nextWait) {
                 timeout *= 10;
@@ -463,11 +471,11 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
     }
     printLog({ buildings: buildings  }) {
         console.log('%c%s v%s', 'color:gray', (/*@__PURE__*/$parcel$interopDefault($4e50deb68dcb59a4$exports)).name, (/*@__PURE__*/$parcel$interopDefault($4e50deb68dcb59a4$exports)).version);
-        console.log(`upgradeFatigue: %sx | realCps: %s`, Math.round(this.upgradeFatigue * 100) / 100, $424feee8fe7c6c95$export$e251d23bea783311(this.realCps));
+        console.log(`upgradeFatigue: %s | realCps: %s`, this.upgradeFatigue ? Math.round(this.upgradeFatigue * 100) / 100 + 'x' : 'disabled', $424feee8fe7c6c95$export$e251d23bea783311(this.realCps));
         console.log('%cBuy Order:', 'font-weight:bold');
         for (const obj of buildings.sorted)console.log('   - %s: %sx', obj.name, obj.relativeValue);
         // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
-        for (const { time: time , msg: msg , count: count , eta: eta , extra: extra  } of this.logMessages.slice(-1 * this.options.showLogs))console.log(`%c%s%c %s %c%s`, 'color:gray', new Date(time).toISOString().slice(11, 19), 'color:white', msg, 'color:gray', [
+        for (const { time: time , msg: msg , count: count , eta: eta , extra: extra , color: color = 'white'  } of this.logMessages.slice(-1 * this.options.showLogs))console.log(`%c%s%c %s %c%s`, 'color:gray', new Date(time).toISOString().slice(11, 19), `color:${color}`, msg, 'color:gray', [
             count > 1 ? `✕ ${count}` : '',
             extra,
             eta ? 'ETA: ' + $424feee8fe7c6c95$export$bc733b0c5cbb3e8a(eta) : '', 
