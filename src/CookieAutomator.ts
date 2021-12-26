@@ -10,6 +10,7 @@ export default class CookieAutomator {
         upgradeWait: 0.35, // what % [0-1] of the upgrade price to start waiting to buy
         wrinklerPopTime: 5 * 60e3, // pop a wrinkler every X ms
         bannedUpgrades: {
+            'Milk selector': true, // why would you ever buy this :/
             'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse
         } as Record<string, boolean>,
     };
@@ -52,6 +53,12 @@ export default class CookieAutomator {
         }
     }
 
+    reset() {
+        this.stop();
+        delete localStorage[this.localStorageLog];
+        console.warn('I suggest reloading the webpage');
+    }
+
     get realCps() {
         return Math.round(Game.cookiesPs + Game.computedMouseCps * (1000 / this.options.cookieClickTimeout));
     }
@@ -63,7 +70,10 @@ export default class CookieAutomator {
             last.extra = extra;
             last.eta = eta;
         } else {
-            if (last) delete last.extra;
+            if (last) {
+                delete last.eta;
+                delete last.extra;
+            }
             this.logMessages.push({ time: Date.now(), msg, count: 1, eta, extra });
         }
 
@@ -291,7 +301,7 @@ export default class CookieAutomator {
 
             if (upgrades.next) {
                 this.buy(upgrades.next);
-                const desc = upgrades.next.desc.replace(/<q>.*<\/q>/g, '').replace(/<.>([^<]+)<\/.>/g, '$1');
+                const desc = upgrades.next.desc.replace(/<q>.*<\/q>/g, '').replace(/<[^>]+>/g, '');
                 timeout *= 5;
                 return this.log(`💹 Bought new upgrade: ${upgrades.next.name}\n(${desc})`);
             }

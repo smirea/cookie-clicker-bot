@@ -103,6 +103,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             upgradeWait: 0.35,
             wrinklerPopTime: 300000,
             bannedUpgrades: {
+                'Milk selector': true,
                 'Elder Covenant': true
             }
         };
@@ -169,6 +170,11 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             clearInterval(x);
         }
     }
+    reset() {
+        this.stop();
+        delete localStorage[this.localStorageLog];
+        console.warn('I suggest reloading the webpage');
+    }
     get realCps() {
         return Math.round($424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs + $424feee8fe7c6c95$export$985739bfa5723e08.computedMouseCps * (1000 / this.options.cookieClickTimeout));
     }
@@ -180,7 +186,10 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             last.extra = extra;
             last.eta = eta;
         } else {
-            if (last) delete last.extra;
+            if (last) {
+                delete last.eta;
+                delete last.extra;
+            }
             this.logMessages.push({
                 time: Date.now(),
                 msg: msg,
@@ -382,7 +391,7 @@ class $fe57486f6f15e392$export$2e2bcd8739ae039 {
             }
             if (upgrades.next) {
                 this.buy(upgrades.next);
-                const desc = upgrades.next.desc.replace(/<q>.*<\/q>/g, '').replace(/<.>([^<]+)<\/.>/g, '$1');
+                const desc = upgrades.next.desc.replace(/<q>.*<\/q>/g, '').replace(/<[^>]+>/g, '');
                 timeout *= 5;
                 return this.log(`💹 Bought new upgrade: ${upgrades.next.name}\n(${desc})`);
             }
