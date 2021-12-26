@@ -7,4 +7,5 @@ interface LogMessage {
     time: number;
     msg: string;
     count: number;
+    extra?: string;
 }

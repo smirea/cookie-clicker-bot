@@ -5,7 +5,9 @@ export interface GameT {
     /** total cookies */
     readonly cookies: number;
     /** total CPS */
-    readonly cookiesPS: number;
+    readonly cookiesPs: number;
+    /** How many cookies / click */
+    readonly computedMouseCps: number;
     /** Date.now() when the current sugar lump was created */
     readonly lumpT: number;
     readonly clickLump: () => void;
@@ -23,7 +25,6 @@ export interface Buyable {
     name: string;
     buy: (amount: number) => number;
     bought: number;
-    price: number;
 }
 
 export interface Building extends Buyable {
@@ -36,6 +37,7 @@ export interface Building extends Buyable {
     cps: (me: this) => number;
     amount: number;
     locked: boolean;
+    price: number;
 }
 
 export interface Upgrade extends Buyable {

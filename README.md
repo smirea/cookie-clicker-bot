@@ -6,7 +6,7 @@ Automates [Cookie Clicker](https://orteil.dashnet.org/cookieclicker) purchasing,
 
 ### Quick and dirty
 
-Just paste the contents of [dist/CookieBot.js](./blob/master/dist/CookieBot.js) into the console of [Cookie Clicker](https://orteil.dashnet.org/cookieclicker) and you're good to go
+Just paste the contents of [dist/CookieBot.js](./dist/CookieBot.js) into the console of [Cookie Clicker](https://orteil.dashnet.org/cookieclicker) and you're good to go
 
 
 ### Automatic updates via [Tampermonkey chrome extension](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en)

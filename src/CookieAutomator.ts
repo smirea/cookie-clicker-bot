@@ -1,10 +1,11 @@
 import type { Building, BuildingName, Buyable, Upgrade } from './typeDefs';
-import { $, Game, global } from './utils';
+import { $, formatAmount, formatDuration, Game, global } from './utils';
+import packageJson from '../package.json';
 
 export default class CookieAutomator {
     options = {
         cookieClickTimeout: 1000 / 15.1, // sneaky
-        showLogs: 30,
+        showLogs: 20,
         buildingWait: 0.35, // what % [0-1] of the building price to start waiting to buy
         upgradeWait: 0.20, // what % [0-1] of the upgrade price to start waiting to buy
     };
@@ -23,6 +24,7 @@ export default class CookieAutomator {
             existingLog = JSON.parse(localStorage.CookieAutomator_logMessages);
         } catch (ex) {}
         this.logMessages = global.__automateLog = global.__automateLog || existingLog;
+        this.options.cookieClickTimeout = Math.max(5, this.options.cookieClickTimeout);
     }
 
     start() {
@@ -42,10 +44,16 @@ export default class CookieAutomator {
         }
     }
 
-    log(msg: string) {
+    get realCps() {
+        return Game.cookiesPs + Game.computedMouseCps * (1000 / this.options.cookieClickTimeout);
+    }
+
+    log(msg: string, extra?: string) {
         const last = this.logMessages[this.logMessages.length - 1];
-        if (last && last.msg === msg) ++last.count;
-        else this.logMessages.push({ time: Date.now(), msg, count: 1 });
+        if (last && last.msg === msg) {
+            ++last.count;
+            last.extra = extra;
+        } else this.logMessages.push({ time: Date.now(), msg, count: 1, extra });
 
         if (this.logMessages.length > 1000) {
             this.logMessages.splice(0, this.logMessages.length - 1000);
@@ -76,7 +84,7 @@ export default class CookieAutomator {
         $('#bigCookie')?.click();
         this.timers.clickBigCookieTimer = setTimeout(
             () => this.clickBigCookieTimer(),
-            this.options.cookieClickTimeout + Math.random() * this.options.cookieClickTimeout
+            this.options.cookieClickTimeout
         );
     }
 
@@ -91,6 +99,7 @@ export default class CookieAutomator {
             .replace(/\d+(\.\d+)?\s+billion/gi, x => String(parseFloat(x) * 1e9))
             .replace(/\d+(\.\d+)?\s+trillion/gi, x => String(parseFloat(x) * 1e12))
             .replace(/\d+(\.\d+)?\s+quadrillion/gi, x => String(parseFloat(x) * 1e15))
+            .replace(/\d+(\.\d+)?\s+quintillion/gi, x => String(parseFloat(x) * 1e18))
             .match(/produces <b>([^c]+) cookies/) || [];
         let cps = parseFloat(match[1] || '');
 
@@ -105,7 +114,6 @@ export default class CookieAutomator {
                 const multiplier = parseInt(match[2] || '1', 10);
                 if (!pct || !multiplier || Number.isNaN(pct) || Number.isNaN(multiplier)) continue;
                 const childCps = x.cps(x);
-                // console.log(x.name, pct, multiplier, childCps);
                 cps = cps + childCps * (pct / 100) * Math.floor(Game.Objects.Grandma.amount / multiplier);
             }
         }
@@ -189,7 +197,7 @@ export default class CookieAutomator {
         const buy = Game.cookies >= price && Game.santaLevel < 14;
         const wait = !buy && Game.cookies >= price * 0.75 && Game.santaLevel < 14;
 
-        return { wait, buy };
+        return { wait, buy, price };
     }
 
     getAchievementThresholdStats() {
@@ -226,6 +234,10 @@ export default class CookieAutomator {
         const upgrades = this.getUpgradeStats();
         const santa = this.getSantaStats();
         const threshold = this.getAchievementThresholdStats();
+        const waitTime = (targetCookies: number) => {
+            if (targetCookies <= Game.cookies) return 'SOON!';
+            return 'ETA: ' + formatDuration((targetCookies - Game.cookies) / this.realCps);
+        }
 
         const run = () => {
             console.clear();
@@ -243,7 +255,11 @@ export default class CookieAutomator {
 
             if (upgrades.nextWait) {
                 timeout *= 10;
-                return this.log(`🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`);;
+                this.log(
+                    `🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`,
+                    waitTime(upgrades.nextWait.getPrice())
+                );
+                return;
             }
 
             if (threshold.available) {
@@ -255,7 +271,10 @@ export default class CookieAutomator {
             }
 
             if (threshold.wait) {
-                this.log(`🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${Math.round(threshold.nextPrice / 1e6)} M🍪`);
+                this.log(
+                    `🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${formatAmount(threshold.nextPrice)}`,
+                    waitTime(threshold.nextPrice)
+                );
                 return;
             }
 
@@ -264,7 +283,9 @@ export default class CookieAutomator {
                 return this.log('🎅 Ho Ho Ho!');
             }
 
-            if (santa.wait) return this.log('🎅 Twas the night before X-MAS!');
+            if (santa.wait) {
+                return this.log(`🎅 Twas the night before X-MAS!`, waitTime(santa.price));
+            }
 
             if (buildings.nextNew) {
                 this.buy(buildings.nextNew);
@@ -273,7 +294,10 @@ export default class CookieAutomator {
             }
 
             if (buildings.nextWait) {
-                this.log(`🟡 Waiting to buy new building type: ${buildings.nextWait.name}`);
+                this.log(
+                    `🟡 Waiting to buy new building type: ${buildings.nextWait.name}`,
+                    waitTime(buildings.nextWait.price)
+                );
                 timeout *= 10;
                 return;
             }
@@ -284,7 +308,10 @@ export default class CookieAutomator {
                     this.log(`🏛 Bought building: ${buildings.next.name}`);
                     return
                 }
-                this.log(`⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`);
+                this.log(
+                    `⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`,
+                    waitTime(buildings.sorted[0].price)
+                );
                 timeout *= 5;
                 return
             }
@@ -301,6 +328,7 @@ export default class CookieAutomator {
     printLog({ buildings }: {
         buildings: ReturnType<typeof CookieAutomator['prototype']['getBuildingStats']>;
     }) {
+        console.log('%c%s v%s', 'color:gray', packageJson.name, packageJson.version);
         console.log('%cBuy Order:', 'font-weight:bold');
         for (const obj of buildings.sorted) {
             console.log('   - %s: %sx', obj.name, obj.relativeValue);
@@ -308,15 +336,17 @@ export default class CookieAutomator {
 
         console.log(`upgradeFatigue: ${Math.round(this.upgradeFatigue * 100) / 100}x`);
         console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
-        for (const { time, msg, count } of this.logMessages.slice(-1 * this.options.showLogs)) {
+        for (const { time, msg, count, extra } of this.logMessages.slice(-1 * this.options.showLogs)) {
             console.log(
-                '%c[%s]%c %s %c%s',
+                '%c%s%c %s %c%s %c%s',
                 'color:gray',
                 new Date(time).toISOString().slice(11, 19),
                 'color:white',
                 msg,
                 'color:gray',
                 count > 1 ? `✕ ${count}` : '',
+                'color:gray',
+                extra ? '| ' + extra : '',
             );
         }
     }
