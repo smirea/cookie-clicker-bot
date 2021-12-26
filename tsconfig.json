@@ -1,0 +1,49 @@
+{
+    "ts-node": {
+        "transpileOnly": true
+    },
+    "compilerOptions": {
+        "allowJs": true,
+        "allowSyntheticDefaultImports": true,
+        "baseUrl": ".",
+        "downlevelIteration": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "importHelpers": true,
+        "isolatedModules": true,
+        "lib": [
+            "ESNext",
+            "DOM",
+            "DOM.Iterable",
+        ],
+        "module": "commonjs",
+        "noEmitHelpers": true,
+        "outDir": "dist",
+        "paths": {
+            "src/*": ["src/*"],
+        },
+        "resolveJsonModule": true,
+        "rootDir": ".",
+        "skipLibCheck": true,
+        "sourceMap": true,
+        "strict": true,
+        "target": "ES2019",
+        "useUnknownInCatchVariables": false
+    },
+    "include": [
+        "generated/**/*",
+        "jest/**/*",
+        "scripts/**/*",
+        "services/**/*",
+        "src/**/*",
+        "*.ts",
+        "services/batch/index.ts"
+    ],
+    "exclude": [
+        "node_modules",
+        "dist",
+        ".vscode",
+        ".github",
+        ".git"
+    ]
+}

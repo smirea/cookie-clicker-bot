@@ -1,0 +1,26 @@
+{
+    "name": "@smirea/cookie-clicker-bot",
+    "private": true,
+    "version": "1.0.0",
+    "description": "",
+    "main": "dist/CookieAutomator.js",
+    "source": "src/index.ts",
+    "scripts": {
+        "watch": "parcel watch --no-source-maps",
+        "build": "parcel build --no-source-maps"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/smirea/cookie-clicker-bot.git"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "bugs": {
+        "url": "https://github.com/smirea/cookie-clicker-bot/issues"
+    },
+    "homepage": "https://github.com/smirea/cookie-clicker-bot#readme",
+    "devDependencies": {
+        "parcel": "^2.0.1"
+    }
+}
