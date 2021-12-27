@@ -244,11 +244,14 @@ export default class CookieAutomator {
     }
 
     getUpgradeStats() {
+        if (Game.cookiesPs < 1) return {};
+
         const getPrice = (upg: Upgrade) => { // takes into account willingness factor, used for sorting
             let result = upg.getPrice();
             if (/cookie production multiplier/i.test(upg.desc)) result *= 1.2;
             else if (/clicking gains/i.test(upg.desc)) result *= 0.8;
             else if (/grandmas|twice/i.test(upg.desc)) result *= 0.6;
+            else if (/mouse and cursor/i.test(upg.desc)) result *= 0.5;
             return result;
         }
         const active = this.getAvailableUpgrades().sort((a, b) => getPrice(a) - getPrice(b));
@@ -265,6 +268,8 @@ export default class CookieAutomator {
     }
 
     getSantaStats() {
+        if (Game.cookiesPs < 1e3) return {};
+
         const price = Math.pow(Game.santaLevel + 1, Game.santaLevel + 1);
 
         if (
@@ -282,6 +287,8 @@ export default class CookieAutomator {
     }
 
     getAchievementThresholdStats() {
+        if (Game.cookiesPs < 1e3) return null;
+
         const active = [];
 
         for (const obj of Game.ObjectsById) {

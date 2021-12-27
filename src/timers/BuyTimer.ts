@@ -27,6 +27,13 @@ export default class BuyTimer extends Timer {
             if (targetCookies <= Game.cookies) return undefined;
             return (targetCookies - Game.cookies) / context.realCps;
         }
+        const waitMultiple = (multiple: number) => {
+            if (Game.cookiesPs < 100) multiple = 0.5;
+            else if (Game.cookiesPs < 1e3) multiple = 1;
+            else if (Game.cookiesPs < 1e5) multiple = Math.max(1, multiple / 3);
+
+            this.scaleTimeout(multiple);
+        }
 
         if (buildings.nextHighValue) {
             const { obj, amount } = buildings.nextHighValue;
@@ -64,7 +71,7 @@ export default class BuyTimer extends Timer {
 
         if (upgrades.next) {
             context.buy(upgrades.next);
-            this.scaleTimeout(5);
+            waitMultiple(5);
             return context.log(
                 `💹 Bought new upgrade: ${upgrades.next.name}\n(${cleanHTML(upgrades.next.desc)})`,
                 { color: 'lightgreen' }
@@ -72,7 +79,7 @@ export default class BuyTimer extends Timer {
         }
 
         if (upgrades.nextWait) {
-            this.scaleTimeout(10);
+            waitMultiple(10);
             context.log(
                 `🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`,
                 { eta: getEta(upgrades.nextWait.getPrice()), extra: upgrades.waitPct }
@@ -93,13 +100,13 @@ export default class BuyTimer extends Timer {
                 `🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${formatAmount(threshold.nextPrice)}`,
                 { eta: getEta(threshold.nextPrice) }
             );
-            this.scaleTimeout(10);
+            waitMultiple(10);
             return;
         }
 
         if (santa.buy) {
             context.buy({ buy: () => Game.UpgradeSanta() });
-            this.scaleTimeout(5);
+            waitMultiple(5);
             return context.log('🎅 Ho Ho Ho!');
         }
 
@@ -118,7 +125,7 @@ export default class BuyTimer extends Timer {
                 `🟡 Waiting to buy new building type: ${buildings.nextWait.name}`,
                 { eta: getEta(buildings.nextWait.price) }
             );
-            this.scaleTimeout(10);
+            waitMultiple(10);
             return;
         }
 
@@ -132,11 +139,11 @@ export default class BuyTimer extends Timer {
                 `⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`,
                 { eta: getEta(buildings.sorted[0].price) }
             );
-            this.scaleTimeout(5);
+            waitMultiple(5);
             return
         }
 
         context.log("You're too poor... but that's a good thing!");
-        this.scaleTimeout(5);
+        waitMultiple(5);
     }
 }
