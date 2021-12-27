@@ -5,6 +5,7 @@ import { formatAmount, formatDuration } from 'src/utils';
 
 export default class LogTimer extends Timer {
     defaultTimeout = 1e3;
+    private lastMessage?: LogMessage;
 
     // wait for random states to be initialized
     startDelay() { return 100; }
@@ -22,20 +23,12 @@ export default class LogTimer extends Timer {
 
     printLog() {
         const { logMessages, upgradeFatigue, realCps, lastState: { buildings } } = this.context;
+        const last = logMessages[logMessages.length - 1];
 
-        console.clear();
-        console.log('%c%s v%s', 'color:gray', packageJson.name, packageJson.version);
-        console.log(
-            `upgradeFatigue: %s | realCps: %s`,
-            upgradeFatigue ? Math.round(upgradeFatigue * 100) / 100 + 'x' : 'disabled',
-            formatAmount(realCps)
-        );
-        console.log('%cBuy Order:', 'font-weight:bold');
-        for (const obj of buildings.sorted) {
-            console.log('   - %s: %sx', obj.name, obj.relativeValue);
-        }
-        // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', options.showLogs);
-        for (const { time, msg, count, eta, extra, color = 'white' } of logMessages.slice(-1 * options.showLogs)) {
+        const printLogLine = (line: LogMessage) => {
+            const { time, msg, count, eta, extra, color = 'white' } = line;
+            this.lastMessage = { ...line };
+
             console.log(
                 `%c%s%c %s %c%s`,
                 'color:gray',
@@ -49,6 +42,35 @@ export default class LogTimer extends Timer {
                     eta ? 'ETA: ' + formatDuration(eta) : '',
                 ].filter(x => x).join(' | ')
             );
+        }
+
+        if (last && this.lastMessage && this.counter % 15 !== 0) {
+            // only print last log messages
+            const isDifferentMessage = last.id !== this.lastMessage.id;
+            const isDifferentMeta = (
+                last.count !== this.lastMessage.count ||
+                last.eta !== this.lastMessage.eta ||
+                last.extra !== this.lastMessage.extra
+            );
+            if (isDifferentMessage || isDifferentMeta) {
+                const index = logMessages.findIndex(x => x.id != null && x.id === this.lastMessage!.id);
+                if (index > -1) {
+                    for (const line of logMessages.slice(index + (isDifferentMessage ? 1 : 0))) printLogLine(line);
+                }
+            }
+        } else { // clear and print everything
+            console.clear();
+            console.log('%c%s v%s', 'color:gray', packageJson.name, packageJson.version);
+            console.log(
+                `upgradeFatigue: %s | realCps: %s`,
+                upgradeFatigue ? Math.round(upgradeFatigue * 100) / 100 + 'x' : 'disabled',
+                formatAmount(realCps)
+            );
+            console.log('%cBuy Order:', 'font-weight:bold');
+            for (const obj of buildings.sorted) {
+                console.log('   - %s: %sx', obj.name, obj.relativeValue);
+            }
+            for (const line of logMessages.slice(-1 * options.showLogs)) printLogLine(line);
         }
     }
 }

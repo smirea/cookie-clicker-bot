@@ -18,6 +18,7 @@ const options = {
     bannedUpgrades: {
         'Milk selector': true, // why would you ever buy this :/
         'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse
+        'Elder Pledge': true, // peace was never an option
     } as Record<string, boolean>,
     dragon: {
         /** for each dragon purchase type, at what cookie % should you start waiting */

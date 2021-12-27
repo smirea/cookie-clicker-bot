@@ -4,6 +4,7 @@ interface Window {
 }
 
 interface LogMessage {
+    id: number;
     time: number;
     msg: string;
     count: number;

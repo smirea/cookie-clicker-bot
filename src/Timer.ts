@@ -5,6 +5,7 @@ export default abstract class Timer {
     private timeout!: number | 'stop';
     private timeoutRef?: NodeJS.Timeout;
     private startTimeoutRef?: NodeJS.Timeout;
+    public counter: number = 0;
 
     constructor(protected context: CookieAutomator) {}
 
@@ -15,6 +16,7 @@ export default abstract class Timer {
     startDelay(): number { return 0; }
 
     start() {
+        this.counter = 0;
         this.startTimeoutRef = setTimeout(() => this.run(), this.startDelay());
     }
 
@@ -28,6 +30,7 @@ export default abstract class Timer {
     private run() {
         this.timeout = this.defaultTimeout;
         this.execute();
+        ++this.counter;
         if (this.timeout as any === 'stop') return;
         this.timeoutRef = setTimeout(() => { this.run(); }, this.timeout);
     }

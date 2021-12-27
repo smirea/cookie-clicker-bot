@@ -17,7 +17,6 @@ import LogTimer from './timers/LogTimer';
 import PageReloadTimer from './timers/PageReloadTimer';
 import ShimmerTimer from './timers/ShimmerTimer';
 import SugarLumpTimer from './timers/SugarLumpTimer';
-import type Timer from './Timer';
 import WrinklerTimer from './timers/WrinklerTimer';
 
 export default class CookieAutomator {
@@ -26,17 +25,17 @@ export default class CookieAutomator {
     cpsCache: { [key in BuildingName]?: number } = {};
     startDate!: number;
     lastState: { buildings: BuildingStats } = {} as any;
-    timers: Timer[] = [
-        new BuyTimer(this),
-        new ClickCookieTimer(this),
-        new DragonAuraTimer(this),
-        new GrimoireMinigameTimer(this),
-        new LogTimer(this),
-        new PageReloadTimer(this),
-        new ShimmerTimer(this),
-        new SugarLumpTimer(this),
-        new WrinklerTimer(this),
-    ];
+    timers = {
+        BuyTimer: new BuyTimer(this),
+        ClickCookieTimer: new ClickCookieTimer(this),
+        DragonAuraTimer: new DragonAuraTimer(this),
+        GrimoireMinigameTimer: new GrimoireMinigameTimer(this),
+        LogTimer: new LogTimer(this),
+        PageReloadTimer: new PageReloadTimer(this),
+        ShimmerTimer: new ShimmerTimer(this),
+        SugarLumpTimer: new SugarLumpTimer(this),
+        WrinklerTimer: new WrinklerTimer(this),
+    };
 
     constructor() {
         options.cookieClickTimeout = Math.max(5, options.cookieClickTimeout);
@@ -51,11 +50,11 @@ export default class CookieAutomator {
     start() {
         this.stop();
         this.startDate = Date.now();
-        for (const timer of this.timers) timer.start();
+        for (const timer of Object.values(this.timers)) timer.start();
     }
 
     stop() {
-        for (const timer of this.timers) timer.stop();
+        for (const timer of Object.values(this.timers)) timer.stop();
     }
 
     reset() {
@@ -69,7 +68,7 @@ export default class CookieAutomator {
     }
 
     log(msg: string, { eta, extra, color }: Pick<LogMessage, 'color' | 'extra' | 'eta'> = {}) {
-        const last = this.logMessages[this.logMessages.length - 1];
+        let last = this.logMessages[this.logMessages.length - 1];
         if (last && last.msg === msg) {
             ++last.count;
             last.extra = extra;
@@ -79,7 +78,14 @@ export default class CookieAutomator {
                 if (last.eta && last.eta < 30e3) delete last.eta;
                 delete last.extra;
             }
-            this.logMessages.push({ time: Date.now(), msg, count: 1, eta, extra, color });
+            this.logMessages.push({
+                id: (last?.id || 0) + 1,
+                time: Date.now(), msg,
+                count: 1,
+                eta,
+                extra,
+                color,
+            });
         }
 
         if (this.logMessages.length > 1000) {
@@ -97,6 +103,11 @@ export default class CookieAutomator {
             if (buff.multCpS < 1) ++negativeBuffs; else ++positiveBuffs;
         }
         return { cpsMultiple, negativeBuffs, positiveBuffs };
+    }
+
+    getAvailableUpgrades() {
+        return Object.values(Game.Upgrades)
+            .filter(x => !x.bought && x.unlocked && !options.bannedUpgrades[x.name])
     }
 
     getActiveWrinklers() {
@@ -240,9 +251,7 @@ export default class CookieAutomator {
             else if (/grandmas|twice/i.test(upg.desc)) result *= 0.6;
             return result;
         }
-        const active = Object.values(Game.Upgrades)
-            .filter(x => !x.bought && x.unlocked && !options.bannedUpgrades[x.name])
-            .sort((a, b) => getPrice(a) - getPrice(b));
+        const active = this.getAvailableUpgrades().sort((a, b) => getPrice(a) - getPrice(b));
         const next = active[0]?.canBuy() ? active[0] : null;
         const waitPrice = active[0]?.getPrice() * options.upgradeWait * (this.upgradeFatigue || 1);
         const nextWait = (
@@ -259,6 +268,8 @@ export default class CookieAutomator {
         const price = Math.pow(Game.santaLevel + 1, Game.santaLevel + 1);
 
         if (
+            // how about you buy some of the available upgrades first
+            this.getAvailableUpgrades().length >= 8 ||
             Game.santaLevel >= 14 ||
             // ho ho hold on a bit
             (price > 30 && Game.cookiesPs < 1000)
