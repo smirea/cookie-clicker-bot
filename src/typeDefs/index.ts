@@ -42,11 +42,13 @@ export interface GameT {
         wrath: 0 | 1;
         life: number;
     }>;
+    readonly ToggleSpecialMenu: (on: boolean) => void;
 
     // Actually writeable props!
 
     promptOn: 0 | 1;
     wrinklers: Wrinkler[];
+    specialTab: string;
 }
 
 export interface Buyable {

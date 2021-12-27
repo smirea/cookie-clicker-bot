@@ -34,6 +34,10 @@ export default class BuyTimer extends Timer {
 
             this.scaleTimeout(multiple);
         }
+        const fixMenuBug = () => {
+            Game.specialTab = 'test';
+            Game.ToggleSpecialMenu(false);
+        }
 
         if (buildings.nextHighValue) {
             const { obj, amount } = buildings.nextHighValue;
@@ -44,6 +48,7 @@ export default class BuyTimer extends Timer {
         if (dragon.buy) {
             context.buy({ name: 'dragon', buy: () => Game.UpgradeDragon() });
             context.log(`🔥 Trained your dragon for the low low cost of ${dragon.buy.costStr()} \n(${cleanHTML(dragon.buy.action)}) `);
+            fixMenuBug();
             return
         }
 
@@ -107,6 +112,7 @@ export default class BuyTimer extends Timer {
         if (santa.buy) {
             context.buy({ buy: () => Game.UpgradeSanta() });
             waitMultiple(5);
+            fixMenuBug();
             return context.log('🎅 Ho Ho Ho!');
         }
 
