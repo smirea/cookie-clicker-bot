@@ -16,6 +16,8 @@ export interface GameT {
     readonly computedMouseCps: number;
     /** Date.now() when the current sugar lump was created */
     readonly lumpT: number;
+    /** the name of the game */
+    readonly ClickCookie: () => void;
     readonly clickLump: () => void;
     readonly Objects: { [Name in BuildingName]: Building & { name: Name } };
     readonly ObjectsById: Building[];
