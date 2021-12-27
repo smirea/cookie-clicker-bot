@@ -5,13 +5,15 @@ export default abstract class Timer {
 
     constructor(protected context: CookieAutomator) {}
 
-    public get isRunning() { return this.timeout !== undefined; }
+    get isRunning() { return this.timeout !== undefined; }
 
     abstract execute(): number | 'stop';
 
-    public start() { this.run(); }
+    startDelay(): number { return 0; }
 
-    public stop() {
+    start() { this.run(); }
+
+    stop() {
         clearTimeout(this.timeout!);
         delete this.timeout;
     }

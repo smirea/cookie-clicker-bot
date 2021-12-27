@@ -14,13 +14,13 @@
         "lib": [
             "ESNext",
             "DOM",
-            "DOM.Iterable",
+            "DOM.Iterable"
         ],
         "module": "commonjs",
         "noEmitHelpers": true,
         "outDir": "dist",
         "paths": {
-            "src/*": ["src/*"],
+            "src/*": ["src/*"]
         },
         "resolveJsonModule": true,
         "rootDir": ".",

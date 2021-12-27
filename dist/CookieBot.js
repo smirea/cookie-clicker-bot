@@ -1,683 +1,226 @@
-function $parcel$interopDefault(a) {
-  return a && a.__esModule ? a.default : a;
-}
-const $424feee8fe7c6c95$export$3d8c2f653ac9d0b9 = (selector)=>document.querySelector(selector)
+/*
+ * ATTENTION: The "eval" devtool has been used (maybe by default in mode: "development").
+ * This devtool is neither made for production nor for readable output files.
+ * It uses "eval()" calls to create a separate source file in the browser devtools.
+ * If you are trying to read the output file, select a different devtool (https://webpack.js.org/configuration/devtool/)
+ * or disable the default devtool with "devtool: false".
+ * If you are looking for production-ready output files, see mode: "production" (https://webpack.js.org/configuration/mode/).
+ */
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+/******/ 	var __webpack_modules__ = ({
+
+/***/ "./src/CookieAutomator.ts":
+/*!********************************!*\
+  !*** ./src/CookieAutomator.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst utils_1 = __webpack_require__(/*! ./utils */ \"./src/utils.ts\");\nconst package_json_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ../package.json */ \"./package.json\"));\nconst options_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./options */ \"./src/options.ts\"));\nconst BuyTimer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./timers/BuyTimer */ \"./src/timers/BuyTimer.ts\"));\nconst ClickCookieTimer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./timers/ClickCookieTimer */ \"./src/timers/ClickCookieTimer.ts\"));\nconst DragonAuraTimer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./timers/DragonAuraTimer */ \"./src/timers/DragonAuraTimer.ts\"));\nconst LogTimer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./timers/LogTimer */ \"./src/timers/LogTimer.ts\"));\nconst PageReloadTimer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./timers/PageReloadTimer */ \"./src/timers/PageReloadTimer.ts\"));\nconst ShimmerTimer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./timers/ShimmerTimer */ \"./src/timers/ShimmerTimer.ts\"));\nconst SugarLumpTimer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./timers/SugarLumpTimer */ \"./src/timers/SugarLumpTimer.ts\"));\nconst WrinklerTimer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./timers/WrinklerTimer */ \"./src/timers/WrinklerTimer.ts\"));\nclass CookieAutomator {\n    constructor() {\n        this.upgradeFatigue = 1; // prevent buying too many updates one after another\n        this.cpsCache = {};\n        this.timers = [\n            new BuyTimer_1.default(this),\n            new ClickCookieTimer_1.default(this),\n            new DragonAuraTimer_1.default(this),\n            new LogTimer_1.default(this),\n            new PageReloadTimer_1.default(this),\n            new ShimmerTimer_1.default(this),\n            new SugarLumpTimer_1.default(this),\n            new WrinklerTimer_1.default(this),\n        ];\n        options_1.default.cookieClickTimeout = Math.max(5, options_1.default.cookieClickTimeout);\n        let existingLog = [];\n        try {\n            existingLog = JSON.parse(localStorage[options_1.default.localStorage.log]);\n        }\n        catch (ex) { }\n        this.logMessages = utils_1.global.__automateLog = utils_1.global.__automateLog || existingLog;\n    }\n    start() {\n        this.stop();\n        this.startDate = Date.now();\n        for (const timer of this.timers)\n            timer.start();\n    }\n    stop() {\n        for (const timer of this.timers)\n            timer.stop();\n    }\n    reset() {\n        this.stop();\n        for (const key in options_1.default.localStorage)\n            delete localStorage[key];\n        location.reload();\n    }\n    get realCps() {\n        return Math.round(utils_1.Game.cookiesPs + utils_1.Game.computedMouseCps * (1000 / options_1.default.cookieClickTimeout));\n    }\n    log(msg, { eta, extra, color } = {}) {\n        const last = this.logMessages[this.logMessages.length - 1];\n        if (last && last.msg === msg) {\n            ++last.count;\n            last.extra = extra;\n            last.eta = eta;\n        }\n        else {\n            if (last) {\n                if (last.eta && last.eta < 30e3)\n                    delete last.eta;\n                delete last.extra;\n            }\n            this.logMessages.push({ time: Date.now(), msg, count: 1, eta, extra, color });\n        }\n        if (this.logMessages.length > 1000) {\n            this.logMessages.splice(0, this.logMessages.length - 1000);\n        }\n    }\n    getBuffs() {\n        let cpsMultiple = 1;\n        for (const buff of Object.values(utils_1.Game.buffs)) {\n            if (!buff.visible || !buff.multCpS)\n                continue;\n            cpsMultiple *= buff.multCpS;\n        }\n        return { cpsMultiple };\n    }\n    getActiveWrinklers() {\n        return utils_1.Game.wrinklers.filter(x => x.hp > 0);\n    }\n    getAvailableDragonAuras() {\n        const auras = [];\n        for (const i in utils_1.Game.dragonAuras) {\n            const aura = utils_1.Game.dragonAuras[i];\n            const index = parseInt(i);\n            if (utils_1.Game.dragonLevel >= index + 4) {\n                auras.push({ ...aura, index, level: index + 4 });\n            }\n        }\n        auras.sort((a, b) => a.index - b.index);\n        return {\n            byIndex: auras,\n            byName: Object.fromEntries(auras.map(x => [x.name, x])),\n        };\n    }\n    buy(obj, amount = 1) {\n        if (typeof amount === 'number' && amount < 1) {\n            console.warn('[CookieAutomator.buy()] Cannot get <1 amount: %s of %s', amount, obj.name);\n            return;\n        }\n        if (this.upgradeFatigue) {\n            if (obj.type === 'upgrade') {\n                const increment = Math.min(2, 0.5 + Math.floor(utils_1.Game.cookiesPs / 100) / 10);\n                this.upgradeFatigue = Math.min(this.upgradeFatigue + increment, 10);\n            }\n            else {\n                this.upgradeFatigue = Math.max(this.upgradeFatigue - 0.2 * amount, 1);\n            }\n        }\n        return obj.buy(amount);\n    }\n    getCps(name) {\n        var _a;\n        this.cpsCache = this.cpsCache || {};\n        if (this.cpsCache[name])\n            return this.cpsCache[name];\n        const obj = utils_1.Game.Objects[name];\n        const tooltip = obj.tooltip();\n        const match = tooltip.replace(/,/g, '')\n            .replace(/\\d+(\\.\\d+)?\\s+million/gi, x => String(parseFloat(x) * 1e6))\n            .replace(/\\d+(\\.\\d+)?\\s+billion/gi, x => String(parseFloat(x) * 1e9))\n            .replace(/\\d+(\\.\\d+)?\\s+trillion/gi, x => String(parseFloat(x) * 1e12))\n            .replace(/\\d+(\\.\\d+)?\\s+quadrillion/gi, x => String(parseFloat(x) * 1e15))\n            .replace(/\\d+(\\.\\d+)?\\s+quintillion/gi, x => String(parseFloat(x) * 1e18))\n            .replace(/\\d+(\\.\\d+)?\\s+sextillion/gi, x => String(parseFloat(x) * 1e21))\n            .replace(/\\d+(\\.\\d+)?\\s+septillion/gi, x => String(parseFloat(x) * 1e24))\n            .replace(/\\d+(\\.\\d+)?\\s+octillion/gi, x => String(parseFloat(x) * 1e27))\n            .replace(/\\d+(\\.\\d+)?\\s+nonillion/gi, x => String(parseFloat(x) * 1e30))\n            .replace(/\\d+(\\.\\d+)?\\s+decillion/gi, x => String(parseFloat(x) * 1e33))\n            .match(/produces <b>([^c]+) cookies/) || [];\n        let cps = parseFloat(match[1] || '');\n        // @TODO: figure out a better way instead of obj.baseCps, it's way too low\n        if (Number.isNaN(cps))\n            return obj.bought ? obj.baseCps : 0;\n        if (obj.name === 'Grandma') {\n            for (const x of utils_1.Game.ObjectsById) {\n                if (x.name === 'Grandma')\n                    continue;\n                if (!((_a = x.grandma) === null || _a === void 0 ? void 0 : _a.bought))\n                    continue;\n                const match = x.grandma.desc.match(/gain <b>\\+(\\d+).*<\\/b> per (\\d+)? grandma/i) || [];\n                const pct = parseFloat(match[1]);\n                const multiplier = parseInt(match[2] || '1', 10);\n                if (!pct || !multiplier || Number.isNaN(pct) || Number.isNaN(multiplier))\n                    continue;\n                const childCps = x.cps(x);\n                cps = cps + childCps * (pct / 100) * Math.floor(utils_1.Game.Objects.Grandma.amount / multiplier);\n            }\n        }\n        this.cpsCache[name] = cps;\n        return cps;\n    }\n    getBuildingStats() {\n        var _a, _b;\n        const sorted = utils_1.Game.ObjectsById\n            .map((obj, index) => ({\n            name: obj.name,\n            price: obj.price,\n            cps: this.getCps(obj.name),\n            pricePerCps: Math.round(obj.price / this.getCps(obj.name)),\n            index,\n            obj,\n            relativeValue: 0, // overwritten bellow\n        }))\n            .filter(obj => obj.cps)\n            .sort((a, b) => a.pricePerCps - b.pricePerCps);\n        const min = ((_a = sorted[0]) === null || _a === void 0 ? void 0 : _a.pricePerCps) || 1;\n        // {\n        //     const table = {};\n        //     for (const item of Array.from(sorted).sort((a, b) => a.index - b.index)) {\n        //         table[item.name] = {\n        //             cps: item.cps,\n        //             price: item.price,\n        //             pricePerCps: item.pricePerCps,\n        //         };\n        //     }\n        //     console.table(table);\n        // }\n        for (const obj of sorted) {\n            obj.relativeValue = Math.round(obj.pricePerCps / min * 10) / 10;\n        }\n        const active = utils_1.Game.ObjectsById.filter(x => !x.locked && !x.bought);\n        const next = (_b = sorted[0]) === null || _b === void 0 ? void 0 : _b.obj;\n        const nextWait = active.find(x => utils_1.Game.cookies >= x.price * options_1.default.buildingWait);\n        const nextNew = active.find(x => x.price <= utils_1.Game.cookies);\n        const nextHighValue = sorted.slice(1).find((item, index) => {\n            return sorted[0].price <= utils_1.Game.cookies &&\n                item.relativeValue - sorted[0].relativeValue >= 10 + (2.5 ** (index + 2));\n        }) ? sorted[0].obj : null;\n        return {\n            next,\n            nextNew,\n            nextWait,\n            nextHighValue: nextHighValue\n                ? {\n                    obj: nextHighValue,\n                    amount: (0, utils_1.getAffordableBuildingMultiple)(nextHighValue, [50, 40, 30, 20, 10, 1]),\n                }\n                : null,\n            sorted,\n        };\n    }\n    getUpgradeStats() {\n        var _a, _b;\n        const getPrice = (upg) => {\n            let result = upg.getPrice();\n            if (/cookie production multiplier/i.test(upg.desc))\n                result *= 1.2;\n            else if (/clicking gains/i.test(upg.desc))\n                result *= 0.8;\n            else if (/grandmas|twice/i.test(upg.desc))\n                result *= 0.6;\n            return result;\n        };\n        const active = Object.values(utils_1.Game.Upgrades)\n            .filter(x => !x.bought && x.unlocked && !options_1.default.bannedUpgrades[x.name])\n            .sort((a, b) => getPrice(a) - getPrice(b));\n        const next = ((_a = active[0]) === null || _a === void 0 ? void 0 : _a.canBuy()) ? active[0] : null;\n        const waitPrice = ((_b = active[0]) === null || _b === void 0 ? void 0 : _b.getPrice()) * options_1.default.upgradeWait * (this.upgradeFatigue || 1);\n        const nextWait = (active[0] && utils_1.Game.cookies >= 30e3 && utils_1.Game.cookies >= waitPrice\n            ? active[0]\n            : null);\n        const waitPct = nextWait && (Math.round(utils_1.Game.cookies / active[0].getPrice() * 100) + '%') || undefined;\n        return { next, nextWait, waitPct };\n    }\n    getSantaStats() {\n        const price = Math.pow(utils_1.Game.santaLevel + 1, utils_1.Game.santaLevel + 1);\n        if (utils_1.Game.santaLevel >= 14 ||\n            // ho ho hold on a bit\n            (price > 30 && utils_1.Game.cookiesPs < 1000))\n            return { wait: null, buy: null, price: 0 };\n        const buy = utils_1.Game.cookies >= price;\n        const wait = !buy && utils_1.Game.cookies >= price * 0.75;\n        return { wait, buy, price };\n    }\n    getAchievementThresholdStats() {\n        const active = [];\n        for (const obj of utils_1.Game.ObjectsById) {\n            if (!obj.bought || obj.amount <= 1)\n                continue;\n            const ranges = options_1.default.achievementThresholds[obj.name] || options_1.default.achievementThresholds.Default;\n            if (obj.amount >= ranges[ranges.length - 1])\n                continue;\n            const index = ranges.findIndex((start, i) => start <= obj.amount && obj.amount < ranges[i + 1]);\n            const nextAmount = ranges[index + 1];\n            const nextPrice = (0, utils_1.getCostOfNBuildings)(obj, nextAmount);\n            const toBuy = nextAmount - obj.amount;\n            active.push({\n                obj,\n                toBuy,\n                nextAmount,\n                nextPrice,\n                available: nextPrice <= utils_1.Game.cookies,\n                wait: utils_1.Game.cookies >= nextPrice * 0.8,\n            });\n        }\n        if (!active.length)\n            return null;\n        active.sort((a, b) => a.nextPrice - b.nextPrice);\n        return active[0];\n    }\n    getDragonStats() {\n        if (utils_1.Game.cookiesPs < 1e5 || utils_1.Game.dragonLevel >= utils_1.Game.dragonLevels.length - 1) {\n            return {};\n        }\n        if (this.getAvailableDragonAuras().byName[options_1.default.dragon.auras[0]]) {\n            return {}; // you've trained your dragon\n        }\n        const lvl = utils_1.Game.dragonLevels[utils_1.Game.dragonLevel];\n        if (lvl.cost())\n            return { buy: lvl };\n        const match = lvl.costStr().match(/^(\\d+) (.*)$/) || [];\n        const amount = parseInt(match[1]);\n        const unit = match[2];\n        if (!amount || Number.isNaN(amount) || !unit) {\n            console.warn('[CookieAutomator:getDragonStats()] Cannot parse: %s', lvl.costStr());\n            return {};\n        }\n        const handlers = {\n            'million cookies': () => ({ type: 'cookie', amount, cookies: amount }),\n            'of every building': () => ({\n                type: 'all',\n                amount,\n                cookies: utils_1.Game.ObjectsById\n                    .map(obj => (0, utils_1.getCostOfNBuildings)(obj, amount))\n                    .reduce((s, x) => s + x, 0),\n            }),\n        };\n        for (const obj of utils_1.Game.ObjectsById) {\n            handlers[obj.plural] = () => ({\n                type: 'building',\n                value: obj.name,\n                amount,\n                cookies: (0, utils_1.getCostOfNBuildings)(obj, amount),\n            });\n        }\n        if (!handlers[unit]) {\n            console.warn('[CookieAutomator:getDragonStats()] Unknown unit: %s', lvl.costStr());\n            return {};\n        }\n        const goal = handlers[unit]();\n        if (utils_1.Game.cookies >= goal.cookies * options_1.default.dragon.waitRatios[goal.type]) {\n            return { wait: { lvl, goal } };\n        }\n        return {};\n    }\n    printLog({ buildings }) {\n        console.log('%c%s v%s', 'color:gray', package_json_1.default.name, package_json_1.default.version);\n        console.log(`upgradeFatigue: %s | realCps: %s`, this.upgradeFatigue ? Math.round(this.upgradeFatigue * 100) / 100 + 'x' : 'disabled', (0, utils_1.formatAmount)(this.realCps));\n        console.log('%cBuy Order:', 'font-weight:bold');\n        for (const obj of buildings.sorted) {\n            console.log('   - %s: %sx', obj.name, obj.relativeValue);\n        }\n        // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', options.showLogs);\n        for (const { time, msg, count, eta, extra, color = 'white' } of this.logMessages.slice(-1 * options_1.default.showLogs)) {\n            console.log(`%c%s%c %s %c%s`, 'color:gray', new Date(time).toISOString().slice(11, 19), `color:${color}`, msg, 'color:gray', [\n                count > 1 ? `✕ ${count}` : '',\n                extra,\n                eta ? 'ETA: ' + (0, utils_1.formatDuration)(eta) : '',\n            ].filter(x => x).join(' | '));\n        }\n    }\n}\nexports[\"default\"] = CookieAutomator;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/CookieAutomator.ts?");
+
+/***/ }),
+
+/***/ "./src/Timer.ts":
+/*!**********************!*\
+  !*** ./src/Timer.ts ***!
+  \**********************/
+/***/ ((__unused_webpack_module, exports) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nclass Timer {\n    constructor(context) {\n        this.context = context;\n    }\n    get isRunning() { return this.timeout !== undefined; }\n    startDelay() { return 0; }\n    start() { this.run(); }\n    stop() {\n        clearTimeout(this.timeout);\n        delete this.timeout;\n    }\n    run() {\n        const nextTimeout = this.execute();\n        if (nextTimeout === 'stop')\n            return;\n        this.timeout = setTimeout(() => { this.run(); }, nextTimeout);\n    }\n}\nexports[\"default\"] = Timer;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/Timer.ts?");
+
+/***/ }),
+
+/***/ "./src/index.ts":
+/*!**********************!*\
+  !*** ./src/index.ts ***!
+  \**********************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst CookieAutomator_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! ./CookieAutomator */ \"./src/CookieAutomator.ts\"));\nconst utils_1 = __webpack_require__(/*! ./utils */ \"./src/utils.ts\");\nsetTimeout(() => {\n    var _a;\n    (_a = utils_1.global.myCookieAutomator) === null || _a === void 0 ? void 0 : _a.stop();\n    utils_1.global.myCookieAutomator = new CookieAutomator_1.default;\n    utils_1.global.myCookieAutomator.start();\n    // console.log('>>', myCookieAutomator.getCps('Cursor'));\n    // console.log('% =', Math.round(myCookieAutomator.getCps('Grandma') / 341437 * 100));\n}, 500);\n'🍪🚜';\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/index.ts?");
+
+/***/ }),
+
+/***/ "./src/options.ts":
+/*!************************!*\
+  !*** ./src/options.ts ***!
+  \************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst utils_1 = __webpack_require__(/*! ./utils */ \"./src/utils.ts\");\nconst getLSKey = (name) => `CookieAutomator_${name}_${utils_1.Game.version}_${utils_1.Game.beta}`;\nconst options = {\n    cookieClickTimeout: 1000 / 15.1,\n    showLogs: 25,\n    buildingWait: 0.35,\n    upgradeWait: 0.35,\n    wrinklerPopTime: 8 * 60e3,\n    // note: disabled for now, re-enable if page crashes\n    autoReloadMinutes: 0,\n    achievementThresholds: {\n        Cursor: [1, 2, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900],\n        Default: [1, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600],\n    },\n    bannedUpgrades: {\n        'Milk selector': true,\n        'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse\n    },\n    dragon: {\n        /** for each dragon purchase type, at what cookie % should you start waiting */\n        waitRatios: {\n            cookie: 0.4,\n            building: 0.8,\n            all: 0.9,\n        },\n        /** order in which aura is chosen. If it's not on this list, it won't be selected */\n        auras: [\n            'Radiant Appetite',\n            'Dragonflight',\n            'Breath of Milk',\n        ],\n    },\n    localStorage: {\n        log: getLSKey('log'),\n    },\n};\nexports[\"default\"] = options;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/options.ts?");
+
+/***/ }),
+
+/***/ "./src/timers/BuyTimer.ts":
+/*!********************************!*\
+  !*** ./src/timers/BuyTimer.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst Timer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/Timer */ \"./src/Timer.ts\"));\nconst utils_1 = __webpack_require__(/*! src/utils */ \"./src/utils.ts\");\nclass BuyTimer extends Timer_1.default {\n    constructor() {\n        super(...arguments);\n        this.returnValue = 1000;\n    }\n    execute() {\n        console.clear();\n        this.context.cpsCache = {};\n        const buildings = this.context.getBuildingStats();\n        if (this.context.upgradeFatigue > 0 && utils_1.Game.cookiesPs >= 1e13) {\n            this.context.upgradeFatigue = 0;\n        }\n        this.decisionTree({ buildings });\n        this.context.printLog({ buildings });\n        return this.returnValue;\n    }\n    decisionTree({ buildings }) {\n        var _a;\n        const context = this.context;\n        const upgrades = context.getUpgradeStats();\n        const santa = context.getSantaStats();\n        const threshold = context.getAchievementThresholdStats();\n        const dragon = context.getDragonStats();\n        const getEta = (targetCookies) => {\n            if (targetCookies <= utils_1.Game.cookies)\n                return undefined;\n            return (targetCookies - utils_1.Game.cookies) / context.realCps;\n        };\n        if (buildings.nextHighValue) {\n            const { obj, amount } = buildings.nextHighValue;\n            context.buy(obj, amount);\n            return context.log(`💰 So cheap it just can't wait: Bought ${obj.name} ✕ ${amount}`);\n        }\n        if (dragon.buy) {\n            context.buy({ name: 'dragon', buy: () => utils_1.Game.UpgradeDragon() });\n            context.log(`🔥 Trained your dragon for the low low cost of ${dragon.buy.costStr()} \\n(${dragon.buy.action}) `);\n            return;\n        }\n        if (dragon.wait) {\n            const { lvl, goal } = dragon.wait;\n            if (utils_1.Game.cookies >= goal.cookies) {\n                switch (goal.type) {\n                    case 'cookie': break;\n                    case 'building': {\n                        const toBuy = goal.amount - utils_1.Game.Objects[goal.value].amount;\n                        const obj = utils_1.Game.Objects[goal.value];\n                        context.log(`🐲 Bought ${toBuy} ✕ ${obj.name} to feed to the dragon`);\n                        context.buy(obj, toBuy);\n                        break;\n                    }\n                    case 'all':\n                        console.warn('context will totally fuck up everything yo');\n                        break;\n                }\n            }\n            else {\n                context.log(`🐲 Raising cookies to feed the dragon, need ${(0, utils_1.formatAmount)(goal.cookies)} to get ${lvl.costStr()}`, { eta: getEta(goal.cookies) });\n            }\n            return;\n        }\n        if (upgrades.next) {\n            context.buy(upgrades.next);\n            this.returnValue *= 5;\n            return context.log(`💹 Bought new upgrade: ${upgrades.next.name}\\n(${(0, utils_1.cleanHTML)(upgrades.next.desc)})`, { color: 'lightgreen' });\n        }\n        if (upgrades.nextWait) {\n            this.returnValue *= 10;\n            context.log(`🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`, { eta: getEta(upgrades.nextWait.getPrice()), extra: upgrades.waitPct });\n            return;\n        }\n        if (threshold === null || threshold === void 0 ? void 0 : threshold.available) {\n            const { obj, toBuy, nextAmount } = threshold;\n            const { amount } = obj;\n            context.buy(obj, toBuy);\n            context.log(`🚀 To the moon: Bought from ${amount} → ${nextAmount} of ${obj.name}`);\n            return;\n        }\n        if (threshold === null || threshold === void 0 ? void 0 : threshold.wait) {\n            context.log(`🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${(0, utils_1.formatAmount)(threshold.nextPrice)}`, { eta: getEta(threshold.nextPrice) });\n            this.returnValue *= 10;\n            return;\n        }\n        if (santa.buy) {\n            context.buy({ buy: () => utils_1.Game.UpgradeSanta() });\n            this.returnValue *= 5;\n            return context.log('🎅 Ho Ho Ho!');\n        }\n        if (santa.wait) {\n            return context.log(`🎅 Twas the night before X-MAS!`, { eta: getEta(santa.price) });\n        }\n        if (buildings.nextNew) {\n            context.buy(buildings.nextNew);\n            context.log(`🏛 Bought new building type: ${buildings.nextNew.name}`);\n            return;\n        }\n        if (buildings.nextWait) {\n            context.log(`🟡 Waiting to buy new building type: ${buildings.nextWait.name}`, { eta: getEta(buildings.nextWait.price) });\n            this.returnValue *= 10;\n            return;\n        }\n        if (buildings.next) {\n            if (buildings.next.price <= utils_1.Game.cookies) {\n                context.buy(buildings.next);\n                context.log(`🏛 Bought building: ${buildings.next.name}`);\n                return;\n            }\n            context.log(`⏲ Waiting to buy building: ${(_a = buildings.sorted[0]) === null || _a === void 0 ? void 0 : _a.name}`, { eta: getEta(buildings.sorted[0].price) });\n            this.returnValue *= 5;\n            return;\n        }\n        context.log(\"You're too poor... but that's a good thing!\");\n        this.returnValue *= 5;\n    }\n}\nexports[\"default\"] = BuyTimer;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/timers/BuyTimer.ts?");
+
+/***/ }),
+
+/***/ "./src/timers/ClickCookieTimer.ts":
+/*!****************************************!*\
+  !*** ./src/timers/ClickCookieTimer.ts ***!
+  \****************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst utils_1 = __webpack_require__(/*! src/utils */ \"./src/utils.ts\");\nconst options_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/options */ \"./src/options.ts\"));\nconst Timer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/Timer */ \"./src/Timer.ts\"));\nclass ClickCookieTimer extends Timer_1.default {\n    execute() {\n        var _a;\n        (_a = (0, utils_1.$)('#bigCookie')) === null || _a === void 0 ? void 0 : _a.click();\n        return options_1.default.cookieClickTimeout;\n    }\n}\nexports[\"default\"] = ClickCookieTimer;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/timers/ClickCookieTimer.ts?");
+
+/***/ }),
+
+/***/ "./src/timers/DragonAuraTimer.ts":
+/*!***************************************!*\
+  !*** ./src/timers/DragonAuraTimer.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst utils_1 = __webpack_require__(/*! src/utils */ \"./src/utils.ts\");\nconst Timer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/Timer */ \"./src/Timer.ts\"));\nconst options_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/options */ \"./src/options.ts\"));\nclass DragonAuraTimer extends Timer_1.default {\n    execute() {\n        // we're done until ascension\n        if (utils_1.Game.hasAura(options_1.default.dragon.auras[0]))\n            return 'stop';\n        // @TODO: apparently there's a 2nd aura slot to be handled\n        const auras = this.context.getAvailableDragonAuras();\n        for (const name of options_1.default.dragon.auras) {\n            const aura = auras.byName[name];\n            if (!aura)\n                continue;\n            if (utils_1.Game.hasAura(name))\n                break;\n            const highestBuilding = Array.from(utils_1.Game.ObjectsById).reverse().find(x => x.amount > 0);\n            if (!highestBuilding)\n                break; // weird but whatever\n            if (highestBuilding.amount === 1) {\n                highestBuilding.sell();\n                this.context.log(`🤫 Sneakily selling 1 ✕ ${highestBuilding.name} so the dragon doesn't eat it`);\n            }\n            utils_1.Game.ClosePrompt();\n            utils_1.Game.SetDragonAura(aura.index, 0);\n            const btn = (0, utils_1.$)('#promptOption0');\n            if (!btn || btn.innerText.trim().toLowerCase() !== 'confirm') {\n                console.warn('[CookieAutomator.dragonAuraTimer()] FML the confirm changed');\n                break;\n            }\n            btn.click();\n            this.context.log('🎇 Changed Dragon Aura: ' + aura.name + '\\n(' + (0, utils_1.cleanHTML)(aura.desc) + ')', { color: 'yellow' });\n            break;\n        }\n        return 5e3;\n    }\n}\nexports[\"default\"] = DragonAuraTimer;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/timers/DragonAuraTimer.ts?");
+
+/***/ }),
+
+/***/ "./src/timers/LogTimer.ts":
+/*!********************************!*\
+  !*** ./src/timers/LogTimer.ts ***!
+  \********************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst Timer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/Timer */ \"./src/Timer.ts\"));\nconst options_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/options */ \"./src/options.ts\"));\nclass LogTimer extends Timer_1.default {\n    execute() {\n        localStorage[options_1.default.localStorage.log] = JSON.stringify(this.context.logMessages.slice(-100));\n        return 2e3;\n    }\n}\nexports[\"default\"] = LogTimer;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/timers/LogTimer.ts?");
+
+/***/ }),
+
+/***/ "./src/timers/PageReloadTimer.ts":
+/*!***************************************!*\
+  !*** ./src/timers/PageReloadTimer.ts ***!
+  \***************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst utils_1 = __webpack_require__(/*! src/utils */ \"./src/utils.ts\");\nconst Timer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/Timer */ \"./src/Timer.ts\"));\nconst options_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/options */ \"./src/options.ts\"));\nclass PageReloadTimer extends Timer_1.default {\n    execute() {\n        if (!options_1.default.autoReloadMinutes)\n            return 'stop';\n        if (Date.now() - this.context.startDate / 60e3 >= options_1.default.autoReloadMinutes &&\n            this.context.getBuffs().cpsMultiple <= 1) {\n            utils_1.Game.promptOn = 0;\n            global.location.reload();\n            return 'stop';\n        }\n        return 60e3;\n    }\n}\nexports[\"default\"] = PageReloadTimer;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/timers/PageReloadTimer.ts?");
+
+/***/ }),
+
+/***/ "./src/timers/ShimmerTimer.ts":
+/*!************************************!*\
+  !*** ./src/timers/ShimmerTimer.ts ***!
+  \************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst utils_1 = __webpack_require__(/*! src/utils */ \"./src/utils.ts\");\nconst Timer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/Timer */ \"./src/Timer.ts\"));\nclass ShimmerTimer extends Timer_1.default {\n    execute() {\n        var _a;\n        (_a = (0, utils_1.$)('.shimmer')) === null || _a === void 0 ? void 0 : _a.click();\n        return 3000;\n    }\n}\nexports[\"default\"] = ShimmerTimer;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/timers/ShimmerTimer.ts?");
+
+/***/ }),
+
+/***/ "./src/timers/SugarLumpTimer.ts":
+/*!**************************************!*\
+  !*** ./src/timers/SugarLumpTimer.ts ***!
+  \**************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst utils_1 = __webpack_require__(/*! src/utils */ \"./src/utils.ts\");\nconst Timer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/Timer */ \"./src/Timer.ts\"));\nclass SugarLumpTimer extends Timer_1.default {\n    execute() {\n        if ((Date.now() - utils_1.Game.lumpT) / 3600e3 >= 23.1)\n            utils_1.Game.clickLump();\n        return 30 * 3600e3;\n    }\n}\nexports[\"default\"] = SugarLumpTimer;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/timers/SugarLumpTimer.ts?");
+
+/***/ }),
+
+/***/ "./src/timers/WrinklerTimer.ts":
+/*!*************************************!*\
+  !*** ./src/timers/WrinklerTimer.ts ***!
+  \*************************************/
+/***/ ((__unused_webpack_module, exports, __webpack_require__) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nconst tslib_1 = __webpack_require__(/*! tslib */ \"./node_modules/tslib/tslib.es6.js\");\nconst Timer_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/Timer */ \"./src/Timer.ts\"));\nconst options_1 = (0, tslib_1.__importDefault)(__webpack_require__(/*! src/options */ \"./src/options.ts\"));\nconst utils_1 = __webpack_require__(/*! src/utils */ \"./src/utils.ts\");\nclass WrinklerTimer extends Timer_1.default {\n    startDelay() { return 60e3; }\n    execute() {\n        const { cpsMultiple } = this.context.getBuffs();\n        const numWrinkers = this.context.getActiveWrinklers().length;\n        // lets pop more at once\n        if (numWrinkers <= utils_1.Game.wrinklers.length / 2)\n            return options_1.default.wrinklerPopTime;\n        if (cpsMultiple < 1)\n            utils_1.Game.CollectWrinklers();\n        else if (cpsMultiple === 1)\n            utils_1.Game.PopRandomWrinkler();\n        return options_1.default.wrinklerPopTime;\n    }\n}\nexports[\"default\"] = WrinklerTimer;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/timers/WrinklerTimer.ts?");
+
+/***/ }),
+
+/***/ "./src/utils.ts":
+/*!**********************!*\
+  !*** ./src/utils.ts ***!
+  \**********************/
+/***/ ((__unused_webpack_module, exports) => {
+
+eval("\nObject.defineProperty(exports, \"__esModule\", ({ value: true }));\nexports.formatAmount = exports.formatDuration = exports.cleanHTML = exports.getCostOfNBuildings = exports.getAffordableBuildingMultiple = exports.Game = exports.global = exports.$$ = exports.$ = void 0;\nconst $ = (selector) => document.querySelector(selector);\nexports.$ = $;\nconst $$ = (selector) => Array.from(document.querySelectorAll(selector));\nexports.$$ = $$;\n// in Tampermonkey context, \"unsafeWindow\" is the global window\nexports.global = window.unsafeWindow || window;\nexports.Game = exports.global.Game;\nconst getAffordableBuildingMultiple = (obj, choices) => choices.find(end => (0, exports.getCostOfNBuildings)(obj, obj.amount + end) <= exports.Game.cookies) || null;\nexports.getAffordableBuildingMultiple = getAffordableBuildingMultiple;\nconst getCostOfNBuildings = (obj, end) => obj.amount >= end\n    ? 0\n    : obj.basePrice * (1.15 ** end - 1.15 ** obj.amount) / 0.15;\nexports.getCostOfNBuildings = getCostOfNBuildings;\nconst cleanHTML = (html) => html.replace(/<q>.*<\\/q>/g, '').replace(/<[^>]+>/g, '');\nexports.cleanHTML = cleanHTML;\nconst formatDuration = (duration, { short = true, pad = false } = {}) => {\n    duration = Math.floor(duration);\n    let hours = String(Math.floor(duration / 3600));\n    let minutes = String(Math.floor((duration % 3600) / 60));\n    let seconds = String(duration % 60);\n    if (pad) {\n        [hours, minutes, seconds] = [hours, minutes, seconds].map(num => num && ('0' + num).slice(-2));\n    }\n    const [h, m, s] = short\n        ? ['h', 'm', 's']\n        : [' hours', ' minutes', ' seconds'];\n    if (hours !== '0')\n        return `${hours}${h} ${minutes}${m} ${seconds}${s}`;\n    if (minutes !== '0')\n        return `${minutes}${m} ${seconds}${s}`;\n    return `${seconds}${s}`;\n};\nexports.formatDuration = formatDuration;\nconst formatAmount = (number, { cookies = true, format = 'full' } = {}) => {\n    number = Math.floor(number);\n    const labels = [\n        ['million', 'M'],\n        ['billion', 'B'],\n        ['trillion', 'T'],\n        ['quadrillion', 'Quad'],\n        ['quintillion', 'Quint'],\n        ['sextillion', 'Sext😏'],\n        ['septillion', 'Sept'],\n        ['octillion', 'Oct'],\n        ['nonillion', 'Non'],\n        ['decillion', 'Dec'],\n    ];\n    if (number < 1e3)\n        return String(number);\n    if (number < 1e6)\n        return `${Math.floor(number / 1e3)},${number % 1000}`;\n    const power = Math.floor(Math.log10(number));\n    const floorPower = Math.floor(power / 3) * 3;\n    const label = labels[floorPower / 3 - 2];\n    let value = Math.floor(number / Math.pow(10, floorPower));\n    value += Math.round(Math.floor(number / Math.pow(10, floorPower - 2)) % 100) / 100;\n    value = Math.round(value * 100) / 100;\n    const unit = (format === 'full' ? ' ' + label[0] :\n        format === 'small' ? ' ' + label[1] :\n            'e' + floorPower);\n    return (cookies ? '🍪' : '') + String(value) + unit;\n};\nexports.formatAmount = formatAmount;\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./src/utils.ts?");
+
+/***/ }),
+
+/***/ "./node_modules/tslib/tslib.es6.js":
+/*!*****************************************!*\
+  !*** ./node_modules/tslib/tslib.es6.js ***!
+  \*****************************************/
+/***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+
+eval("__webpack_require__.r(__webpack_exports__);\n/* harmony export */ __webpack_require__.d(__webpack_exports__, {\n/* harmony export */   \"__extends\": () => (/* binding */ __extends),\n/* harmony export */   \"__assign\": () => (/* binding */ __assign),\n/* harmony export */   \"__rest\": () => (/* binding */ __rest),\n/* harmony export */   \"__decorate\": () => (/* binding */ __decorate),\n/* harmony export */   \"__param\": () => (/* binding */ __param),\n/* harmony export */   \"__metadata\": () => (/* binding */ __metadata),\n/* harmony export */   \"__awaiter\": () => (/* binding */ __awaiter),\n/* harmony export */   \"__generator\": () => (/* binding */ __generator),\n/* harmony export */   \"__createBinding\": () => (/* binding */ __createBinding),\n/* harmony export */   \"__exportStar\": () => (/* binding */ __exportStar),\n/* harmony export */   \"__values\": () => (/* binding */ __values),\n/* harmony export */   \"__read\": () => (/* binding */ __read),\n/* harmony export */   \"__spread\": () => (/* binding */ __spread),\n/* harmony export */   \"__spreadArrays\": () => (/* binding */ __spreadArrays),\n/* harmony export */   \"__spreadArray\": () => (/* binding */ __spreadArray),\n/* harmony export */   \"__await\": () => (/* binding */ __await),\n/* harmony export */   \"__asyncGenerator\": () => (/* binding */ __asyncGenerator),\n/* harmony export */   \"__asyncDelegator\": () => (/* binding */ __asyncDelegator),\n/* harmony export */   \"__asyncValues\": () => (/* binding */ __asyncValues),\n/* harmony export */   \"__makeTemplateObject\": () => (/* binding */ __makeTemplateObject),\n/* harmony export */   \"__importStar\": () => (/* binding */ __importStar),\n/* harmony export */   \"__importDefault\": () => (/* binding */ __importDefault),\n/* harmony export */   \"__classPrivateFieldGet\": () => (/* binding */ __classPrivateFieldGet),\n/* harmony export */   \"__classPrivateFieldSet\": () => (/* binding */ __classPrivateFieldSet)\n/* harmony export */ });\n/*! *****************************************************************************\r\nCopyright (c) Microsoft Corporation.\r\n\r\nPermission to use, copy, modify, and/or distribute this software for any\r\npurpose with or without fee is hereby granted.\r\n\r\nTHE SOFTWARE IS PROVIDED \"AS IS\" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH\r\nREGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY\r\nAND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT,\r\nINDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM\r\nLOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR\r\nOTHER TORTIOUS ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR\r\nPERFORMANCE OF THIS SOFTWARE.\r\n***************************************************************************** */\r\n/* global Reflect, Promise */\r\n\r\nvar extendStatics = function(d, b) {\r\n    extendStatics = Object.setPrototypeOf ||\r\n        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||\r\n        function (d, b) { for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]; };\r\n    return extendStatics(d, b);\r\n};\r\n\r\nfunction __extends(d, b) {\r\n    if (typeof b !== \"function\" && b !== null)\r\n        throw new TypeError(\"Class extends value \" + String(b) + \" is not a constructor or null\");\r\n    extendStatics(d, b);\r\n    function __() { this.constructor = d; }\r\n    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());\r\n}\r\n\r\nvar __assign = function() {\r\n    __assign = Object.assign || function __assign(t) {\r\n        for (var s, i = 1, n = arguments.length; i < n; i++) {\r\n            s = arguments[i];\r\n            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p)) t[p] = s[p];\r\n        }\r\n        return t;\r\n    }\r\n    return __assign.apply(this, arguments);\r\n}\r\n\r\nfunction __rest(s, e) {\r\n    var t = {};\r\n    for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)\r\n        t[p] = s[p];\r\n    if (s != null && typeof Object.getOwnPropertySymbols === \"function\")\r\n        for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {\r\n            if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))\r\n                t[p[i]] = s[p[i]];\r\n        }\r\n    return t;\r\n}\r\n\r\nfunction __decorate(decorators, target, key, desc) {\r\n    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;\r\n    if (typeof Reflect === \"object\" && typeof Reflect.decorate === \"function\") r = Reflect.decorate(decorators, target, key, desc);\r\n    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;\r\n    return c > 3 && r && Object.defineProperty(target, key, r), r;\r\n}\r\n\r\nfunction __param(paramIndex, decorator) {\r\n    return function (target, key) { decorator(target, key, paramIndex); }\r\n}\r\n\r\nfunction __metadata(metadataKey, metadataValue) {\r\n    if (typeof Reflect === \"object\" && typeof Reflect.metadata === \"function\") return Reflect.metadata(metadataKey, metadataValue);\r\n}\r\n\r\nfunction __awaiter(thisArg, _arguments, P, generator) {\r\n    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }\r\n    return new (P || (P = Promise))(function (resolve, reject) {\r\n        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }\r\n        function rejected(value) { try { step(generator[\"throw\"](value)); } catch (e) { reject(e); } }\r\n        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }\r\n        step((generator = generator.apply(thisArg, _arguments || [])).next());\r\n    });\r\n}\r\n\r\nfunction __generator(thisArg, body) {\r\n    var _ = { label: 0, sent: function() { if (t[0] & 1) throw t[1]; return t[1]; }, trys: [], ops: [] }, f, y, t, g;\r\n    return g = { next: verb(0), \"throw\": verb(1), \"return\": verb(2) }, typeof Symbol === \"function\" && (g[Symbol.iterator] = function() { return this; }), g;\r\n    function verb(n) { return function (v) { return step([n, v]); }; }\r\n    function step(op) {\r\n        if (f) throw new TypeError(\"Generator is already executing.\");\r\n        while (_) try {\r\n            if (f = 1, y && (t = op[0] & 2 ? y[\"return\"] : op[0] ? y[\"throw\"] || ((t = y[\"return\"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;\r\n            if (y = 0, t) op = [op[0] & 2, t.value];\r\n            switch (op[0]) {\r\n                case 0: case 1: t = op; break;\r\n                case 4: _.label++; return { value: op[1], done: false };\r\n                case 5: _.label++; y = op[1]; op = [0]; continue;\r\n                case 7: op = _.ops.pop(); _.trys.pop(); continue;\r\n                default:\r\n                    if (!(t = _.trys, t = t.length > 0 && t[t.length - 1]) && (op[0] === 6 || op[0] === 2)) { _ = 0; continue; }\r\n                    if (op[0] === 3 && (!t || (op[1] > t[0] && op[1] < t[3]))) { _.label = op[1]; break; }\r\n                    if (op[0] === 6 && _.label < t[1]) { _.label = t[1]; t = op; break; }\r\n                    if (t && _.label < t[2]) { _.label = t[2]; _.ops.push(op); break; }\r\n                    if (t[2]) _.ops.pop();\r\n                    _.trys.pop(); continue;\r\n            }\r\n            op = body.call(thisArg, _);\r\n        } catch (e) { op = [6, e]; y = 0; } finally { f = t = 0; }\r\n        if (op[0] & 5) throw op[1]; return { value: op[0] ? op[1] : void 0, done: true };\r\n    }\r\n}\r\n\r\nvar __createBinding = Object.create ? (function(o, m, k, k2) {\r\n    if (k2 === undefined) k2 = k;\r\n    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });\r\n}) : (function(o, m, k, k2) {\r\n    if (k2 === undefined) k2 = k;\r\n    o[k2] = m[k];\r\n});\r\n\r\nfunction __exportStar(m, o) {\r\n    for (var p in m) if (p !== \"default\" && !Object.prototype.hasOwnProperty.call(o, p)) __createBinding(o, m, p);\r\n}\r\n\r\nfunction __values(o) {\r\n    var s = typeof Symbol === \"function\" && Symbol.iterator, m = s && o[s], i = 0;\r\n    if (m) return m.call(o);\r\n    if (o && typeof o.length === \"number\") return {\r\n        next: function () {\r\n            if (o && i >= o.length) o = void 0;\r\n            return { value: o && o[i++], done: !o };\r\n        }\r\n    };\r\n    throw new TypeError(s ? \"Object is not iterable.\" : \"Symbol.iterator is not defined.\");\r\n}\r\n\r\nfunction __read(o, n) {\r\n    var m = typeof Symbol === \"function\" && o[Symbol.iterator];\r\n    if (!m) return o;\r\n    var i = m.call(o), r, ar = [], e;\r\n    try {\r\n        while ((n === void 0 || n-- > 0) && !(r = i.next()).done) ar.push(r.value);\r\n    }\r\n    catch (error) { e = { error: error }; }\r\n    finally {\r\n        try {\r\n            if (r && !r.done && (m = i[\"return\"])) m.call(i);\r\n        }\r\n        finally { if (e) throw e.error; }\r\n    }\r\n    return ar;\r\n}\r\n\r\n/** @deprecated */\r\nfunction __spread() {\r\n    for (var ar = [], i = 0; i < arguments.length; i++)\r\n        ar = ar.concat(__read(arguments[i]));\r\n    return ar;\r\n}\r\n\r\n/** @deprecated */\r\nfunction __spreadArrays() {\r\n    for (var s = 0, i = 0, il = arguments.length; i < il; i++) s += arguments[i].length;\r\n    for (var r = Array(s), k = 0, i = 0; i < il; i++)\r\n        for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++)\r\n            r[k] = a[j];\r\n    return r;\r\n}\r\n\r\nfunction __spreadArray(to, from, pack) {\r\n    if (pack || arguments.length === 2) for (var i = 0, l = from.length, ar; i < l; i++) {\r\n        if (ar || !(i in from)) {\r\n            if (!ar) ar = Array.prototype.slice.call(from, 0, i);\r\n            ar[i] = from[i];\r\n        }\r\n    }\r\n    return to.concat(ar || Array.prototype.slice.call(from));\r\n}\r\n\r\nfunction __await(v) {\r\n    return this instanceof __await ? (this.v = v, this) : new __await(v);\r\n}\r\n\r\nfunction __asyncGenerator(thisArg, _arguments, generator) {\r\n    if (!Symbol.asyncIterator) throw new TypeError(\"Symbol.asyncIterator is not defined.\");\r\n    var g = generator.apply(thisArg, _arguments || []), i, q = [];\r\n    return i = {}, verb(\"next\"), verb(\"throw\"), verb(\"return\"), i[Symbol.asyncIterator] = function () { return this; }, i;\r\n    function verb(n) { if (g[n]) i[n] = function (v) { return new Promise(function (a, b) { q.push([n, v, a, b]) > 1 || resume(n, v); }); }; }\r\n    function resume(n, v) { try { step(g[n](v)); } catch (e) { settle(q[0][3], e); } }\r\n    function step(r) { r.value instanceof __await ? Promise.resolve(r.value.v).then(fulfill, reject) : settle(q[0][2], r); }\r\n    function fulfill(value) { resume(\"next\", value); }\r\n    function reject(value) { resume(\"throw\", value); }\r\n    function settle(f, v) { if (f(v), q.shift(), q.length) resume(q[0][0], q[0][1]); }\r\n}\r\n\r\nfunction __asyncDelegator(o) {\r\n    var i, p;\r\n    return i = {}, verb(\"next\"), verb(\"throw\", function (e) { throw e; }), verb(\"return\"), i[Symbol.iterator] = function () { return this; }, i;\r\n    function verb(n, f) { i[n] = o[n] ? function (v) { return (p = !p) ? { value: __await(o[n](v)), done: n === \"return\" } : f ? f(v) : v; } : f; }\r\n}\r\n\r\nfunction __asyncValues(o) {\r\n    if (!Symbol.asyncIterator) throw new TypeError(\"Symbol.asyncIterator is not defined.\");\r\n    var m = o[Symbol.asyncIterator], i;\r\n    return m ? m.call(o) : (o = typeof __values === \"function\" ? __values(o) : o[Symbol.iterator](), i = {}, verb(\"next\"), verb(\"throw\"), verb(\"return\"), i[Symbol.asyncIterator] = function () { return this; }, i);\r\n    function verb(n) { i[n] = o[n] && function (v) { return new Promise(function (resolve, reject) { v = o[n](v), settle(resolve, reject, v.done, v.value); }); }; }\r\n    function settle(resolve, reject, d, v) { Promise.resolve(v).then(function(v) { resolve({ value: v, done: d }); }, reject); }\r\n}\r\n\r\nfunction __makeTemplateObject(cooked, raw) {\r\n    if (Object.defineProperty) { Object.defineProperty(cooked, \"raw\", { value: raw }); } else { cooked.raw = raw; }\r\n    return cooked;\r\n};\r\n\r\nvar __setModuleDefault = Object.create ? (function(o, v) {\r\n    Object.defineProperty(o, \"default\", { enumerable: true, value: v });\r\n}) : function(o, v) {\r\n    o[\"default\"] = v;\r\n};\r\n\r\nfunction __importStar(mod) {\r\n    if (mod && mod.__esModule) return mod;\r\n    var result = {};\r\n    if (mod != null) for (var k in mod) if (k !== \"default\" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);\r\n    __setModuleDefault(result, mod);\r\n    return result;\r\n}\r\n\r\nfunction __importDefault(mod) {\r\n    return (mod && mod.__esModule) ? mod : { default: mod };\r\n}\r\n\r\nfunction __classPrivateFieldGet(receiver, state, kind, f) {\r\n    if (kind === \"a\" && !f) throw new TypeError(\"Private accessor was defined without a getter\");\r\n    if (typeof state === \"function\" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError(\"Cannot read private member from an object whose class did not declare it\");\r\n    return kind === \"m\" ? f : kind === \"a\" ? f.call(receiver) : f ? f.value : state.get(receiver);\r\n}\r\n\r\nfunction __classPrivateFieldSet(receiver, state, value, kind, f) {\r\n    if (kind === \"m\") throw new TypeError(\"Private method is not writable\");\r\n    if (kind === \"a\" && !f) throw new TypeError(\"Private accessor was defined without a setter\");\r\n    if (typeof state === \"function\" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError(\"Cannot write private member to an object whose class did not declare it\");\r\n    return (kind === \"a\" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;\r\n}\r\n\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./node_modules/tslib/tslib.es6.js?");
+
+/***/ }),
+
+/***/ "./package.json":
+/*!**********************!*\
+  !*** ./package.json ***!
+  \**********************/
+/***/ ((module) => {
+
+eval("module.exports = JSON.parse('{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.8.0\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; webpack --watch\",\"build\":\"rm -rf dist; webpack\",\"build:errors\":\"tsc --noEmit\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"terser-webpack-plugin\":\"^5.3.0\",\"ts-loader\":\"^9.2.6\",\"tslib\":\"^2.3.1\",\"typescript\":\"^4.5.4\",\"webpack\":\"^5.65.0\",\"webpack-cli\":\"^4.9.1\"}}');\n\n//# sourceURL=webpack://@smirea/cookie-clicker-bot/./package.json?");
+
+/***/ })
+
+/******/ 	});
+/************************************************************************/
+/******/ 	// The module cache
+/******/ 	var __webpack_module_cache__ = {};
+/******/ 	
+/******/ 	// The require function
+/******/ 	function __webpack_require__(moduleId) {
+/******/ 		// Check if module is in cache
+/******/ 		var cachedModule = __webpack_module_cache__[moduleId];
+/******/ 		if (cachedModule !== undefined) {
+/******/ 			return cachedModule.exports;
+/******/ 		}
+/******/ 		// Create a new module (and put it into the cache)
+/******/ 		var module = __webpack_module_cache__[moduleId] = {
+/******/ 			// no module.id needed
+/******/ 			// no module.loaded needed
+/******/ 			exports: {}
+/******/ 		};
+/******/ 	
+/******/ 		// Execute the module function
+/******/ 		__webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+/******/ 	
+/******/ 		// Return the exports of the module
+/******/ 		return module.exports;
+/******/ 	}
+/******/ 	
+/************************************************************************/
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__webpack_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__webpack_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__webpack_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/************************************************************************/
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module can't be inlined because the eval devtool is used.
+/******/ 	var __webpack_exports__ = __webpack_require__("./src/index.ts");
+/******/ 	
+/******/ })()
 ;
-const $424feee8fe7c6c95$export$fe324b23443c13e2 = (selector)=>Array.from(document.querySelectorAll(selector))
-;
-const $424feee8fe7c6c95$export$90b4d2ff6acb88af = window.unsafeWindow || window;
-const $424feee8fe7c6c95$export$985739bfa5723e08 = $424feee8fe7c6c95$export$90b4d2ff6acb88af.Game;
-const $424feee8fe7c6c95$export$bc733b0c5cbb3e8a = (duration, { short: short = true , pad: pad = false  } = {
-})=>{
-    duration = Math.floor(duration);
-    let hours = String(Math.floor(duration / 3600));
-    let minutes = String(Math.floor(duration % 3600 / 60));
-    let seconds = String(duration % 60);
-    if (pad) [hours, minutes, seconds] = [
-        hours,
-        minutes,
-        seconds
-    ].map((num)=>num && ('0' + num).slice(-2)
-    );
-    const [h, m, s] = short ? [
-        'h',
-        'm',
-        's'
-    ] : [
-        ' hours',
-        ' minutes',
-        ' seconds'
-    ];
-    if (hours !== '0') return `${hours}${h} ${minutes}${m} ${seconds}${s}`;
-    if (minutes !== '0') return `${minutes}${m} ${seconds}${s}`;
-    return `${seconds}${s}`;
-};
-const $424feee8fe7c6c95$export$e251d23bea783311 = (number, { cookies: cookies = true , format: format = 'full'  } = {
-})=>{
-    number = Math.floor(number);
-    const labels = [
-        [
-            'million',
-            'M'
-        ],
-        [
-            'billion',
-            'B'
-        ],
-        [
-            'trillion',
-            'T'
-        ],
-        [
-            'quadrillion',
-            'Quad'
-        ],
-        [
-            'quintillion',
-            'Quint'
-        ],
-        [
-            'sextillion',
-            'Sext😏'
-        ],
-        [
-            'septillion',
-            'Sept'
-        ],
-        [
-            'octillion',
-            'Oct'
-        ],
-        [
-            'nonillion',
-            'Non'
-        ],
-        [
-            'decillion',
-            'Dec'
-        ], 
-    ];
-    if (number < 1000) return String(number);
-    if (number < 1000000) return `${Math.floor(number / 1000)},${number % 1000}`;
-    const power = Math.floor(Math.log10(number));
-    const floorPower = Math.floor(power / 3) * 3;
-    const label = labels[floorPower / 3 - 2];
-    let value = Math.floor(number / Math.pow(10, floorPower));
-    value += Math.round(Math.floor(number / Math.pow(10, floorPower - 2)) % 100) / 100;
-    value = Math.round(value * 100) / 100;
-    const unit = format === 'full' ? ' ' + label[0] : format === 'small' ? ' ' + label[1] : 'e' + floorPower;
-    return (cookies ? '🍪' : '') + String(value) + unit;
-};
-
-
-var $4e50deb68dcb59a4$exports = {};
-$4e50deb68dcb59a4$exports = JSON.parse("{\"name\":\"@smirea/cookie-clicker-bot\",\"private\":true,\"version\":\"1.8.0\",\"description\":\"\",\"main\":\"dist/CookieBot.js\",\"source\":\"src/index.ts\",\"scripts\":{\"watch\":\"rm -rf dist; parcel watch --no-source-maps\",\"build\":\"rm -rf dist; parcel build --no-source-maps\"},\"repository\":{\"type\":\"git\",\"url\":\"git+https://github.com/smirea/cookie-clicker-bot.git\"},\"keywords\":[],\"author\":\"\",\"license\":\"ISC\",\"bugs\":{\"url\":\"https://github.com/smirea/cookie-clicker-bot/issues\"},\"homepage\":\"https://github.com/smirea/cookie-clicker-bot#readme\",\"devDependencies\":{\"parcel\":\"^2.0.1\"}}");
-
-
-class $fe57486f6f15e392$export$2e2bcd8739ae039 {
-    constructor(){
-        this.options = {
-            cookieClickTimeout: 1000 / 15.1,
-            showLogs: 25,
-            buildingWait: 0.35,
-            upgradeWait: 0.35,
-            wrinklerPopTime: 480000,
-            // note: disabled for now, re-enable if page crashes
-            autoReloadMinutes: 0,
-            bannedUpgrades: {
-                'Milk selector': true,
-                'Elder Covenant': true
-            },
-            dragon: {
-                /** for each dragon purchase type, at what cookie % should you start waiting */ waitRatios: {
-                    cookie: 0.4,
-                    building: 0.8,
-                    all: 0.9
-                },
-                /** order in which aura is chosen. If it's not on this list, it won't be selected */ auras: [
-                    'Radiant Appetite',
-                    'Dragonflight',
-                    'Breath of Milk', 
-                ]
-            }
-        };
-        this.timers = {
-        };
-        this.achievementThresholds = {
-            Cursor: [
-                1,
-                2,
-                50,
-                100,
-                200,
-                300,
-                400,
-                500,
-                600,
-                700,
-                800,
-                900
-            ],
-            Default: [
-                1,
-                50,
-                100,
-                150,
-                200,
-                250,
-                300,
-                350,
-                400,
-                450,
-                500,
-                550,
-                600
-            ]
-        };
-        this.upgradeFatigue // prevent buying too many updates one after another
-         = 1;
-        this.cpsCache = {
-        };
-        this.localStorageLog = `CookieAutomator_logMessages_${$424feee8fe7c6c95$export$985739bfa5723e08.version}_${$424feee8fe7c6c95$export$985739bfa5723e08.beta}`;
-        let existingLog = [];
-        try {
-            existingLog = JSON.parse(localStorage[this.localStorageLog]);
-        } catch (ex) {
-        }
-        this.logMessages = $424feee8fe7c6c95$export$90b4d2ff6acb88af.__automateLog = $424feee8fe7c6c95$export$90b4d2ff6acb88af.__automateLog || existingLog;
-        this.options.cookieClickTimeout = Math.max(5, this.options.cookieClickTimeout);
-    }
-    start() {
-        this.stop();
-        this.startDate = Date.now();
-        this.clickBigCookieTimer();
-        this.maybeClickLumpTimer();
-        this.shimmerTimer();
-        this.buyTimer();
-        this.timers.saveLog = setInterval(()=>{
-            localStorage[this.localStorageLog] = JSON.stringify(this.logMessages.slice(-100));
-        }, 2000);
-        this.wrinklerTimer();
-        this.timers.dragonAuraTimer = setInterval(()=>this.dragonAuraTimer()
-        , 1000);
-        this.timers.reloadTimer = setInterval(()=>{
-            if (!this.options.autoReloadMinutes) return;
-            if (Date.now() - this.startDate / 60000 < this.options.autoReloadMinutes) return;
-            if (this.getBuffs().cpsMultiple > 1) return;
-            $424feee8fe7c6c95$export$985739bfa5723e08.promptOn = 0;
-            $424feee8fe7c6c95$export$90b4d2ff6acb88af.location.reload();
-        }, 60000);
-    }
-    stop() {
-        for (const x of Object.values(this.timers)){
-            clearTimeout(x);
-            clearInterval(x);
-        }
-    }
-    reset() {
-        this.stop();
-        delete localStorage[this.localStorageLog];
-        console.warn('I suggest reloading the webpage');
-    }
-    get realCps() {
-        return Math.round($424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs + $424feee8fe7c6c95$export$985739bfa5723e08.computedMouseCps * (1000 / this.options.cookieClickTimeout));
-    }
-    log(msg, { eta: eta , extra: extra , color: color  } = {
-    }) {
-        const last = this.logMessages[this.logMessages.length - 1];
-        if (last && last.msg === msg) {
-            ++last.count;
-            last.extra = extra;
-            last.eta = eta;
-        } else {
-            if (last) {
-                if (last.eta && last.eta < 30000) delete last.eta;
-                delete last.extra;
-            }
-            this.logMessages.push({
-                time: Date.now(),
-                msg: msg,
-                count: 1,
-                eta: eta,
-                extra: extra,
-                color: color
-            });
-        }
-        if (this.logMessages.length > 1000) this.logMessages.splice(0, this.logMessages.length - 1000);
-    }
-    getBuffs() {
-        let cpsMultiple = 1;
-        for (const buff of Object.values($424feee8fe7c6c95$export$985739bfa5723e08.buffs)){
-            if (!buff.visible || !buff.multCpS) continue;
-            cpsMultiple *= buff.multCpS;
-        }
-        return {
-            cpsMultiple: cpsMultiple
-        };
-    }
-    getAvailableDragonAuras() {
-        const auras = [];
-        for(const i in $424feee8fe7c6c95$export$985739bfa5723e08.dragonAuras){
-            const aura = $424feee8fe7c6c95$export$985739bfa5723e08.dragonAuras[i];
-            const index = parseInt(i);
-            if ($424feee8fe7c6c95$export$985739bfa5723e08.dragonLevel >= index + 4) auras.push({
-                ...aura,
-                index: index,
-                level: index + 4
-            });
-        }
-        auras.sort((a, b)=>a.index - b.index
-        );
-        return {
-            byIndex: auras,
-            byName: Object.fromEntries(auras.map((x)=>[
-                    x.name,
-                    x
-                ]
-            ))
-        };
-    }
-    buy(obj2, amount1 = 1) {
-        if (typeof amount1 === 'number' && amount1 < 1) {
-            console.warn('[CookieAutomator.buy()] Cannot get <1 amount: %s of %s', amount1, obj2.name);
-            return;
-        }
-        if (this.upgradeFatigue) {
-            if (obj2.type === 'upgrade') {
-                const increment = Math.min(2, 0.5 + Math.floor($424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs / 100) / 10);
-                this.upgradeFatigue = Math.min(this.upgradeFatigue + increment, 10);
-            } else this.upgradeFatigue = Math.max(this.upgradeFatigue - 0.2 * amount1, 1);
-        }
-        return obj2.buy(amount1);
-    }
-    maybeClickLumpTimer() {
-        if ((Date.now() - $424feee8fe7c6c95$export$985739bfa5723e08.lumpT) / 1000 / 3600 < 23) return;
-        $424feee8fe7c6c95$export$985739bfa5723e08.clickLump();
-    }
-    shimmerTimer() {
-        $424feee8fe7c6c95$export$3d8c2f653ac9d0b9('.shimmer')?.click();
-        this.timers.shimmerTimer = setTimeout(()=>{
-            this.shimmerTimer();
-        }, 3000);
-    }
-    clickBigCookieTimer() {
-        $424feee8fe7c6c95$export$3d8c2f653ac9d0b9('#bigCookie')?.click();
-        this.timers.clickBigCookieTimer = setTimeout(()=>this.clickBigCookieTimer()
-        , this.options.cookieClickTimeout);
-    }
-    wrinklerTimer() {
-        const { cpsMultiple: cpsMultiple  } = this.getBuffs();
-        if (cpsMultiple < 1) $424feee8fe7c6c95$export$985739bfa5723e08.CollectWrinklers();
-        else if (cpsMultiple === 1) $424feee8fe7c6c95$export$985739bfa5723e08.PopRandomWrinkler();
-        this.timers.wrinklerTimer = setTimeout(()=>this.wrinklerTimer()
-        , this.options.wrinklerPopTime);
-    }
-    dragonAuraTimer() {
-        if ($424feee8fe7c6c95$export$985739bfa5723e08.hasAura(this.options.dragon.auras[0])) return; // we're done until ascension
-        // @TODO: apparently there's a 2nd aura slot to be handled
-        const auras = this.getAvailableDragonAuras();
-        for (const name of this.options.dragon.auras){
-            const aura = auras.byName[name];
-            if (!aura) continue;
-            if ($424feee8fe7c6c95$export$985739bfa5723e08.hasAura(name)) return;
-            const highestBuilding = Array.from($424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById).reverse().find((x)=>x.amount > 0
-            );
-            if (!highestBuilding) return; // weird but whatever
-            if (highestBuilding.amount === 1) {
-                highestBuilding.sell();
-                this.log(`🤫 Sneakily selling 1 ✕ ${highestBuilding.name} so the dragon doesn't eat it`);
-            }
-            $424feee8fe7c6c95$export$985739bfa5723e08.ClosePrompt();
-            $424feee8fe7c6c95$export$985739bfa5723e08.SetDragonAura(aura.index, 0);
-            const btn = $424feee8fe7c6c95$export$3d8c2f653ac9d0b9('#promptOption0');
-            if (!btn || btn.innerText.trim().toLowerCase() !== 'confirm') {
-                console.warn('[CookieAutomator.dragonAuraTimer()] FML the confirm changed');
-                return;
-            }
-            btn.click();
-            this.log('🎇 Changed Dragon Aura: ' + aura.name + '\n(' + $fe57486f6f15e392$var$cleanHTML(aura.desc) + ')', {
-                color: 'yellow'
-            });
-            return;
-        }
-    }
-    getCps(name) {
-        this.cpsCache = this.cpsCache || {
-        };
-        if (this.cpsCache[name]) return this.cpsCache[name];
-        const obj = $424feee8fe7c6c95$export$985739bfa5723e08.Objects[name];
-        const tooltip = obj.tooltip();
-        const match = tooltip.replace(/,/g, '').replace(/\d+(\.\d+)?\s+million/gi, (x)=>String(parseFloat(x) * 1000000)
-        ).replace(/\d+(\.\d+)?\s+billion/gi, (x)=>String(parseFloat(x) * 1000000000)
-        ).replace(/\d+(\.\d+)?\s+trillion/gi, (x)=>String(parseFloat(x) * 1000000000000)
-        ).replace(/\d+(\.\d+)?\s+quadrillion/gi, (x)=>String(parseFloat(x) * 1000000000000000)
-        ).replace(/\d+(\.\d+)?\s+quintillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000)
-        ).replace(/\d+(\.\d+)?\s+sextillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000)
-        ).replace(/\d+(\.\d+)?\s+septillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000000)
-        ).replace(/\d+(\.\d+)?\s+octillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000000000)
-        ).replace(/\d+(\.\d+)?\s+nonillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000000000000)
-        ).replace(/\d+(\.\d+)?\s+decillion/gi, (x)=>String(parseFloat(x) * 1000000000000000000000000000000000)
-        ).match(/produces <b>([^c]+) cookies/) || [];
-        let cps = parseFloat(match[1] || '');
-        // @TODO: figure out a better way instead of obj.baseCps, it's way too low
-        if (Number.isNaN(cps)) return obj.bought ? obj.baseCps : 0;
-        if (obj.name === 'Grandma') for (const x1 of $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById){
-            if (x1.name === 'Grandma') continue;
-            if (!x1.grandma?.bought) continue;
-            const match = x1.grandma.desc.match(/gain <b>\+(\d+).*<\/b> per (\d+)? grandma/i) || [];
-            const pct = parseFloat(match[1]);
-            const multiplier = parseInt(match[2] || '1', 10);
-            if (!pct || !multiplier || Number.isNaN(pct) || Number.isNaN(multiplier)) continue;
-            const childCps = x1.cps(x1);
-            cps = cps + childCps * (pct / 100) * Math.floor($424feee8fe7c6c95$export$985739bfa5723e08.Objects.Grandma.amount / multiplier);
-        }
-        this.cpsCache[name] = cps;
-        return cps;
-    }
-    getBuildingStats() {
-        const sorted = $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById.map((obj, index)=>({
-                name: obj.name,
-                price: obj.price,
-                cps: this.getCps(obj.name),
-                pricePerCps: Math.round(obj.price / this.getCps(obj.name)),
-                index: index,
-                obj: obj,
-                relativeValue: 0
-            })
-        ).filter((obj)=>obj.cps
-        ).sort((a, b)=>a.pricePerCps - b.pricePerCps
-        );
-        const min = sorted[0]?.pricePerCps || 1;
-        // {
-        //     const table = {};
-        //     for (const item of Array.from(sorted).sort((a, b) => a.index - b.index)) {
-        //         table[item.name] = {
-        //             cps: item.cps,
-        //             price: item.price,
-        //             pricePerCps: item.pricePerCps,
-        //         };
-        //     }
-        //     console.table(table);
-        // }
-        for (const obj1 of sorted)obj1.relativeValue = Math.round(obj1.pricePerCps / min * 10) / 10;
-        const active = $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById.filter((x)=>!x.locked && !x.bought
-        );
-        const next = sorted[0]?.obj;
-        const nextWait = active.find((x)=>$424feee8fe7c6c95$export$985739bfa5723e08.cookies >= x.price * this.options.buildingWait
-        );
-        const nextNew = active.find((x)=>x.price <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies
-        );
-        const nextHighValue = sorted.slice(1).find((item, index)=>{
-            return sorted[0].price <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies && item.relativeValue - sorted[0].relativeValue >= 10 + 2.5 ** (index + 2);
-        }) ? sorted[0].obj : null;
-        return {
-            next: next,
-            nextNew: nextNew,
-            nextWait: nextWait,
-            nextHighValue: nextHighValue ? {
-                obj: nextHighValue,
-                amount: $fe57486f6f15e392$var$getAffordableBuildingMultiple(nextHighValue, [
-                    50,
-                    40,
-                    30,
-                    20,
-                    10,
-                    1
-                ])
-            } : null,
-            sorted: sorted
-        };
-    }
-    getUpgradeStats() {
-        const getPrice = (upg)=>{
-            let result = upg.getPrice();
-            if (/cookie production multiplier/i.test(upg.desc)) result *= 1.2;
-            else if (/clicking gains/i.test(upg.desc)) result *= 0.8;
-            else if (/grandmas|twice/i.test(upg.desc)) result *= 0.6;
-            return result;
-        };
-        const active = Object.values($424feee8fe7c6c95$export$985739bfa5723e08.Upgrades).filter((x)=>!x.bought && x.unlocked && !this.options.bannedUpgrades[x.name]
-        ).sort((a, b)=>getPrice(a) - getPrice(b)
-        );
-        const next = active[0]?.canBuy() ? active[0] : null;
-        const waitPrice = active[0]?.getPrice() * this.options.upgradeWait * (this.upgradeFatigue || 1);
-        const nextWait = active[0] && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= 30000 && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= waitPrice ? active[0] : null;
-        const waitPct = nextWait && Math.round($424feee8fe7c6c95$export$985739bfa5723e08.cookies / active[0].getPrice() * 100) + '%' || undefined;
-        return {
-            next: next,
-            nextWait: nextWait,
-            waitPct: waitPct
-        };
-    }
-    getSantaStats() {
-        const price = Math.pow($424feee8fe7c6c95$export$985739bfa5723e08.santaLevel + 1, $424feee8fe7c6c95$export$985739bfa5723e08.santaLevel + 1);
-        if ($424feee8fe7c6c95$export$985739bfa5723e08.santaLevel >= 14 || price > 30 && $424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs < 1000) return {
-            wait: null,
-            buy: null,
-            price: 0
-        };
-        const buy = $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= price;
-        const wait = !buy && $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= price * 0.75;
-        return {
-            wait: wait,
-            buy: buy,
-            price: price
-        };
-    }
-    getAchievementThresholdStats() {
-        const options = [];
-        for (const obj of $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById){
-            if (!obj.bought || obj.amount <= 1) continue;
-            const ranges = this.achievementThresholds[obj.name] || this.achievementThresholds.Default;
-            if (obj.amount >= ranges[ranges.length - 1]) continue;
-            const index = ranges.findIndex((start, i)=>start <= obj.amount && obj.amount < ranges[i + 1]
-            );
-            const nextAmount = ranges[index + 1];
-            const nextPrice = $fe57486f6f15e392$var$getCostOfNBuildings(obj, nextAmount);
-            const toBuy = nextAmount - obj.amount;
-            options.push({
-                obj: obj,
-                toBuy: toBuy,
-                nextAmount: nextAmount,
-                nextPrice: nextPrice,
-                available: nextPrice <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies,
-                wait: $424feee8fe7c6c95$export$985739bfa5723e08.cookies >= nextPrice * 0.8
-            });
-        }
-        if (!options.length) return null;
-        options.sort((a, b)=>a.nextPrice - b.nextPrice
-        );
-        return options[0];
-    }
-    getDragonStats() {
-        if ($424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs < 100000 || $424feee8fe7c6c95$export$985739bfa5723e08.dragonLevel >= $424feee8fe7c6c95$export$985739bfa5723e08.dragonLevels.length - 1) return {
-        };
-        if (this.getAvailableDragonAuras().byName[this.options.dragon.auras[0]]) return {
-        }; // you've trained your dragon
-        const lvl = $424feee8fe7c6c95$export$985739bfa5723e08.dragonLevels[$424feee8fe7c6c95$export$985739bfa5723e08.dragonLevel];
-        if (lvl.cost()) return {
-            buy: lvl
-        };
-        const match = lvl.costStr().match(/^(\d+) (.*)$/) || [];
-        const amount = parseInt(match[1]);
-        const unit = match[2];
-        if (!amount || Number.isNaN(amount) || !unit) {
-            console.warn('[CookieAutomator:getDragonStats()] Cannot parse: %s', lvl.costStr());
-            return {
-            };
-        }
-        const handlers = {
-            'million cookies': ()=>({
-                    type: 'cookie',
-                    amount: amount,
-                    cookies: amount
-                })
-            ,
-            'of every building': ()=>({
-                    type: 'all',
-                    amount: amount,
-                    cookies: $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById.map((obj)=>$fe57486f6f15e392$var$getCostOfNBuildings(obj, amount)
-                    ).reduce((s, x)=>s + x
-                    , 0)
-                })
-        };
-        for (const obj3 of $424feee8fe7c6c95$export$985739bfa5723e08.ObjectsById)handlers[obj3.plural] = ()=>({
-                type: 'building',
-                value: obj3.name,
-                amount: amount,
-                cookies: $fe57486f6f15e392$var$getCostOfNBuildings(obj3, amount)
-            })
-        ;
-        if (!handlers[unit]) {
-            console.warn('[CookieAutomator:getDragonStats()] Unknown unit: %s', lvl.costStr());
-            return {
-            };
-        }
-        const goal = handlers[unit]();
-        if ($424feee8fe7c6c95$export$985739bfa5723e08.cookies >= goal.cookies * this.options.dragon.waitRatios[goal.type]) return {
-            wait: {
-                lvl: lvl,
-                goal: goal
-            }
-        };
-        return {
-        };
-    }
-    buyTimer() {
-        console.clear();
-        this.cpsCache = {
-        };
-        let timeout = 1000;
-        if (this.upgradeFatigue > 0 && $424feee8fe7c6c95$export$985739bfa5723e08.cookiesPs >= 10000000000000) this.upgradeFatigue = 0;
-        const buildings = this.getBuildingStats();
-        const upgrades = this.getUpgradeStats();
-        const santa = this.getSantaStats();
-        const threshold = this.getAchievementThresholdStats();
-        const dragon = this.getDragonStats();
-        const getEta = (targetCookies)=>{
-            if (targetCookies <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies) return undefined;
-            return (targetCookies - $424feee8fe7c6c95$export$985739bfa5723e08.cookies) / this.realCps;
-        };
-        const run = ()=>{
-            if (buildings.nextHighValue) {
-                const { obj: obj , amount: amount  } = buildings.nextHighValue;
-                this.buy(obj, amount);
-                return this.log(`💰 So cheap it just can't wait: Bought ${obj.name} ✕ ${amount}`);
-            }
-            if (dragon.buy) {
-                this.buy({
-                    name: 'dragon',
-                    buy: ()=>$424feee8fe7c6c95$export$985739bfa5723e08.UpgradeDragon()
-                });
-                this.log(`🔥 Trained your dragon for the low low cost of ${dragon.buy.costStr()} \n(${dragon.buy.action}) `);
-                return;
-            }
-            if (dragon.wait) {
-                const { lvl: lvl , goal: goal  } = dragon.wait;
-                if ($424feee8fe7c6c95$export$985739bfa5723e08.cookies >= goal.cookies) switch(goal.type){
-                    case 'cookie':
-                        break;
-                    case 'building':
-                        {
-                            const toBuy = goal.amount - $424feee8fe7c6c95$export$985739bfa5723e08.Objects[goal.value].amount;
-                            const obj = $424feee8fe7c6c95$export$985739bfa5723e08.Objects[goal.value];
-                            this.log(`🐲 Bought ${toBuy} ✕ ${obj.name} to feed to the dragon`);
-                            this.buy(obj, toBuy);
-                            break;
-                        }
-                    case 'all':
-                        console.warn('This will totally fuck up everything yo');
-                        break;
-                }
-                else this.log(`🐲 Raising cookies to feed the dragon, need ${$424feee8fe7c6c95$export$e251d23bea783311(goal.cookies)} to get ${lvl.costStr()}`, {
-                    eta: getEta(goal.cookies)
-                });
-                return;
-            }
-            if (upgrades.next) {
-                this.buy(upgrades.next);
-                timeout *= 5;
-                return this.log(`💹 Bought new upgrade: ${upgrades.next.name}\n(${$fe57486f6f15e392$var$cleanHTML(upgrades.next.desc)})`, {
-                    color: 'lightgreen'
-                });
-            }
-            if (upgrades.nextWait) {
-                timeout *= 10;
-                this.log(`🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`, {
-                    eta: getEta(upgrades.nextWait.getPrice()),
-                    extra: upgrades.waitPct
-                });
-                return;
-            }
-            if (threshold?.available) {
-                const { obj: obj , toBuy: toBuy , nextAmount: nextAmount  } = threshold;
-                const { amount: amount  } = obj;
-                this.buy(obj, toBuy);
-                this.log(`🚀 To the moon: Bought from ${amount} → ${nextAmount} of ${obj.name}`);
-                return;
-            }
-            if (threshold?.wait) {
-                this.log(`🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${$424feee8fe7c6c95$export$e251d23bea783311(threshold.nextPrice)}`, {
-                    eta: getEta(threshold.nextPrice)
-                });
-                timeout *= 10;
-                return;
-            }
-            if (santa.buy) {
-                this.buy({
-                    buy: ()=>$424feee8fe7c6c95$export$985739bfa5723e08.UpgradeSanta()
-                });
-                timeout *= 5;
-                return this.log('🎅 Ho Ho Ho!');
-            }
-            if (santa.wait) return this.log(`🎅 Twas the night before X-MAS!`, {
-                eta: getEta(santa.price)
-            });
-            if (buildings.nextNew) {
-                this.buy(buildings.nextNew);
-                this.log(`🏛 Bought new building type: ${buildings.nextNew.name}`);
-                return;
-            }
-            if (buildings.nextWait) {
-                this.log(`🟡 Waiting to buy new building type: ${buildings.nextWait.name}`, {
-                    eta: getEta(buildings.nextWait.price)
-                });
-                timeout *= 10;
-                return;
-            }
-            if (buildings.next) {
-                if (buildings.next.price <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies) {
-                    this.buy(buildings.next);
-                    this.log(`🏛 Bought building: ${buildings.next.name}`);
-                    return;
-                }
-                this.log(`⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`, {
-                    eta: getEta(buildings.sorted[0].price)
-                });
-                timeout *= 5;
-                return;
-            }
-            this.log("You're too poor... but that's a good thing!");
-            timeout *= 5;
-        };
-        run();
-        this.printLog({
-            buildings: buildings
-        });
-        this.timers.buyTimer = setTimeout(()=>this.buyTimer()
-        , timeout);
-    }
-    printLog({ buildings: buildings  }) {
-        console.log('%c%s v%s', 'color:gray', (/*@__PURE__*/$parcel$interopDefault($4e50deb68dcb59a4$exports)).name, (/*@__PURE__*/$parcel$interopDefault($4e50deb68dcb59a4$exports)).version);
-        console.log(`upgradeFatigue: %s | realCps: %s`, this.upgradeFatigue ? Math.round(this.upgradeFatigue * 100) / 100 + 'x' : 'disabled', $424feee8fe7c6c95$export$e251d23bea783311(this.realCps));
-        console.log('%cBuy Order:', 'font-weight:bold');
-        for (const obj of buildings.sorted)console.log('   - %s: %sx', obj.name, obj.relativeValue);
-        // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
-        for (const { time: time , msg: msg , count: count , eta: eta , extra: extra , color: color = 'white'  } of this.logMessages.slice(-1 * this.options.showLogs))console.log(`%c%s%c %s %c%s`, 'color:gray', new Date(time).toISOString().slice(11, 19), `color:${color}`, msg, 'color:gray', [
-            count > 1 ? `✕ ${count}` : '',
-            extra,
-            eta ? 'ETA: ' + $424feee8fe7c6c95$export$bc733b0c5cbb3e8a(eta) : '', 
-        ].filter((x)=>x
-        ).join(' | '));
-    }
-}
-const $fe57486f6f15e392$var$getAffordableBuildingMultiple = (obj, choices)=>choices.find((end)=>$fe57486f6f15e392$var$getCostOfNBuildings(obj, obj.amount + end) <= $424feee8fe7c6c95$export$985739bfa5723e08.cookies
-    ) || null
-;
-const $fe57486f6f15e392$var$getCostOfNBuildings = (obj, end)=>obj.amount >= end ? 0 : obj.basePrice * (1.15 ** end - 1.15 ** obj.amount) / 0.15
-;
-const $fe57486f6f15e392$var$cleanHTML = (html)=>html.replace(/<q>.*<\/q>/g, '').replace(/<[^>]+>/g, '')
-;
-
-
-
-setTimeout(()=>{
-    $424feee8fe7c6c95$export$90b4d2ff6acb88af.myCookieAutomator?.stop();
-    $424feee8fe7c6c95$export$90b4d2ff6acb88af.myCookieAutomator = new $fe57486f6f15e392$export$2e2bcd8739ae039;
-    $424feee8fe7c6c95$export$90b4d2ff6acb88af.myCookieAutomator.start();
-// console.log('>>', myCookieAutomator.getCps('Cursor'));
-// console.log('% =', Math.round(myCookieAutomator.getCps('Grandma') / 341437 * 100));
-}, 500);
-'🍪🚜';
-
-

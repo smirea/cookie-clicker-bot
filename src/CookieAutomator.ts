@@ -18,6 +18,7 @@ import PageReloadTimer from './timers/PageReloadTimer';
 import ShimmerTimer from './timers/ShimmerTimer';
 import SugarLumpTimer from './timers/SugarLumpTimer';
 import WrinklerTimer from './timers/WrinklerTimer';
+import BuildingStats from './typeDefs';
 
 export default class CookieAutomator {
     logMessages: LogMessage[];
@@ -172,8 +173,8 @@ export default class CookieAutomator {
         return cps;
     }
 
-    getBuildingStats() {
-        const sorted = Game.ObjectsById
+    getBuildingStats(): BuildingStats {
+        const sorted: BuildingStats['sorted'] = Game.ObjectsById
             .map((obj, index) => ({
                 name: obj.name,
                 price: obj.price,
@@ -346,9 +347,7 @@ export default class CookieAutomator {
         return {};
     }
 
-    printLog({ buildings }: {
-        buildings: ReturnType<typeof CookieAutomator['prototype']['getBuildingStats']>;
-    }) {
+    printLog({ buildings }: { buildings: BuildingStats; }) {
         console.log('%c%s v%s', 'color:gray', packageJson.name, packageJson.version);
         console.log(
             `upgradeFatigue: %s | realCps: %s`,

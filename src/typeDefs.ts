@@ -110,3 +110,19 @@ export type Wrinkler = {
     x: number;
     y: number;
 };
+
+export default interface BuildingStats {
+    next?: Building;
+    nextNew?: Building;
+    nextWait?: Building;
+    nextHighValue?: null | { obj: Building; amount: number };
+    sorted: Array<{
+        name: string;
+        price: number;
+        cps: number;
+        pricePerCps: number;
+        index: number;
+        obj: Building;
+        relativeValue: number;
+    }>
+}
