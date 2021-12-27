@@ -1,4 +1,11 @@
-import type { Building, BuildingName, Buyable, DragonLevel, DragonLevelGoal, GameT, Upgrade } from './typeDefs';
+import type {
+    Building,
+    BuildingName,
+    Buyable,
+    DragonLevel,
+    DragonLevelGoal,
+    Upgrade,
+} from './typeDefs';
 import { $, formatAmount, formatDuration, Game, global } from './utils';
 import packageJson from '../package.json';
 
@@ -8,7 +15,9 @@ export default class CookieAutomator {
         showLogs: 25,
         buildingWait: 0.35, // what % [0-1] of the building price to start waiting to buy
         upgradeWait: 0.35, // what % [0-1] of the upgrade price to start waiting to buy
-        wrinklerPopTime: 5 * 60e3, // pop a wrinkler every X ms
+        wrinklerPopTime: 8 * 60e3, // pop a wrinkler every X ms
+        // note: disabled for now, re-enable if page crashes
+        autoReloadMinutes: 0, // refresh the page every X minutes if there isn't an active buff
         bannedUpgrades: {
             'Milk selector': true, // why would you ever buy this :/
             'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse
@@ -36,7 +45,8 @@ export default class CookieAutomator {
         Default: [1, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600],
     };
     upgradeFatigue = 1; // prevent buying too many updates one after another
-    _cpsCache: { [key in BuildingName]?: number } = {};
+    private cpsCache: { [key in BuildingName]?: number } = {};
+    private startDate!: number;
 
     localStorageLog = `CookieAutomator_logMessages_${Game.version}_${Game.beta}`;
 
@@ -51,6 +61,7 @@ export default class CookieAutomator {
 
     start() {
         this.stop();
+        this.startDate = Date.now();
         this.clickBigCookieTimer();
         this.maybeClickLumpTimer();
         this.shimmerTimer();
@@ -60,6 +71,13 @@ export default class CookieAutomator {
         }, 2e3);
         this.wrinklerTimer();
         this.timers.dragonAuraTimer = setInterval(() => this.dragonAuraTimer(), 1e3);
+        this.timers.reloadTimer = setInterval(() => {
+            if (!this.options.autoReloadMinutes) return;
+            if (Date.now() - this.startDate / 60e3 < this.options.autoReloadMinutes) return;
+            if (this.getBuffs().cpsMultiple > 1) return;
+            Game.promptOn = 0;
+            global.location.reload();
+        }, 60e3);
     }
 
     stop() {
@@ -165,7 +183,7 @@ export default class CookieAutomator {
         if (cpsMultiple < 1) Game.CollectWrinklers();
         else if (cpsMultiple === 1) Game.PopRandomWrinkler();
 
-        this.timers.wrinklerTimer = setInterval(
+        this.timers.wrinklerTimer = setTimeout(
             () => this.wrinklerTimer(),
             this.options.wrinklerPopTime
         );
@@ -206,8 +224,8 @@ export default class CookieAutomator {
     }
 
     getCps(name: BuildingName): number {
-        this._cpsCache = this._cpsCache || {};
-        if (this._cpsCache[name]) return this._cpsCache[name]!;
+        this.cpsCache = this.cpsCache || {};
+        if (this.cpsCache[name]) return this.cpsCache[name]!;
 
         const obj = Game.Objects[name];
         const tooltip = obj.tooltip();
@@ -225,6 +243,7 @@ export default class CookieAutomator {
             .match(/produces <b>([^c]+) cookies/) || [];
         let cps = parseFloat(match[1] || '');
 
+        // @TODO: figure out a better way instead of obj.baseCps, it's way too low
         if (Number.isNaN(cps)) return obj.bought ? obj.baseCps : 0;
 
         if (obj.name === 'Grandma') {
@@ -240,7 +259,7 @@ export default class CookieAutomator {
             }
         }
 
-        this._cpsCache[name] = cps;
+        this.cpsCache[name] = cps;
 
         return cps;
     }
@@ -421,10 +440,10 @@ export default class CookieAutomator {
 
     buyTimer() {
         console.clear();
-        this._cpsCache = {};
+        this.cpsCache = {};
         let timeout = 1000;
 
-        if (this.upgradeFatigue > 0 && Game.cookiesPs >= 1e12) {
+        if (this.upgradeFatigue > 0 && Game.cookiesPs >= 1e13) {
             this.upgradeFatigue = 0;
         }
 

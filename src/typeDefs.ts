@@ -30,6 +30,9 @@ export interface GameT {
     /** returns if the aura is the currently active one, NOT if it is available */
     readonly hasAura: (name: string) => boolean;
     readonly ClosePrompt: () => void;
+
+    // actually writeable props!
+    promptOn: 0 | 1;
 }
 
 export type BuildingName = 'Cursor' | 'Grandma' | 'Farm' | 'Mine' | 'Factory' | 'Bank' | 'Temple' | 'Wizard tower' | 'Shipment' | 'Alchemy lab' | 'Portal' | 'Time machine' | 'Antimatter condenser' | 'Prism' | 'Chancemaker' | 'Fractal engine' | 'Javascript console' | 'Idleverse' | 'Cortex baker';
