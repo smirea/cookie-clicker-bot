@@ -14,8 +14,8 @@ export default class ShimmerTimer extends Timer {
             if (Game.shimmers.length > 10) this.scaleTimeout(0.1);
             else this.scaleTimeout(0.25);
         } else {
-            if (first.type === 'golden' && first.life <= 100) {
-                first.l.click();
+            if (first.type === 'golden') {
+                if (first.life <= 100) first.l.click();
             } else first.l.click();
         }
     }

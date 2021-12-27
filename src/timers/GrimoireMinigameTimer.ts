@@ -24,7 +24,7 @@ export default class GrimoireMinigameTimer extends Timer {
             }
         }
 
-        if (cpsMultiple > 5) {
+        if (cpsMultiple > 5 && pctMagic > 0.65) {
             if (!negativeBuffs) return cast(grimoire.spells['stretch time']);
         }
 

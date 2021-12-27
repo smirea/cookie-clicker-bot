@@ -35,6 +35,7 @@ export interface GameT {
     /** returns if the aura is the currently active one, NOT if it is available */
     readonly hasAura: (name: string) => boolean;
     readonly ClosePrompt: () => void;
+    readonly hasBuff: (buffName: Buff['name']) => boolean;
     readonly shimmers: Array<{
         type: 'reindeer' | 'golden';
         dur: number;
