@@ -6,7 +6,7 @@ import type {
     DragonLevelGoal,
     Upgrade,
 } from './typeDefs';
-import { Game, getAffordableBuildingMultiple, getCostOfNBuildings, global } from './utils';
+import { $$, Game, getAffordableBuildingMultiple, getCostOfNBuildings, global } from './utils';
 import options from './options';
 
 import BuyTimer from './timers/BuyTimer';
@@ -25,6 +25,7 @@ export default class CookieAutomator {
     cpsCache: { [key in BuildingName]?: number } = {};
     startDate!: number;
     lastState: { buildings: BuildingStats } = {} as any;
+    domNode: HTMLDivElement;
     timers = {
         BuyTimer: new BuyTimer(this),
         ClickCookieTimer: new ClickCookieTimer(this),
@@ -36,6 +37,7 @@ export default class CookieAutomator {
         SugarLumpTimer: new SugarLumpTimer(this),
         WrinklerTimer: new WrinklerTimer(this),
     };
+    isRunning = false;
 
     constructor() {
         options.cookieClickTimeout = Math.max(5, options.cookieClickTimeout);
@@ -45,22 +47,53 @@ export default class CookieAutomator {
             existingLog = JSON.parse(localStorage[options.localStorage.log]);
         } catch (ex) {}
         this.logMessages = global.__automateLog = global.__automateLog || existingLog;
+
+        $$('.CookieAutomator').forEach(el => el.remove());
+        this.domNode = document.createElement('div');
+        document.body.appendChild(this.domNode);
+        this.domNode.classList.add('CookieAutomator');
+        this.domNode.setAttribute('style', 'position:fixed;z-index:999999999999;top:35px;left:5px;cursor:pointer;display:flex;align-items:center;color:white;cursor:pointer;background:rgba(0,0,0,0.95);padding:5px;');
+        this.domNode.innerHTML = `
+            <span>Automator: </span>
+            <span style='margin-left:5px'></span>
+            <span class='icon' style='width:10px;height:10px;border-radius:50%;margin-left:5px;'></span>
+        `;
+        this.domNode.addEventListener('click', () => {
+            if (this.isRunning) this.stop(); else this.start();
+            this.updateDom();
+        });
+        this.updateDom();
     }
 
     start() {
         this.stop();
         this.startDate = Date.now();
         for (const timer of Object.values(this.timers)) timer.start();
+        this.isRunning = true;
+        this.updateDom();
     }
 
     stop() {
         for (const timer of Object.values(this.timers)) timer.stop();
+        this.isRunning = false;
+        this.updateDom();
     }
 
     reset() {
         this.stop();
         for (const key in options.localStorage) delete localStorage[key];
         location.reload();
+    }
+
+    updateDom() {
+        const [, text, icon] = this.domNode.children as unknown as HTMLDivElement[];
+        if (this.isRunning) {
+            icon.style.background = 'lightgreen';
+            text.innerHTML = 'on';
+        } else {
+            icon.style.background = 'red';
+            text.innerHTML = 'off';
+        }
     }
 
     get realCps() {
@@ -279,8 +312,6 @@ export default class CookieAutomator {
         const price = Math.pow(Game.santaLevel + 1, Game.santaLevel + 1);
 
         if (
-            // how about you buy some of the available upgrades first
-            this.getAvailableUpgrades().length >= 10 ||
             Game.santaLevel >= 14 ||
             // ho ho hold on a bit
             (price > 30 && Game.cookiesPs < 1000)
