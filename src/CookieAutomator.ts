@@ -6,95 +6,63 @@ import type {
     DragonLevelGoal,
     Upgrade,
 } from './typeDefs';
-import { $, formatAmount, formatDuration, Game, global } from './utils';
+import { $, formatAmount, formatDuration, Game, getAffordableBuildingMultiple, getCostOfNBuildings, global } from './utils';
 import packageJson from '../package.json';
+import options from './options';
+import type Timer from './Timer';
+import BuyTimer from './timers/BuyTimer';
+import ClickCookieTimer from './timers/ClickCookieTimer';
+import DragonAuraTimer from './timers/DragonAuraTimer';
+import LogTimer from './timers/LogTimer';
+import PageReloadTimer from './timers/PageReloadTimer';
+import ShimmerTimer from './timers/ShimmerTimer';
+import SugarLumpTimer from './timers/SugarLumpTimer';
+import WrinklerTimer from './timers/WrinklerTimer';
 
 export default class CookieAutomator {
-    options = {
-        cookieClickTimeout: 1000 / 15.1, // sneaky
-        showLogs: 25,
-        buildingWait: 0.35, // what % [0-1] of the building price to start waiting to buy
-        upgradeWait: 0.35, // what % [0-1] of the upgrade price to start waiting to buy
-        wrinklerPopTime: 8 * 60e3, // pop a wrinkler every X ms
-        // note: disabled for now, re-enable if page crashes
-        autoReloadMinutes: 0, // refresh the page every X minutes if there isn't an active buff
-        bannedUpgrades: {
-            'Milk selector': true, // why would you ever buy this :/
-            'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse
-        } as Record<string, boolean>,
-        dragon: {
-            /** for each dragon purchase type, at what cookie % should you start waiting */
-            waitRatios: {
-                cookie: 0.4,
-                building: 0.8,
-                all: 0.9,
-            },
-            /** order in which aura is chosen. If it's not on this list, it won't be selected */
-            auras: [
-                'Radiant Appetite',
-                'Dragonflight',
-                'Breath of Milk',
-            ],
-        },
-    };
-
     logMessages: LogMessage[];
-    private timers: Record<string, NodeJS.Timeout> = {};
-    achievementThresholds: Record<string, number[]> = {
-        Cursor: [1, 2, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900],
-        Default: [1, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600],
-    };
     upgradeFatigue = 1; // prevent buying too many updates one after another
-    private cpsCache: { [key in BuildingName]?: number } = {};
-    private startDate!: number;
-
-    localStorageLog = `CookieAutomator_logMessages_${Game.version}_${Game.beta}`;
+    cpsCache: { [key in BuildingName]?: number } = {};
+    startDate!: number;
+    timers: Timer[] = [
+        new BuyTimer(this),
+        new ClickCookieTimer(this),
+        new DragonAuraTimer(this),
+        new LogTimer(this),
+        new PageReloadTimer(this),
+        new ShimmerTimer(this),
+        new SugarLumpTimer(this),
+        new WrinklerTimer(this),
+    ];
 
     constructor() {
+        options.cookieClickTimeout = Math.max(5, options.cookieClickTimeout);
+
         let existingLog = [];
         try {
-            existingLog = JSON.parse(localStorage[this.localStorageLog]);
+            existingLog = JSON.parse(localStorage[options.localStorage.log]);
         } catch (ex) {}
         this.logMessages = global.__automateLog = global.__automateLog || existingLog;
-        this.options.cookieClickTimeout = Math.max(5, this.options.cookieClickTimeout);
     }
 
     start() {
         this.stop();
         this.startDate = Date.now();
-        this.clickBigCookieTimer();
-        this.maybeClickLumpTimer();
-        this.shimmerTimer();
-        this.buyTimer();
-        this.timers.saveLog = setInterval(() => {
-            localStorage[this.localStorageLog] = JSON.stringify(this.logMessages.slice(-100));
-        }, 2e3);
-        this.wrinklerTimer();
-        this.timers.dragonAuraTimer = setInterval(() => this.dragonAuraTimer(), 1e3);
-        this.timers.reloadTimer = setInterval(() => {
-            if (!this.options.autoReloadMinutes) return;
-            if (Date.now() - this.startDate / 60e3 < this.options.autoReloadMinutes) return;
-            if (this.getBuffs().cpsMultiple > 1) return;
-            Game.promptOn = 0;
-            global.location.reload();
-        }, 60e3);
+        for (const timer of this.timers) timer.start();
     }
 
     stop() {
-        for (const x of Object.values(this.timers)) {
-            clearTimeout(x);
-            clearInterval(x);
-        }
+        for (const timer of this.timers) timer.stop();
     }
 
     reset() {
         this.stop();
-        delete localStorage[this.localStorageLog];
-        console.warn('I suggest reloading the webpage');
+        for (const key in options.localStorage) delete localStorage[key];
+        location.reload();
     }
 
     get realCps() {
-        return Math.round(Game.cookiesPs + Game.computedMouseCps * (1000 / this.options.cookieClickTimeout));
+        return Math.round(Game.cookiesPs + Game.computedMouseCps * (1000 / options.cookieClickTimeout));
     }
 
     log(msg: string, { eta, extra, color }: Pick<LogMessage, 'color' | 'extra' | 'eta'> = {}) {
@@ -123,6 +91,10 @@ export default class CookieAutomator {
             cpsMultiple *= buff.multCpS;
         }
         return { cpsMultiple };
+    }
+
+    getActiveWrinklers() {
+        return Game.wrinklers.filter(x => x.hp > 0);
     }
 
     getAvailableDragonAuras() {
@@ -157,70 +129,6 @@ export default class CookieAutomator {
         }
 
         return obj.buy(amount);
-    }
-
-    maybeClickLumpTimer() {
-        if ((Date.now() - Game.lumpT) / 1000 / 3600 < 23) return;
-        Game.clickLump();
-    }
-
-    shimmerTimer() {
-        $('.shimmer')?.click();
-        this.timers.shimmerTimer = setTimeout(() => { this.shimmerTimer(); }, 3000);
-    }
-
-    clickBigCookieTimer() {
-        $('#bigCookie')?.click();
-        this.timers.clickBigCookieTimer = setTimeout(
-            () => this.clickBigCookieTimer(),
-            this.options.cookieClickTimeout
-        );
-    }
-
-    wrinklerTimer() {
-        const { cpsMultiple } = this.getBuffs();
-
-        if (cpsMultiple < 1) Game.CollectWrinklers();
-        else if (cpsMultiple === 1) Game.PopRandomWrinkler();
-
-        this.timers.wrinklerTimer = setTimeout(
-            () => this.wrinklerTimer(),
-            this.options.wrinklerPopTime
-        );
-    }
-
-    dragonAuraTimer() {
-        if (Game.hasAura(this.options.dragon.auras[0])) return; // we're done until ascension
-        // @TODO: apparently there's a 2nd aura slot to be handled
-
-        const auras = this.getAvailableDragonAuras();
-
-        for (const name of this.options.dragon.auras) {
-            const aura = auras.byName[name];
-
-            if (!aura) continue;
-            if (Game.hasAura(name)) return;
-
-            const highestBuilding = Array.from(Game.ObjectsById).reverse().find(x => x.amount > 0);
-            if (!highestBuilding) return; // weird but whatever
-
-            if (highestBuilding.amount === 1) {
-                highestBuilding.sell();
-                this.log(`🤫 Sneakily selling 1 ✕ ${highestBuilding.name} so the dragon doesn't eat it`);
-            }
-
-            Game.ClosePrompt();
-            Game.SetDragonAura(aura.index, 0);
-
-            const btn = $('#promptOption0');
-            if (!btn || btn.innerText.trim().toLowerCase() !== 'confirm') {
-                console.warn('[CookieAutomator.dragonAuraTimer()] FML the confirm changed');
-                return;
-            }
-            btn.click();
-            this.log('🎇 Changed Dragon Aura: ' + aura.name + '\n(' + cleanHTML(aura.desc) + ')', { color: 'yellow' });
-            return;
-        }
     }
 
     getCps(name: BuildingName): number {
@@ -297,7 +205,7 @@ export default class CookieAutomator {
 
         const active = Game.ObjectsById.filter(x => !x.locked && !x.bought);
         const next = sorted[0]?.obj;
-        const nextWait = active.find(x => Game.cookies >= x.price * this.options.buildingWait);
+        const nextWait = active.find(x => Game.cookies >= x.price * options.buildingWait);
         const nextNew = active.find(x => x.price <= Game.cookies);
         const nextHighValue = sorted.slice(1).find((item, index) => {
             return sorted[0].price <= Game.cookies &&
@@ -327,10 +235,10 @@ export default class CookieAutomator {
             return result;
         }
         const active = Object.values(Game.Upgrades)
-            .filter(x => !x.bought && x.unlocked && !this.options.bannedUpgrades[x.name])
+            .filter(x => !x.bought && x.unlocked && !options.bannedUpgrades[x.name])
             .sort((a, b) => getPrice(a) - getPrice(b));
         const next = active[0]?.canBuy() ? active[0] : null;
-        const waitPrice = active[0]?.getPrice() * this.options.upgradeWait * (this.upgradeFatigue || 1);
+        const waitPrice = active[0]?.getPrice() * options.upgradeWait * (this.upgradeFatigue || 1);
         const nextWait = (
             active[0] && Game.cookies >= 30e3 && Game.cookies >= waitPrice
                 ? active[0]
@@ -357,17 +265,17 @@ export default class CookieAutomator {
     }
 
     getAchievementThresholdStats() {
-        const options = [];
+        const active = [];
 
         for (const obj of Game.ObjectsById) {
             if (!obj.bought || obj.amount <= 1) continue;
-            const ranges = this.achievementThresholds[obj.name] || this.achievementThresholds.Default;
+            const ranges = options.achievementThresholds[obj.name] || options.achievementThresholds.Default;
             if (obj.amount >= ranges[ranges.length - 1]) continue;
             const index = ranges.findIndex((start, i) => start <= obj.amount && obj.amount < ranges[i + 1]);
             const nextAmount = ranges[index + 1];
             const nextPrice = getCostOfNBuildings(obj, nextAmount);
             const toBuy = nextAmount - obj.amount;
-            options.push({
+            active.push({
                 obj,
                 toBuy,
                 nextAmount,
@@ -377,10 +285,10 @@ export default class CookieAutomator {
             });
         }
 
-        if (!options.length) return null;
+        if (!active.length) return null;
 
-        options.sort((a, b) => a.nextPrice - b.nextPrice);
-        return options[0];
+        active.sort((a, b) => a.nextPrice - b.nextPrice);
+        return active[0];
     }
 
     getDragonStats(): { buy?: DragonLevel; wait?: { lvl: DragonLevel; goal: DragonLevelGoal } } {
@@ -388,7 +296,7 @@ export default class CookieAutomator {
             return {};
         }
 
-        if (this.getAvailableDragonAuras().byName[this.options.dragon.auras[0]]) {
+        if (this.getAvailableDragonAuras().byName[options.dragon.auras[0]]) {
             return {}; // you've trained your dragon
         }
 
@@ -431,148 +339,11 @@ export default class CookieAutomator {
 
         const goal = handlers[unit]();
 
-        if (Game.cookies >= goal.cookies * this.options.dragon.waitRatios[goal.type]) {
+        if (Game.cookies >= goal.cookies * options.dragon.waitRatios[goal.type]) {
             return { wait: { lvl, goal } };
         }
 
         return {};
-    }
-
-    buyTimer() {
-        console.clear();
-        this.cpsCache = {};
-        let timeout = 1000;
-
-        if (this.upgradeFatigue > 0 && Game.cookiesPs >= 1e13) {
-            this.upgradeFatigue = 0;
-        }
-
-        const buildings = this.getBuildingStats();
-        const upgrades = this.getUpgradeStats();
-        const santa = this.getSantaStats();
-        const threshold = this.getAchievementThresholdStats();
-        const dragon = this.getDragonStats();
-        const getEta = (targetCookies: number) => {
-            if (targetCookies <= Game.cookies) return undefined;
-            return (targetCookies - Game.cookies) / this.realCps;
-        }
-
-        const run = () => {
-            if (buildings.nextHighValue) {
-                const { obj, amount } = buildings.nextHighValue;
-                this.buy(obj, amount);
-                return this.log(`💰 So cheap it just can't wait: Bought ${obj.name} ✕ ${amount}`);
-            }
-
-            if (dragon.buy) {
-                this.buy({ name: 'dragon', buy: () => Game.UpgradeDragon() });
-                this.log(`🔥 Trained your dragon for the low low cost of ${dragon.buy.costStr()} \n(${dragon.buy.action}) `);
-                return
-            }
-
-            if (dragon.wait) {
-                const { lvl, goal } = dragon.wait;
-                if (Game.cookies >= goal.cookies) {
-                    switch (goal.type) {
-                        case 'cookie': break;
-                        case 'building': {
-                            const toBuy = goal.amount - Game.Objects[goal.value].amount;
-                            const obj = Game.Objects[goal.value];
-                            this.log(`🐲 Bought ${toBuy} ✕ ${obj.name} to feed to the dragon`);
-                            this.buy(obj, toBuy);
-                            break;
-                        }
-                        case 'all':
-                            console.warn('This will totally fuck up everything yo');
-                            break;
-                    }
-                } else {
-                    this.log(`🐲 Raising cookies to feed the dragon, need ${formatAmount(goal.cookies)} to get ${lvl.costStr()}`, { eta: getEta(goal.cookies) });
-                }
-                return;
-            }
-
-            if (upgrades.next) {
-                this.buy(upgrades.next);
-                timeout *= 5;
-                return this.log(
-                    `💹 Bought new upgrade: ${upgrades.next.name}\n(${cleanHTML(upgrades.next.desc)})`,
-                    { color: 'lightgreen' }
-                );
-            }
-
-            if (upgrades.nextWait) {
-                timeout *= 10;
-                this.log(
-                    `🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`,
-                    { eta: getEta(upgrades.nextWait.getPrice()), extra: upgrades.waitPct }
-                );
-                return;
-            }
-
-            if (threshold?.available) {
-                const { obj, toBuy, nextAmount } = threshold;
-                const { amount } = obj;
-                this.buy(obj, toBuy);
-                this.log(`🚀 To the moon: Bought from ${amount} → ${nextAmount} of ${obj.name}`);
-                return;
-            }
-
-            if (threshold?.wait) {
-                this.log(
-                    `🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${formatAmount(threshold.nextPrice)}`,
-                    { eta: getEta(threshold.nextPrice) }
-                );
-                timeout *= 10;
-                return;
-            }
-
-            if (santa.buy) {
-                this.buy({ buy: () => Game.UpgradeSanta() });
-                timeout *= 5;
-                return this.log('🎅 Ho Ho Ho!');
-            }
-
-            if (santa.wait) {
-                return this.log(`🎅 Twas the night before X-MAS!`, { eta: getEta(santa.price) });
-            }
-
-            if (buildings.nextNew) {
-                this.buy(buildings.nextNew);
-                this.log(`🏛 Bought new building type: ${buildings.nextNew.name}`);
-                return;
-            }
-
-            if (buildings.nextWait) {
-                this.log(
-                    `🟡 Waiting to buy new building type: ${buildings.nextWait.name}`,
-                    { eta: getEta(buildings.nextWait.price) }
-                );
-                timeout *= 10;
-                return;
-            }
-
-            if (buildings.next) {
-                if (buildings.next.price <= Game.cookies) {
-                    this.buy(buildings.next);
-                    this.log(`🏛 Bought building: ${buildings.next.name}`);
-                    return
-                }
-                this.log(
-                    `⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`,
-                    { eta: getEta(buildings.sorted[0].price) }
-                );
-                timeout *= 5;
-                return
-            }
-
-            this.log("You're too poor... but that's a good thing!");
-            timeout *= 5;
-        }
-
-        run();
-        this.printLog({ buildings });
-        this.timers.buyTimer = setTimeout(() => this.buyTimer(), timeout);
     }
 
     printLog({ buildings }: {
@@ -588,8 +359,8 @@ export default class CookieAutomator {
         for (const obj of buildings.sorted) {
             console.log('   - %s: %sx', obj.name, obj.relativeValue);
         }
-        // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', this.options.showLogs);
-        for (const { time, msg, count, eta, extra, color = 'white' } of this.logMessages.slice(-1 * this.options.showLogs)) {
+        // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', options.showLogs);
+        for (const { time, msg, count, eta, extra, color = 'white' } of this.logMessages.slice(-1 * options.showLogs)) {
             console.log(
                 `%c%s%c %s %c%s`,
                 'color:gray',
@@ -606,13 +377,3 @@ export default class CookieAutomator {
         }
     }
 }
-
-const getAffordableBuildingMultiple = (obj: Building, choices: number[]) =>
-    choices.find(end => getCostOfNBuildings(obj, obj.amount + end) <= Game.cookies) || null;
-
-const getCostOfNBuildings = (obj: Building, end: number) =>
-    obj.amount >= end
-        ? 0
-        : obj.basePrice * (1.15 ** end - 1.15 ** obj.amount) / 0.15;
-
-const cleanHTML = (html: string) => html.replace(/<q>.*<\/q>/g, '').replace(/<[^>]+>/g, '');

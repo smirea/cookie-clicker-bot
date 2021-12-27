@@ -31,8 +31,10 @@ export interface GameT {
     readonly hasAura: (name: string) => boolean;
     readonly ClosePrompt: () => void;
 
-    // actually writeable props!
+    // Actually writeable props!
+
     promptOn: 0 | 1;
+    wrinklers: Wrinkler[];
 }
 
 export type BuildingName = 'Cursor' | 'Grandma' | 'Farm' | 'Mine' | 'Factory' | 'Bank' | 'Temple' | 'Wizard tower' | 'Shipment' | 'Alchemy lab' | 'Portal' | 'Time machine' | 'Antimatter condenser' | 'Prism' | 'Chancemaker' | 'Fractal engine' | 'Javascript console' | 'Idleverse' | 'Cortex baker';
@@ -94,3 +96,17 @@ export type DragonLevelGoal = (
         | { type: 'building', value: BuildingName }
     )
 );
+
+export type Wrinkler = {
+    close: number;
+    hp: number;
+    hurt: number;
+    id: number;
+    phase: number;
+    r: number;
+    selected: number;
+    sucked: number;
+    type: number;
+    x: number;
+    y: number;
+};
