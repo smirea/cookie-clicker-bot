@@ -1,27 +1,24 @@
 import Timer from 'src/Timer';
-import BuildingStats from 'src/typeDefs';
 import { cleanHTML, formatAmount, Game } from 'src/utils';
 
 export default class BuyTimer extends Timer {
-    returnValue = 1000;
+    defaultTimeout = 1e3;
 
-    execute() {
-        console.clear();
+    execute(): void {
         this.context.cpsCache = {};
         const buildings = this.context.getBuildingStats();
+        this.context.lastState.buildings = buildings;
 
         if (this.context.upgradeFatigue > 0 && Game.cookiesPs >= 1e13) {
             this.context.upgradeFatigue = 0;
         }
 
-        this.decisionTree({ buildings });
-        this.context.printLog({ buildings });
-
-        return this.returnValue;
+        this.decisionTree();
     }
 
-    decisionTree({ buildings }: { buildings: BuildingStats }) {
+    decisionTree() {
         const context = this.context;
+        const { buildings } = context.lastState;
         const upgrades = context.getUpgradeStats();
         const santa = context.getSantaStats();
         const threshold = context.getAchievementThresholdStats();
@@ -67,7 +64,7 @@ export default class BuyTimer extends Timer {
 
         if (upgrades.next) {
             context.buy(upgrades.next);
-            this.returnValue *= 5;
+            this.scaleTimeout(5);
             return context.log(
                 `💹 Bought new upgrade: ${upgrades.next.name}\n(${cleanHTML(upgrades.next.desc)})`,
                 { color: 'lightgreen' }
@@ -75,7 +72,7 @@ export default class BuyTimer extends Timer {
         }
 
         if (upgrades.nextWait) {
-            this.returnValue *= 10;
+            this.scaleTimeout(10);
             context.log(
                 `🟡 Waiting to buy new upgrade: ${upgrades.nextWait.name}`,
                 { eta: getEta(upgrades.nextWait.getPrice()), extra: upgrades.waitPct }
@@ -96,13 +93,13 @@ export default class BuyTimer extends Timer {
                 `🟡 Waiting to buy to threshold for ${threshold.obj.name} - ${formatAmount(threshold.nextPrice)}`,
                 { eta: getEta(threshold.nextPrice) }
             );
-            this.returnValue *= 10;
+            this.scaleTimeout(10);
             return;
         }
 
         if (santa.buy) {
             context.buy({ buy: () => Game.UpgradeSanta() });
-            this.returnValue *= 5;
+            this.scaleTimeout(5);
             return context.log('🎅 Ho Ho Ho!');
         }
 
@@ -121,7 +118,7 @@ export default class BuyTimer extends Timer {
                 `🟡 Waiting to buy new building type: ${buildings.nextWait.name}`,
                 { eta: getEta(buildings.nextWait.price) }
             );
-            this.returnValue *= 10;
+            this.scaleTimeout(10);
             return;
         }
 
@@ -135,11 +132,11 @@ export default class BuyTimer extends Timer {
                 `⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`,
                 { eta: getEta(buildings.sorted[0].price) }
             );
-            this.returnValue *= 5;
+            this.scaleTimeout(5);
             return
         }
 
         context.log("You're too poor... but that's a good thing!");
-        this.returnValue *= 5;
+        this.scaleTimeout(5);
     }
 }

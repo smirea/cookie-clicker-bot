@@ -3,8 +3,9 @@ import options from 'src/options';
 import Timer from 'src/Timer';
 
 export default class ClickCookieTimer extends Timer {
-    execute() {
+    defaultTimeout = options.cookieClickTimeout;
+
+    execute(): void {
         $('#bigCookie')?.click();
-        return options.cookieClickTimeout;
     }
 }

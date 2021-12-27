@@ -1,34 +1,36 @@
 import type {
-    Building,
     BuildingName,
+    BuildingStats,
     Buyable,
     DragonLevel,
     DragonLevelGoal,
     Upgrade,
 } from './typeDefs';
-import { $, formatAmount, formatDuration, Game, getAffordableBuildingMultiple, getCostOfNBuildings, global } from './utils';
-import packageJson from '../package.json';
+import { Game, getAffordableBuildingMultiple, getCostOfNBuildings, global } from './utils';
 import options from './options';
-import type Timer from './Timer';
+
 import BuyTimer from './timers/BuyTimer';
 import ClickCookieTimer from './timers/ClickCookieTimer';
 import DragonAuraTimer from './timers/DragonAuraTimer';
+import GrimoireMinigameTimer from './timers/GrimoireMinigameTimer';
 import LogTimer from './timers/LogTimer';
 import PageReloadTimer from './timers/PageReloadTimer';
 import ShimmerTimer from './timers/ShimmerTimer';
 import SugarLumpTimer from './timers/SugarLumpTimer';
+import type Timer from './Timer';
 import WrinklerTimer from './timers/WrinklerTimer';
-import BuildingStats from './typeDefs';
 
 export default class CookieAutomator {
     logMessages: LogMessage[];
     upgradeFatigue = 1; // prevent buying too many updates one after another
     cpsCache: { [key in BuildingName]?: number } = {};
     startDate!: number;
+    lastState: { buildings: BuildingStats } = {} as any;
     timers: Timer[] = [
         new BuyTimer(this),
         new ClickCookieTimer(this),
         new DragonAuraTimer(this),
+        new GrimoireMinigameTimer(this),
         new LogTimer(this),
         new PageReloadTimer(this),
         new ShimmerTimer(this),
@@ -87,11 +89,14 @@ export default class CookieAutomator {
 
     getBuffs() {
         let cpsMultiple = 1;
+        let negativeBuffs = 0;
+        let positiveBuffs = 0;
         for (const buff of Object.values(Game.buffs)) {
             if (!buff.visible || !buff.multCpS) continue;
             cpsMultiple *= buff.multCpS;
+            if (buff.multCpS < 1) ++negativeBuffs; else ++positiveBuffs;
         }
-        return { cpsMultiple };
+        return { cpsMultiple, negativeBuffs, positiveBuffs };
     }
 
     getActiveWrinklers() {
@@ -345,34 +350,5 @@ export default class CookieAutomator {
         }
 
         return {};
-    }
-
-    printLog({ buildings }: { buildings: BuildingStats; }) {
-        console.log('%c%s v%s', 'color:gray', packageJson.name, packageJson.version);
-        console.log(
-            `upgradeFatigue: %s | realCps: %s`,
-            this.upgradeFatigue ? Math.round(this.upgradeFatigue * 100) / 100 + 'x' : 'disabled',
-            formatAmount(this.realCps)
-        );
-        console.log('%cBuy Order:', 'font-weight:bold');
-        for (const obj of buildings.sorted) {
-            console.log('   - %s: %sx', obj.name, obj.relativeValue);
-        }
-        // console.log('%cLast %d log messages (window.__automateLog):', 'font-weight:bold', options.showLogs);
-        for (const { time, msg, count, eta, extra, color = 'white' } of this.logMessages.slice(-1 * options.showLogs)) {
-            console.log(
-                `%c%s%c %s %c%s`,
-                'color:gray',
-                new Date(time).toISOString().slice(11, 19),
-                `color:${color}`,
-                msg,
-                'color:gray',
-                [
-                    count > 1 ? `✕ ${count}` : '',
-                    extra,
-                    eta ? 'ETA: ' + formatDuration(eta) : '',
-                ].filter(x => x).join(' | ')
-            );
-        }
     }
 }

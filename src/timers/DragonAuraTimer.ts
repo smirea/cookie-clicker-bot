@@ -3,9 +3,11 @@ import Timer from 'src/Timer';
 import options from 'src/options';
 
 export default class DragonAuraTimer extends Timer {
-    execute() {
+    defaultTimeout = 5e3;
+
+    execute(): void {
         // we're done until ascension
-        if (Game.hasAura(options.dragon.auras[0])) return 'stop';
+        if (Game.hasAura(options.dragon.auras[0])) return this.stopTimeout();
 
         // @TODO: apparently there's a 2nd aura slot to be handled
 
@@ -40,7 +42,5 @@ export default class DragonAuraTimer extends Timer {
             );
             break;
         }
-
-        return 5e3;
     }
 }

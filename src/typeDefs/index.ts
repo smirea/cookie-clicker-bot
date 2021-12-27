@@ -1,3 +1,7 @@
+import { Building, BuildingName } from './buildings';
+
+export * from './buildings';
+
 /**
  * window.Game
  */
@@ -13,7 +17,7 @@ export interface GameT {
     /** Date.now() when the current sugar lump was created */
     readonly lumpT: number;
     readonly clickLump: () => void;
-    readonly Objects: Record<BuildingName, Building>;
+    readonly Objects: { [Name in BuildingName]: Building & { name: Name } };
     readonly ObjectsById: Building[];
     readonly Upgrades: Record<string, Upgrade>;
     /** >= 1 <= 14 */
@@ -37,27 +41,10 @@ export interface GameT {
     wrinklers: Wrinkler[];
 }
 
-export type BuildingName = 'Cursor' | 'Grandma' | 'Farm' | 'Mine' | 'Factory' | 'Bank' | 'Temple' | 'Wizard tower' | 'Shipment' | 'Alchemy lab' | 'Portal' | 'Time machine' | 'Antimatter condenser' | 'Prism' | 'Chancemaker' | 'Fractal engine' | 'Javascript console' | 'Idleverse' | 'Cortex baker';
-
 export interface Buyable {
     name: string;
     buy: (amount: number) => void;
     bought: number;
-}
-
-export interface Building extends Buyable {
-    name: BuildingName;
-    baseCps: number;
-    basePrice: number;
-    grandma?: Upgrade;
-    tooltip: () => string;
-    /** returns base cps? I think i dunno it's very confusing */
-    cps: (me: this) => number;
-    amount: number;
-    locked: boolean;
-    price: number;
-    plural: string;
-    sell: (amount?: number) => void;
 }
 
 export interface Upgrade extends Buyable {
@@ -111,7 +98,7 @@ export type Wrinkler = {
     y: number;
 };
 
-export default interface BuildingStats {
+export interface BuildingStats {
     next?: Building;
     nextNew?: Building;
     nextWait?: Building;

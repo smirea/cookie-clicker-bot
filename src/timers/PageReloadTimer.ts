@@ -3,8 +3,10 @@ import Timer from 'src/Timer';
 import options from 'src/options';
 
 export default class PageReloadTimer extends Timer {
-    execute() {
-        if (!options.autoReloadMinutes) return 'stop';
+    defaultTimeout = 60e3;
+
+    execute(): void {
+        if (!options.autoReloadMinutes) return this.stopTimeout();
 
         if (
             Date.now() - this.context.startDate / 60e3 >= options.autoReloadMinutes &&
@@ -12,9 +14,7 @@ export default class PageReloadTimer extends Timer {
         ) {
             Game.promptOn = 0;
             global.location.reload();
-            return 'stop';
+            return this.stopTimeout();
         }
-
-        return 60e3
     }
 }

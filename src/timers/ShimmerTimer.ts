@@ -2,8 +2,9 @@ import { $ } from 'src/utils';
 import Timer from 'src/Timer';
 
 export default class ShimmerTimer extends Timer {
-    execute() {
+    defaultTimeout = 3e3;
+
+    execute(): void {
         $('.shimmer')?.click();
-        return 3000;
     }
 }

@@ -1,26 +1,41 @@
 import type CookieAutomator from './CookieAutomator';
 
 export default abstract class Timer {
-    timeout?: NodeJS.Timeout;
+    abstract defaultTimeout: number;
+    private timeout!: number | 'stop';
+    private timeoutRef?: NodeJS.Timeout;
+    private startTimeoutRef?: NodeJS.Timeout;
 
     constructor(protected context: CookieAutomator) {}
 
-    get isRunning() { return this.timeout !== undefined; }
+    get isRunning() { return this.timeoutRef !== undefined; }
 
-    abstract execute(): number | 'stop';
+    abstract execute(): void;
 
     startDelay(): number { return 0; }
 
-    start() { this.run(); }
+    start() {
+        this.startTimeoutRef = setTimeout(() => this.run(), this.startDelay());
+    }
 
     stop() {
-        clearTimeout(this.timeout!);
-        delete this.timeout;
+        clearTimeout(this.timeoutRef!);
+        clearTimeout(this.startTimeoutRef!);
+        delete this.timeoutRef;
+        delete this.startTimeoutRef;
     }
 
     private run() {
-        const nextTimeout = this.execute();
-        if (nextTimeout === 'stop') return;
-        this.timeout = setTimeout(() => { this.run(); }, nextTimeout);
+        this.timeout = this.defaultTimeout;
+        this.execute();
+        if (this.timeout as any === 'stop') return;
+        this.timeoutRef = setTimeout(() => { this.run(); }, this.timeout);
     }
+
+    scaleTimeout(value: number) {
+        if (this.timeout === 'stop') return;
+        this.timeout *= value;
+    }
+
+    stopTimeout() { this.timeout = 'stop'; }
 }

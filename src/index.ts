@@ -1,5 +1,4 @@
-import CookieAutomator from './CookieAutomator';
-import { global } from './utils';
+import type CookieAutomator from './CookieAutomator';
 
 declare global {
     interface Window {
@@ -8,6 +7,10 @@ declare global {
 }
 
 setTimeout(() => {
+    // importing inline so the Game object has time be defined
+    const CookieAutomator = require('./CookieAutomator').default;
+    const { global } = require('./utils');
+
     global.myCookieAutomator?.stop();
     global.myCookieAutomator = new CookieAutomator;
     global.myCookieAutomator.start();
