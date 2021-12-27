@@ -44,6 +44,13 @@ export interface GameT {
         life: number;
     }>;
     readonly ToggleSpecialMenu: (on: boolean) => void;
+    readonly Achievements: Record<string, {
+        name: string;
+        won: 0 | 1;
+        desc: string;
+        order: number;
+        diabled: 0 | 1;
+    }>;
 
     // Actually writeable props!
 
