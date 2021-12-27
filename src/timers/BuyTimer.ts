@@ -43,7 +43,7 @@ export default class BuyTimer extends Timer {
 
         if (dragon.buy) {
             context.buy({ name: 'dragon', buy: () => Game.UpgradeDragon() });
-            context.log(`🔥 Trained your dragon for the low low cost of ${dragon.buy.costStr()} \n(${dragon.buy.action}) `);
+            context.log(`🔥 Trained your dragon for the low low cost of ${dragon.buy.costStr()} \n(${cleanHTML(dragon.buy.action)}) `);
             return
         }
 

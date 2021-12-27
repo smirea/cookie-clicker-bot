@@ -106,8 +106,14 @@ export default class CookieAutomator {
     }
 
     getAvailableUpgrades() {
-        return Object.values(Game.Upgrades)
-            .filter(x => !x.bought && x.unlocked && !options.bannedUpgrades[x.name])
+        return Game.UpgradesInStore
+            .filter(x =>
+                !options.bannedUpgrades[x.name] &&
+                !x.bought &&
+                x.unlocked &&
+                x.pool !== 'toggle' &&
+                x.pool !== 'debug'
+            );
     }
 
     getActiveWrinklers() {
@@ -274,7 +280,7 @@ export default class CookieAutomator {
 
         if (
             // how about you buy some of the available upgrades first
-            this.getAvailableUpgrades().length >= 8 ||
+            this.getAvailableUpgrades().length >= 10 ||
             Game.santaLevel >= 14 ||
             // ho ho hold on a bit
             (price > 30 && Game.cookiesPs < 1000)

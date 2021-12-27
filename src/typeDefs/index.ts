@@ -20,6 +20,7 @@ export interface GameT {
     readonly Objects: { [Name in BuildingName]: Building & { name: Name } };
     readonly ObjectsById: Building[];
     readonly Upgrades: Record<string, Upgrade>;
+    readonly UpgradesInStore: Upgrade[];
     /** >= 1 <= 14 */
     readonly santaLevel: number;
     readonly UpgradeSanta: () => number;
@@ -34,6 +35,13 @@ export interface GameT {
     /** returns if the aura is the currently active one, NOT if it is available */
     readonly hasAura: (name: string) => boolean;
     readonly ClosePrompt: () => void;
+    readonly shimmers: Array<{
+        type: 'reindeer' | 'golden';
+        dur: number;
+        l: HTMLDivElement;
+        wrath: 0 | 1;
+        life: number;
+    }>;
 
     // Actually writeable props!
 
@@ -49,7 +57,7 @@ export interface Buyable {
 
 export interface Upgrade extends Buyable {
     type: 'upgrade';
-    pool: string;
+    pool: '' | 'cookie' | 'debug' | 'prestige' | 'tech' | 'toggle';
     desc: string;
     unlocked: boolean;
     getPrice: () => number;
