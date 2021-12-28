@@ -1,4 +1,5 @@
 import type {
+    Building,
     BuildingName,
     BuildingStats,
     Buyable,
@@ -264,10 +265,13 @@ export default class CookieAutomator {
         const next = sorted[0]?.obj;
         const nextWait = active.find(x => Game.cookies >= x.price * options.buildingWait);
         const nextNew = active.find(x => x.price <= Game.cookies);
-        const nextHighValue = sorted.slice(1, 7).find((item, index) => {
+        let nextHighValue: Building | undefined = sorted.find(item =>
+            !item.obj.locked && item.obj.amount == 0 && item.obj.price <= Game.cookies
+        )?.obj;
+        nextHighValue ||= sorted.slice(1, 7).find((item, index) => {
             return sorted[0].price <= Game.cookies &&
                 item.relativeValue - sorted[0].relativeValue >= 10 + (2.5 ** (index + 2));
-        }) ? sorted[0].obj : null;
+        }) && sorted[0].obj;
 
         return {
             next,

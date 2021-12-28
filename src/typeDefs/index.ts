@@ -122,7 +122,7 @@ export interface BuildingStats {
     next?: Building;
     nextNew?: Building;
     nextWait?: Building;
-    nextHighValue?: null | { obj: Building; amount: number };
+    nextHighValue?: undefined | null | { obj: Building; amount: number };
     sorted: Array<{
         name: string;
         price: number;
