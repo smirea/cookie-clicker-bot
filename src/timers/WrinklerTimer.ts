@@ -3,6 +3,8 @@ import options from 'src/options';
 import { Game } from 'src/utils';
 
 export default class WrinklerTimer extends Timer {
+    type = 'default' as const;
+
     defaultTimeout = options.wrinklerPopTime;
 
     startDelay() { return 60e3; }

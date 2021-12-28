@@ -3,6 +3,8 @@ import Timer from 'src/Timer';
 import options from 'src/options';
 
 export default class DragonAuraTimer extends Timer {
+    type = 'default' as const;
+
     defaultTimeout = 5e3;
 
     execute(): void {

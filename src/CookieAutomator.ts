@@ -20,6 +20,8 @@ import ShimmerTimer from './timers/ShimmerTimer';
 import SugarLumpTimer from './timers/SugarLumpTimer';
 import WrinklerTimer from './timers/WrinklerTimer';
 
+const STATES = ['off', 'on', 'click'] as const;
+
 export default class CookieAutomator {
     logMessages: LogMessage[];
     upgradeFatigue = 1; // prevent buying too many updates one after another
@@ -38,7 +40,7 @@ export default class CookieAutomator {
         SugarLumpTimer: new SugarLumpTimer(this),
         WrinklerTimer: new WrinklerTimer(this),
     };
-    isRunning = false;
+    state: typeof STATES[number] = 'off';
 
     constructor() {
         options.cookieClickTimeout = Math.max(5, options.cookieClickTimeout);
@@ -60,40 +62,58 @@ export default class CookieAutomator {
             <span class='icon' style='width:10px;height:10px;border-radius:50%;margin-left:5px;'></span>
         `;
         this.domNode.addEventListener('click', () => {
-            if (this.isRunning) this.stop(); else this.start();
-            this.updateDom();
+            this.switchState();
         });
         this.updateDom();
     }
 
-    start() {
-        this.stop();
-        this.startDate = Date.now();
-        for (const timer of Object.values(this.timers)) timer.start();
-        this.isRunning = true;
-        this.updateDom();
-    }
-
-    stop() {
-        for (const timer of Object.values(this.timers)) timer.stop();
-        this.isRunning = false;
-        this.updateDom();
-    }
-
+    start() { this.switchState('on'); }
+    stop() { this.switchState('off'); }
     reset() {
         this.stop();
         for (const key in options.localStorage) delete localStorage[key];
         location.reload();
     }
 
+    switchState(next?: typeof STATES[number]) {
+        if (!next) {
+            const index = STATES.findIndex(x => x === this.state);
+            next = STATES[(index + 1) % STATES.length];
+        }
+
+        if (next === this.state) return;
+
+        this.state = next;
+        this.applyState(this.state);
+        this.updateDom();
+    }
+
+    applyState(state: typeof STATES[number]) {
+        switch (state) {
+            case 'off':
+                for (const timer of Object.values(this.timers)) timer.stop();
+                break;
+            case 'click':
+                this.applyState('off');
+                for (const timer of Object.values(this.timers)) {
+                    if (timer.type === 'clicker') timer.start();
+                }
+                break;
+            case 'on':
+                this.applyState('off');
+                this.startDate = Date.now();
+                for (const timer of Object.values(this.timers)) timer.start();
+                break;
+        }
+    }
+
     updateDom() {
         const [, text, icon] = this.domNode.children as unknown as HTMLDivElement[];
-        if (this.isRunning) {
-            icon.style.background = 'lightgreen';
-            text.innerHTML = 'on';
-        } else {
-            icon.style.background = 'red';
-            text.innerHTML = 'off';
+        text.innerHTML = this.state;
+        switch(this.state) {
+            case 'off': icon.style.background = 'red'; break;
+            case 'click': icon.style.background = 'orange'; break;
+            case 'on': icon.style.background = 'lightgreen'; break;
         }
     }
 

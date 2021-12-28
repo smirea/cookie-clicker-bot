@@ -3,6 +3,8 @@ import { Spell } from 'src/typeDefs';
 import { Game } from 'src/utils';
 
 export default class GrimoireMinigameTimer extends Timer {
+    type = 'default' as const;
+
     defaultTimeout = 5e3;
 
     startDelay() { return this.defaultTimeout; }

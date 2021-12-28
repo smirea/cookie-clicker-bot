@@ -2,6 +2,8 @@ import Timer from 'src/Timer';
 import { formatAmount, Game } from 'src/utils';
 
 export default class BuyTimer extends Timer {
+    type = 'default' as const;
+
     defaultTimeout = 1e3;
 
     execute(): void {
@@ -9,7 +11,7 @@ export default class BuyTimer extends Timer {
         const buildings = this.context.getBuildingStats();
         this.context.lastState.buildings = buildings;
 
-        if (this.context.upgradeFatigue > 0 && Game.cookiesPs >= 1e13) {
+        if (this.context.upgradeFatigue > 0 && Game.cookiesPs >= 1e10) {
             this.context.upgradeFatigue = 0;
         }
 

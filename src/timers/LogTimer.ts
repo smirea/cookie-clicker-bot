@@ -4,7 +4,10 @@ import packageJson from '../../package.json';
 import { formatAmount, formatDuration } from 'src/utils';
 
 export default class LogTimer extends Timer {
+    type = 'default' as const;
+
     defaultTimeout = 1e3;
+
     private lastMessage?: LogMessage;
 
     // wait for random states to be initialized

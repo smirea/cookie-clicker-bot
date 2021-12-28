@@ -1,6 +1,7 @@
 import type CookieAutomator from './CookieAutomator';
 
 export default abstract class Timer {
+    abstract readonly type: 'default' | 'clicker';
     abstract defaultTimeout: number;
     private timeout!: number | 'stop';
     private timeoutRef?: NodeJS.Timeout;
@@ -16,6 +17,7 @@ export default abstract class Timer {
     startDelay(): number { return 0; }
 
     start() {
+        this.stop();
         this.counter = 0;
         this.startTimeoutRef = setTimeout(() => this.run(), this.startDelay());
     }

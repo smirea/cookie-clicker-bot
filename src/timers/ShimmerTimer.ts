@@ -2,6 +2,8 @@ import { Game } from 'src/utils';
 import Timer from 'src/Timer';
 
 export default class ShimmerTimer extends Timer {
+    type = 'clicker' as const;
+
     defaultTimeout = 800;
 
     execute(): void {
