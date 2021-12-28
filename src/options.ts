@@ -16,8 +16,6 @@ const options = {
         Default: [1, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600],
     } as Record<string, number[]>,
     bannedUpgrades: {
-        'Milk selector': true, // why would you ever buy this :/
-        'Background selector': true, // why would you ever buy this :/
         'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse
         'Elder Pledge': true, // peace was never an option
     } as Record<string, boolean>,

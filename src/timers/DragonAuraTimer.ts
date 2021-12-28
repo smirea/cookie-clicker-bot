@@ -1,4 +1,4 @@
-import { $, cleanHTML, Game } from 'src/utils';
+import { $, Game } from 'src/utils';
 import Timer from 'src/Timer';
 import options from 'src/options';
 
@@ -37,7 +37,7 @@ export default class DragonAuraTimer extends Timer {
             }
             btn.click();
             this.context.log(
-                '🎇 Changed Dragon Aura: ' + aura.name + '\n(' + cleanHTML(aura.desc) + ')',
+                `🎇 Changed Dragon Aura: ${aura.name}\n(${aura.desc})`,
                 { color: 'yellow' }
             );
             break;

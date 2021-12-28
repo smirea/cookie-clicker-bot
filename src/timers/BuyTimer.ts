@@ -1,5 +1,5 @@
 import Timer from 'src/Timer';
-import { cleanHTML, formatAmount, Game } from 'src/utils';
+import { formatAmount, Game } from 'src/utils';
 
 export default class BuyTimer extends Timer {
     defaultTimeout = 1e3;
@@ -47,7 +47,10 @@ export default class BuyTimer extends Timer {
 
         if (dragon.buy) {
             context.buy({ name: 'dragon', buy: () => Game.UpgradeDragon() });
-            context.log(`🔥 Trained your dragon for the low low cost of ${dragon.buy.costStr()} \n(${cleanHTML(dragon.buy.action)}) `);
+            context.log(
+                `🔥 Trained your dragon for the low low cost of ${dragon.buy.costStr()} \n(${dragon.buy.action})`,
+                { color: 'orange' }
+            );
             fixMenuBug();
             return
         }
@@ -78,7 +81,7 @@ export default class BuyTimer extends Timer {
             context.buy(upgrades.next);
             waitMultiple(5);
             return context.log(
-                `💹 Bought new upgrade: ${upgrades.next.name}\n(${cleanHTML(upgrades.next.desc)})`,
+                `💹 Bought new upgrade: ${upgrades.next.name}\n(${upgrades.next.desc})`,
                 { color: 'lightgreen' }
             );
         }

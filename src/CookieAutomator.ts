@@ -6,7 +6,7 @@ import type {
     DragonLevelGoal,
     Upgrade,
 } from './typeDefs';
-import { $$, Game, getAffordableBuildingMultiple, getCostOfNBuildings, global } from './utils';
+import { $$, cleanHTML, Game, getAffordableBuildingMultiple, getCostOfNBuildings, global } from './utils';
 import options from './options';
 
 import BuyTimer from './timers/BuyTimer';
@@ -101,6 +101,7 @@ export default class CookieAutomator {
     }
 
     log(msg: string, { eta, extra, color }: Pick<LogMessage, 'color' | 'extra' | 'eta'> = {}) {
+        msg = cleanHTML(msg);
         let last = this.logMessages[this.logMessages.length - 1];
         if (last && last.msg === msg) {
             ++last.count;
@@ -234,7 +235,7 @@ export default class CookieAutomator {
                 name: obj.name,
                 price: obj.price,
                 cps: this.getCps(obj.name),
-                pricePerCps: Math.round(obj.price / this.getCps(obj.name)),
+                pricePerCps: Math.max(0.01, Math.round(obj.price / this.getCps(obj.name))),
                 index,
                 obj,
                 relativeValue: 0, // overwritten bellow
