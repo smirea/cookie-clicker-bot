@@ -80,3 +80,28 @@ export const formatAmount = (
 
     return (cookies ? '🍪' : '') + String(value) + unit;
 }
+
+export const units = (() => {
+    const list = ['thousand', 'million', 'billion', 'trillion', 'quadrillion', 'quintillion', 'sextillion', 'septillion', 'octillion', 'nonillion'];
+    const prefixes = ['', 'un', 'duo', 'tre', 'quattuor', 'quin', 'sex', 'septen', 'octo', 'novem'];
+    const suffixes = ['decillion', 'vigintillion', 'trigintillion', 'quadragintillion', 'quinquagintillion', 'sexagintillion', 'septuagintillion', 'octogintillion', 'nonagintillion'];
+
+    for (const suf of suffixes) {
+        for (const pref of prefixes) {
+            list.push(pref + suf);
+        }
+    }
+
+    const map: Record<string, number> = {};
+    for (let i = 0; i < list.length; ++i) {
+        map[list[i]] = 10 ** (3 * (i + 1));
+    }
+
+    const regexp = new RegExp(`(\\d+(?:\\.\\d+)?)\\s+(${list.join('|')})`, 'gi');
+    const commaReg = /(\d+),(\d+)/g;
+    const strReplace = (str: string) =>
+        str.replace(commaReg, '$1$2')
+            .replace(regexp, (_, value, unit) => String(parseFloat(value) * map[unit.toLowerCase()]))
+
+    return { list, map, regexp, strReplace };
+})();

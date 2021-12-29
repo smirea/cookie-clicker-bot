@@ -7,7 +7,7 @@ import type {
     DragonLevelGoal,
     Upgrade,
 } from './typeDefs';
-import { $$, cleanHTML, Game, getAffordableBuildingMultiple, getCostOfNBuildings, global } from './utils';
+import { $$, cleanHTML, Game, getAffordableBuildingMultiple, getCostOfNBuildings, global, units } from './utils';
 import options from './options';
 
 import BuyTimer from './timers/BuyTimer';
@@ -217,18 +217,7 @@ export default class CookieAutomator {
 
         const obj = Game.Objects[name];
         const tooltip = obj.tooltip();
-        const match = tooltip.replace(/,/g, '')
-            .replace(/\d+(\.\d+)?\s+million/gi, x => String(parseFloat(x) * 1e6))
-            .replace(/\d+(\.\d+)?\s+billion/gi, x => String(parseFloat(x) * 1e9))
-            .replace(/\d+(\.\d+)?\s+trillion/gi, x => String(parseFloat(x) * 1e12))
-            .replace(/\d+(\.\d+)?\s+quadrillion/gi, x => String(parseFloat(x) * 1e15))
-            .replace(/\d+(\.\d+)?\s+quintillion/gi, x => String(parseFloat(x) * 1e18))
-            .replace(/\d+(\.\d+)?\s+sextillion/gi, x => String(parseFloat(x) * 1e21))
-            .replace(/\d+(\.\d+)?\s+septillion/gi, x => String(parseFloat(x) * 1e24))
-            .replace(/\d+(\.\d+)?\s+octillion/gi, x => String(parseFloat(x) * 1e27))
-            .replace(/\d+(\.\d+)?\s+nonillion/gi, x => String(parseFloat(x) * 1e30))
-            .replace(/\d+(\.\d+)?\s+decillion/gi, x => String(parseFloat(x) * 1e33))
-            .match(/produces <b>([^c]+) cookies/) || [];
+        const match = units.strReplace(tooltip).match(/produces <b>([^\s]+) cookies/) || [];
         let cps = parseFloat(match[1] || '');
 
         // @TODO: figure out a better way instead of obj.baseCps, it's way too low
