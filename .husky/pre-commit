@@ -1,0 +1,20 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+echo '';
+echo '🍪 Building Typescript to check for errors 🍪';
+echo '';
+
+yarn build:tsc-errors
+
+echo '';
+echo '🍪 Building bundle 🍪';
+echo '';
+
+yarn build
+
+echo '';
+echo '🍪 Add bundle 🍪';
+echo '';
+
+git add dist
