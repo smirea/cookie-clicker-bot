@@ -1,6 +1,6 @@
 import Timer from 'src/Timer';
 import { Building } from 'src/typeDefs';
-import { formatAmount, Game } from 'src/utils';
+import { fixMenuBug, formatAmount, Game } from 'src/utils';
 
 export default class BuyTimer extends Timer {
     type = 'default' as const;
@@ -35,10 +35,6 @@ export default class BuyTimer extends Timer {
             else if (Game.cookiesPs < 1e5) multiple = Math.max(1, multiple / 3);
 
             this.scaleTimeout(multiple);
-        }
-        const fixMenuBug = () => {
-            Game.specialTab = 'test';
-            Game.ToggleSpecialMenu(false);
         }
 
         if (Game.cookiesPs > 10e12) this.defaultTimeout = 100;

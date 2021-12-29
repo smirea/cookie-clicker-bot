@@ -1,4 +1,4 @@
-import { $, Game } from 'src/utils';
+import { $, fixMenuBug, Game } from 'src/utils';
 import Timer from 'src/Timer';
 import options from 'src/options';
 
@@ -7,19 +7,23 @@ export default class DragonAuraTimer extends Timer {
 
     defaultTimeout = 5e3;
 
+    startDelay() { return this.defaultTimeout; }
+
     execute(): void {
-        // we're done until ascension
-        if (Game.hasAura(options.dragon.auras[0])) return this.stopTimeout();
-
-        // @TODO: apparently there's a 2nd aura slot to be handled
-
         const auras = this.context.getAvailableDragonAuras();
+        const has2Auras = Game.dragonLevel >= Game.dragonLevels.length - 1;
+        const selectedIds = options.dragon.auras.map(name => auras.byName[name].index);
+        let choices = has2Auras ? 2 : 1;
 
         for (const name of options.dragon.auras) {
+            if (choices <= 0) break;
             const aura = auras.byName[name];
 
             if (!aura) continue;
-            if (Game.hasAura(name)) break;
+
+            --choices;
+
+            if (Game.hasAura(name)) continue;
 
             const highestBuilding = Array.from(Game.ObjectsById).reverse().find(x => x.amount > 0);
             if (!highestBuilding) break; // weird but whatever
@@ -29,8 +33,9 @@ export default class DragonAuraTimer extends Timer {
                 this.context.log(`🤫 Sneakily selling 1 ✕ ${highestBuilding.name} so the dragon doesn't eat it`);
             }
 
-            Game.ClosePrompt();
-            Game.SetDragonAura(aura.index, 0);
+            let slot: 0 | 1 = has2Auras && selectedIds.includes(Game.dragonAura) ? 1 : 0;
+
+            Game.SetDragonAura(aura.index, slot);
 
             const btn = $('#promptOption0');
             if (!btn || btn.innerText.trim().toLowerCase() !== 'confirm') {
@@ -39,10 +44,14 @@ export default class DragonAuraTimer extends Timer {
             }
             btn.click();
             this.context.log(
-                `🎇 Changed Dragon Aura: ${aura.name}\n(${aura.desc})`,
+                `🎇 Changed Dragon Aura (slot ${slot + 1}): ${aura.name}\n(${aura.desc})`,
                 { color: 'yellow' }
             );
+
             break;
         }
+
+        Game.ClosePrompt();
+        fixMenuBug();
     }
 }

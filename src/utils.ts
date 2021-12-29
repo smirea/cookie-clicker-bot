@@ -105,3 +105,8 @@ export const units = (() => {
 
     return { list, map, regexp, strReplace };
 })();
+
+export const fixMenuBug = () => {
+    Game.specialTab = 'test';
+    Game.ToggleSpecialMenu(false);
+}

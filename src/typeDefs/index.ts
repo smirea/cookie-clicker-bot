@@ -33,6 +33,8 @@ export interface GameT {
     readonly dragonLevels: DragonLevel[];
     readonly UpgradeDragon: () => void;
     readonly SetDragonAura: (aura: number, slot: 0 | 1) => void;
+    readonly dragonAura: number;
+    readonly dragonAura2: number;
     readonly dragonAuras: Array<{ name: string; desc: string }>;
     /** returns if the aura is the currently active one, NOT if it is available */
     readonly hasAura: (name: string) => boolean;

@@ -378,7 +378,7 @@ export default class CookieAutomator {
         }
 
         // buy cheap upgrades first
-        if (Game.UpgradesInStore.find(x => x.getPrice() <= 10e6)) return {};
+        if (Game.UpgradesInStore.find(x => !x.pool && x.getPrice() <= 10e6)) return {};
 
         // higher value = lower priority
         // once your favorite aura has been researched, deprioritize dragon upgrades till you have the 2nd one
@@ -403,9 +403,11 @@ export default class CookieAutomator {
             'of every building': () => ({
                 type: 'all',
                 amount,
-                cookies: Game.ObjectsById
-                    .map(obj => getCostOfNBuildings(obj, amount))
-                    .reduce((s, x) => s + x, 0),
+                cookies: Game.ObjectsById.find(x => x.locked)
+                    ? Infinity // unlock all buildings first
+                    : Game.ObjectsById
+                        .map(obj => getCostOfNBuildings(obj, amount))
+                        .reduce((s, x) => s + x, 0),
             }) as const,
         };
 
