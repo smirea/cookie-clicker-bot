@@ -377,9 +377,14 @@ export default class CookieAutomator {
             return {};
         }
 
-        if (this.getAvailableDragonAuras().byName[options.dragon.auras[0]]) {
-            return {}; // you've trained your dragon
-        }
+        // buy cheap upgrades first
+        if (Game.UpgradesInStore.find(x => x.getPrice() <= 10e6)) return {};
+
+        // higher value = lower priority
+        // once your favorite aura has been researched, deprioritize dragon upgrades till you have the 2nd one
+        const priorityMultiple = this.getAvailableDragonAuras().byName[options.dragon.auras[0]]
+            ? 1.25
+            : 1;
 
         const lvl = Game.dragonLevels[Game.dragonLevel];
         if (lvl.cost()) return { buy: lvl };
@@ -420,7 +425,7 @@ export default class CookieAutomator {
 
         const goal = handlers[unit]();
 
-        if (Game.cookies >= goal.cookies * options.dragon.waitRatios[goal.type]) {
+        if (Game.cookies >= goal.cookies * priorityMultiple * options.dragon.waitRatios[goal.type]) {
             return { wait: { lvl, goal } };
         }
 

@@ -30,8 +30,8 @@ const options = {
         /** for each dragon purchase type, at what cookie % should you start waiting */
         waitRatios: {
             cookie: 0.4,
-            building: 0.8,
-            all: 0.9,
+            building: 0.6,
+            all: 0.75,
         },
         /** order in which aura is chosen. If it's not on this list, it won't be selected */
         auras: [

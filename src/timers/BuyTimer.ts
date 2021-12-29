@@ -1,4 +1,5 @@
 import Timer from 'src/Timer';
+import { Building } from 'src/typeDefs';
 import { formatAmount, Game } from 'src/utils';
 
 export default class BuyTimer extends Timer {
@@ -61,17 +62,22 @@ export default class BuyTimer extends Timer {
         if (dragon.wait) {
             const { lvl, goal } = dragon.wait;
             if (Game.cookies >= goal.cookies) {
+                const buyToAmount = (building: Building) => {
+                    if (building.amount >= goal.amount) return;
+                    const toBuy = goal.amount - building.amount;
+                    context.buy(building, toBuy);
+                    context.log(`🐲 Bought ${toBuy} ✕ ${building.name} to feed to the dragon`);
+                };
+
                 switch (goal.type) {
                     case 'cookie': break;
-                    case 'building': {
-                        const toBuy = goal.amount - Game.Objects[goal.value].amount;
-                        const obj = Game.Objects[goal.value];
-                        context.log(`🐲 Bought ${toBuy} ✕ ${obj.name} to feed to the dragon`);
-                        context.buy(obj, toBuy);
+                    case 'building':
+                        buyToAmount(Game.Objects[goal.value]);
                         break;
-                    }
                     case 'all':
-                        console.warn('context will totally fuck up everything yo');
+                        for (const building of Array.from(Game.ObjectsById).reverse()) {
+                            buyToAmount(building);
+                        }
                         break;
                 }
             } else {
