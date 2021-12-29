@@ -45,38 +45,20 @@ export const formatAmount = (
     number: number,
     { cookies = true, format = 'full' }: {
         cookies?:
-        boolean; format?: 'full' | 'small' | 'numeric'
+        boolean; format?: 'full' | 'numeric'
     } = {}
 ): string => {
     number = Math.floor(number);
-
-    const labels: Array<[string, string]> = [
-        ['million', 'M'],
-        ['billion', 'B'],
-        ['trillion', 'T'],
-        ['quadrillion', 'Quad'],
-        ['quintillion', 'Quint'],
-        ['sextillion', 'Sext😏'],
-        ['septillion', 'Sept'],
-        ['octillion', 'Oct'],
-        ['nonillion', 'Non'],
-        ['decillion', 'Dec'],
-    ];
 
     if (number < 1e3) return String(number);
     if (number < 1e6) return `${Math.floor(number / 1e3)},${number % 1000}`;
 
     const power = Math.floor(Math.log10(number));
-    const floorPower = Math.floor(power / 3) * 3;
-    const label = labels[floorPower / 3 - 2];
+    const floorPower = power - (power % 3);
     let value = Math.floor(number / Math.pow(10, floorPower));
     value += Math.round(Math.floor(number / Math.pow(10, floorPower - 2)) % 100) / 100;
     value = Math.round(value * 100) / 100;
-    const unit = (
-        format === 'full' ? ' ' + label[0] :
-        format === 'small' ? ' ' + label[1] :
-        'e' + floorPower
-    );
+    const unit = format === 'full' ? ' ' + units.list[floorPower] : 'e' + floorPower;
 
     return (cookies ? '🍪' : '') + String(value) + unit;
 }
