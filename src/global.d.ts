@@ -12,3 +12,6 @@ interface LogMessage {
     extra?: string;
     eta?: number;
 }
+
+/** global export from library */
+const l: (id: string) => HTMLDivElement | null;

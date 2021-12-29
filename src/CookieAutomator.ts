@@ -13,7 +13,7 @@ import options from './options';
 import BuyTimer from './timers/BuyTimer';
 import ClickCookieTimer from './timers/ClickCookieTimer';
 import DragonAuraTimer from './timers/DragonAuraTimer';
-// import GardenMinigameTimer from './timers/GardenMinigameTimer';
+import GardenMinigameTimer from './timers/GardenMinigameTimer';
 import GrimoireMinigameTimer from './timers/GrimoireMinigameTimer';
 import LogTimer from './timers/LogTimer';
 import PageReloadTimer from './timers/PageReloadTimer';
@@ -35,7 +35,7 @@ export default class CookieAutomator {
         ClickCookieTimer: new ClickCookieTimer(this),
         DragonAuraTimer: new DragonAuraTimer(this),
         GrimoireMinigameTimer: new GrimoireMinigameTimer(this),
-        // GardenMinigameTimer: new GardenMinigameTimer(this),
+        GardenMinigameTimer: new GardenMinigameTimer(this),
         LogTimer: new LogTimer(this),
         PageReloadTimer: new PageReloadTimer(this),
         ShimmerTimer: new ShimmerTimer(this),

@@ -36,6 +36,15 @@ const options = {
     localStorage: {
         log: getLSKey('log'),
     },
+    garden: {
+        /** leave 50% of plots empty for mutations */
+        usedPlotsRatio: 0.5,
+        /** harvest when there at most 1 tick left before decay */
+        harvestDecayTicks: 1,
+        /** if CPS % is greated, do not plant new seeds (default cps% = 1) */
+        maxCpsBuff: 1,
+        soil: 'fertilizer' as const,
+    },
 };
 
 export default options;
