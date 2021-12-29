@@ -56,7 +56,13 @@ export default class ClickCookieTimer extends Timer {
         const availablePlants = garden.plantsById.filter(p => p.unlocked && garden.canPlant(p));
         if (!availablePlants.length) return;
 
-        const toPlant = availablePlants[Math.floor(availablePlants.length * Math.random())];
+        const plantOptions = availablePlants
+            .map(plant => {
+                const ratio = Math.max(0, Math.min(10, options.garden.plantOdds[plant.key] || 0));
+                return new Array(Math.round(ratio * 100)).fill(plant)
+            })
+            .flat();
+        const toPlant = plantOptions[Math.floor(plantOptions.length * Math.random())];
         const { x, y } = emptyPlots[Math.floor(emptyPlots.length * Math.random())];
         garden.seedSelected = toPlant.id;
         garden.clickTile(x, y);

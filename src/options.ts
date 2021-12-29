@@ -1,7 +1,14 @@
+import { Garden } from './typeDefs';
 import { Game } from './utils';
 
 const getLSKey = (name: string) =>
     `CookieAutomator_${name}_${Game.version}_${Game.beta}`;
+
+const plantOdds: { [key in Garden.Plant['key']]?: number } = {
+    bakerWheat: 1,
+    thumbcorn: 0.75,
+    cronerice: 0.5,
+};
 
 const options = {
     cookieClickTimeout: 1000 / 15.1, // sneaky
@@ -44,6 +51,7 @@ const options = {
         /** if CPS % is greated, do not plant new seeds (default cps% = 1) */
         maxCpsBuff: 1,
         soil: 'fertilizer' as const,
+        plantOdds,
     },
 };
 

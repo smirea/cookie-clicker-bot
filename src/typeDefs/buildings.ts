@@ -198,7 +198,7 @@ export namespace Garden {
     export interface Plant {
         id: number;
         name: string;
-        key: string;
+        key: PlantKey;
         ageTick: number;
         ageTickR: number;
         children: Plant['key'][];
@@ -235,4 +235,41 @@ export namespace Garden {
         isDisplayed(): boolean;
         func(): void;
     }
+
+    export type PlantKey = (
+        | 'bakerWheat'
+        | 'thumbcorn'
+        | 'cronerice'
+        | 'gildmillet'
+        | 'clover'
+        | 'goldenClover'
+        | 'shimmerlily'
+        | 'elderwort'
+        | 'bakeberry'
+        | 'chocoroot'
+        | 'whiteChocoroot'
+        | 'whiteMildew'
+        | 'brownMold'
+        | 'meddleweed'
+        | 'whiskerbloom'
+        | 'chimerose'
+        | 'nursetulip'
+        | 'drowsyfern'
+        | 'wardlichen'
+        | 'keenmoss'
+        | 'queenbeet'
+        | 'queenbeetLump'
+        | 'duketater'
+        | 'crumbspore'
+        | 'doughshroom'
+        | 'glovemorel'
+        | 'cheapcap'
+        | 'foolBolete'
+        | 'wrinklegill'
+        | 'greenRot'
+        | 'shriekbulb'
+        | 'tidygrass'
+        | 'everdaisy'
+        | 'ichorpuff'
+    );
 }
