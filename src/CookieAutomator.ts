@@ -13,6 +13,7 @@ import options from './options';
 import BuyTimer from './timers/BuyTimer';
 import ClickCookieTimer from './timers/ClickCookieTimer';
 import DragonAuraTimer from './timers/DragonAuraTimer';
+// import GardenMinigameTimer from './timers/GardenMinigameTimer';
 import GrimoireMinigameTimer from './timers/GrimoireMinigameTimer';
 import LogTimer from './timers/LogTimer';
 import PageReloadTimer from './timers/PageReloadTimer';
@@ -34,6 +35,7 @@ export default class CookieAutomator {
         ClickCookieTimer: new ClickCookieTimer(this),
         DragonAuraTimer: new DragonAuraTimer(this),
         GrimoireMinigameTimer: new GrimoireMinigameTimer(this),
+        // GardenMinigameTimer: new GardenMinigameTimer(this),
         LogTimer: new LogTimer(this),
         PageReloadTimer: new PageReloadTimer(this),
         ShimmerTimer: new ShimmerTimer(this),
@@ -252,6 +254,7 @@ export default class CookieAutomator {
 
     getBuildingStats(): BuildingStats {
         const sorted: BuildingStats['sorted'] = Game.ObjectsById
+            .filter(x => !x.locked)
             .map((obj, index) => ({
                 name: obj.name,
                 price: obj.price,
@@ -281,7 +284,7 @@ export default class CookieAutomator {
             obj.relativeValue = Math.round(obj.pricePerCps / min * 10) / 10;
         }
 
-        const active = Game.ObjectsById.filter(x => !x.locked && !x.bought);
+        const active = Game.ObjectsById.filter(x => !x.bought);
         const next = sorted[0]?.obj;
         const nextWait = active.find(x => Game.cookies >= x.price * options.buildingWait);
         const nextNew = active.find(x => x.price <= Game.cookies);
@@ -319,7 +322,10 @@ export default class CookieAutomator {
             return result;
         }
         const active = this.getAvailableUpgrades().sort((a, b) => getPrice(a) - getPrice(b));
-        const next = active[0]?.canBuy() ? active[0] : null;
+        const next = active[0]?.canBuy()
+            ? active[0]
+            // just buy really cheap upgrades
+            : active.find(x => x.getPrice() <= Game.cookies * 0.01);
         const waitPrice = active[0]?.getPrice() * options.upgradeWait * (this.upgradeFatigue || 1);
         const nextWait = (
             active[0] && Game.cookies >= 30e3 && Game.cookies >= waitPrice

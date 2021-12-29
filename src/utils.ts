@@ -14,7 +14,11 @@ export const getCostOfNBuildings = (obj: Building, end: number) =>
         ? 0
         : obj.basePrice * (1.15 ** end - 1.15 ** obj.amount) / 0.15;
 
-export const cleanHTML = (html: string) => html.replace(/<q>.*<\/q>/g, '').replace(/<[^>]+>/g, '');
+export const cleanHTML = (html: string) =>
+    html.replace(/<q>.*<\/q>/g, '')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&bull;/g, '●')
+        .replace(/&eacute;/g, 'é');
 
 export const formatDuration = (duration: number, { short = true, pad = false } = {}) => {
     duration = Math.floor(duration);

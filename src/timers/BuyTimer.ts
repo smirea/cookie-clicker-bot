@@ -4,7 +4,7 @@ import { formatAmount, Game } from 'src/utils';
 export default class BuyTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = 1e3;
+    defaultTimeout = 500;
 
     execute(): void {
         this.context.cpsCache = {};
@@ -30,8 +30,7 @@ export default class BuyTimer extends Timer {
             return (targetCookies - Game.cookies) / context.realCps;
         }
         const waitMultiple = (multiple: number) => {
-            if (Game.cookiesPs < 100) multiple = 0.5;
-            else if (Game.cookiesPs < 1e3) multiple = 1;
+            if (Game.cookiesPs < 1e3) multiple = 1;
             else if (Game.cookiesPs < 1e5) multiple = Math.max(1, multiple / 3);
 
             this.scaleTimeout(multiple);
@@ -40,6 +39,8 @@ export default class BuyTimer extends Timer {
             Game.specialTab = 'test';
             Game.ToggleSpecialMenu(false);
         }
+
+        if (Game.cookiesPs > 10e12) this.defaultTimeout = 100;
 
         if (buildings.nextHighValue) {
             const { obj, amount } = buildings.nextHighValue;
@@ -81,7 +82,6 @@ export default class BuyTimer extends Timer {
 
         if (upgrades.next) {
             context.buy(upgrades.next);
-            waitMultiple(5);
             return context.log(
                 `💹 Bought new upgrade: ${upgrades.next.name}\n(${upgrades.next.desc})`,
                 { color: 'lightgreen' }
@@ -116,7 +116,6 @@ export default class BuyTimer extends Timer {
 
         if (santa.buy) {
             context.buy({ buy: () => Game.UpgradeSanta() });
-            waitMultiple(5);
             fixMenuBug();
             return context.log('🎅 Ho Ho Ho!');
         }
@@ -150,7 +149,6 @@ export default class BuyTimer extends Timer {
                 `⏲ Waiting to buy building: ${buildings.sorted[0]?.name}`,
                 { eta: getEta(buildings.sorted[0].price) }
             );
-            waitMultiple(5);
             return
         }
 

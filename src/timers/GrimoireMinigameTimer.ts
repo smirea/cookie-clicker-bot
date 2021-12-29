@@ -1,11 +1,11 @@
 import Timer from 'src/Timer';
-import { Spell } from 'src/typeDefs';
+import { Grimoire } from 'src/typeDefs';
 import { Game } from 'src/utils';
 
 export default class GrimoireMinigameTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = 5e3;
+    defaultTimeout = 2e3;
 
     startDelay() { return this.defaultTimeout; }
 
@@ -16,7 +16,7 @@ export default class GrimoireMinigameTimer extends Timer {
         const { cpsMultiple, negativeBuffs, positiveBuffs } = this.context.getBuffs();
         const pctMagic = grimoire.magic / grimoire.magicM;
 
-        const cast = (spell: Spell): void => {
+        const cast = (spell: Grimoire.Spell): void => {
             if (grimoire.getSpellCost(spell) <= grimoire.magic) {
                 if (grimoire.castSpell(spell)) {
                     this.context.log(`🪄 Abra Cadabra: ${spell.name}\n(${spell.desc})`);
