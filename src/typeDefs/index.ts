@@ -1,6 +1,50 @@
-import { Building, BuildingName } from './buildings';
+import { Building, BuildingName, Garden } from './buildings';
 
 export * from './buildings';
+
+export interface Options {
+    cookieClickTimeout: number,
+    showLogs: number,
+    /** what % [0-1] of the building price to start waiting to buy */
+    buildingWait: number,
+    /** what % [0-1] of the upgrade price to start waiting to buy */
+    upgradeWait: number,
+    /** pop a wrinkler every X ms */
+    wrinklerPopTime: number,
+    /**
+     * refresh the page every X minutes if there isn't an active buff.
+     * @deprecated not needed, page does not crash if left open
+     */
+    autoReloadMinutes: 0,
+    achievementThresholds: (
+        { Default: number[] } &
+        { [key in BuildingName | 'Default']?: number[]; }
+    ),
+    bannedUpgrades: Record<string, boolean>,
+    dragon: {
+        /** for each dragon purchase type, at what cookie % should you start waiting */
+        waitRatios: {
+            cookie: number,
+            building: number,
+            all: number,
+        },
+        /** order in which aura is chosen. If it's not on this list, it won't be selected */
+        auras: Array<GameT['dragonAuras'][number]['name']>,
+    },
+    localStorage: {
+        log: string,
+    },
+    garden: {
+        /** leave 50% of plots empty for mutations */
+        usedPlotsRatio: number,
+        /** harvest when there at most 1 tick left before decay */
+        harvestDecayTicks: number,
+        /** if CPS % is greated, do not plant new seeds (default cps% = 1) */
+        maxCpsBuff: number,
+        soil: Garden.Soil['key'],
+        plantOdds: { [key in Garden.Plant['key']]?: number },
+    },
+}
 
 /**
  * window.Game
