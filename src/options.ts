@@ -39,7 +39,7 @@ const options: Options = {
     },
     garden: {
         /** leave 50% of plots empty for mutations */
-        usedPlotsRatio: 0.5,
+        usedPlotsRatio: 0.55,
         /** harvest when there at most 1 tick left before decay */
         harvestDecayTicks: 1,
         /** if CPS % is greated, do not plant new seeds (default cps% = 1) */
@@ -50,6 +50,9 @@ const options: Options = {
             thumbcorn: 0.75,
             cronerice: 0.25,
             gildmillet: 1.25,
+            brownMold: 0.125,
+            meddleweed: 0,
+            chocoroot: 1.5,
         },
     },
 };
