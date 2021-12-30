@@ -12,7 +12,7 @@ export default class DragonAuraTimer extends Timer {
     execute(): void {
         const auras = this.context.getAvailableDragonAuras();
         const has2Auras = Game.dragonLevel >= Game.dragonLevels.length - 1;
-        const selectedIds = options.dragon.auras.map(name => auras.byName[name].index);
+        const toSelectIds = options.dragon.auras.map(name => auras.byName[name]?.index ?? -1);
         let choices = has2Auras ? 2 : 1;
 
         for (const name of options.dragon.auras) {
@@ -33,7 +33,7 @@ export default class DragonAuraTimer extends Timer {
                 this.context.log(`🤫 Sneakily selling 1 ✕ ${highestBuilding.name} so the dragon doesn't eat it`);
             }
 
-            let slot: 0 | 1 = has2Auras && selectedIds.includes(Game.dragonAura) ? 1 : 0;
+            let slot: 0 | 1 = has2Auras && toSelectIds.includes(Game.dragonAura) ? 1 : 0;
 
             Game.SetDragonAura(aura.index, slot);
 

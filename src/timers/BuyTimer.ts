@@ -39,6 +39,12 @@ export default class BuyTimer extends Timer {
 
         if (Game.cookiesPs > 10e12) this.defaultTimeout = 100;
 
+        if (buildings.nextNew) {
+            context.buy(buildings.nextNew);
+            context.log(`🏛 Bought new building type: ${buildings.nextNew.name}`);
+            return;
+        }
+
         if (buildings.nextHighValue) {
             const { obj, amount } = buildings.nextHighValue;
             context.buy(obj, amount);
@@ -124,12 +130,6 @@ export default class BuyTimer extends Timer {
 
         if (santa.wait) {
             return context.log(`🎅 Twas the night before X-MAS!`, { eta: getEta(santa.price) });
-        }
-
-        if (buildings.nextNew) {
-            context.buy(buildings.nextNew);
-            context.log(`🏛 Bought new building type: ${buildings.nextNew.name}`);
-            return;
         }
 
         if (buildings.nextWait) {
