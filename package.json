@@ -1,7 +1,7 @@
 {
     "name": "@smirea/cookie-clicker-bot",
     "private": true,
-    "version": "2.14.2",
+    "version": "2.14.3",
     "description": "",
     "main": "dist/CookieBot.js",
     "source": "src/index.ts",

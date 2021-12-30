@@ -6,9 +6,9 @@ import options from 'src/options';
 export default class ClickCookieTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = 10e3;
+    defaultTimeout = 5e3;
 
-    // startDelay() { return this.defaultTimeout; }
+    startDelay() { return this.defaultTimeout; }
 
     execute(): void {
         const garden = this.garden;

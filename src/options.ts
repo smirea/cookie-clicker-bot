@@ -48,7 +48,8 @@ const options: Options = {
         plantOdds: {
             bakerWheat: 1,
             thumbcorn: 0.75,
-            cronerice: 0.5,
+            cronerice: 0.25,
+            gildmillet: 1.25,
         },
     },
 };
