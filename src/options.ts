@@ -51,7 +51,7 @@ const options: Options = {
             cronerice: 0.25,
             gildmillet: 1.25,
             brownMold: 0.125,
-            meddleweed: 0,
+            meddleweed: 0.125,
             chocoroot: 1.5,
         },
     },
