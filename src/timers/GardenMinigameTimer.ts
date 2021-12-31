@@ -1,12 +1,12 @@
 import { Game } from 'src/utils';
-import Timer from 'src/Timer';
+import Timer from 'src/timers/Timer';
 import { Garden } from 'src/typeDefs';
 import options from 'src/options';
 
-export default class ClickCookieTimer extends Timer {
+export default class GardenMinigameTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = 5e3;
+    defaultTimeout = 1000;
 
     startDelay() { return this.defaultTimeout; }
 

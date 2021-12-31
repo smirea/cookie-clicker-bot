@@ -1,11 +1,11 @@
 import { $, fixMenuBug, Game } from 'src/utils';
-import Timer from 'src/Timer';
+import Timer from 'src/timers/Timer';
 import options from 'src/options';
 
 export default class DragonAuraTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = 5e3;
+    defaultTimeout = 2000;
 
     startDelay() { return this.defaultTimeout; }
 

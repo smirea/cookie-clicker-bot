@@ -43,10 +43,10 @@ export default class CookieAutomator {
         WrinklerTimer: new WrinklerTimer(this),
     };
     state: typeof STATES[number] = 'off';
+    timeout?: NodeJS.Timeout;
+    tickCounter = 0;
 
     constructor() {
-        options.cookieClickTimeout = Math.max(5, options.cookieClickTimeout);
-
         let existingLog = [];
         try {
             existingLog = JSON.parse(localStorage[options.localStorage.log]);
@@ -91,8 +91,23 @@ export default class CookieAutomator {
     }
 
     applyState(state: typeof STATES[number]) {
+        this.startDate = this.startDate || Date.now();
+        this.tickCounter = this.tickCounter || 0;
+
+        // console.clear();
+        // console.table(
+        //     Object.values(this.timers).map(timer => ({
+        //         name: timer.constructor.name,
+        //         ticks: timer.defaultTimeout,
+        //         timeSeconds: timer.defaultTimeoutMs / 1000,
+        //     }))
+        // );
+
         switch (state) {
             case 'off':
+                this.startDate = 0;
+                this.tickCounter = 0;
+                clearTimeout(this.timeout!);
                 for (const timer of Object.values(this.timers)) timer.stop();
                 break;
             case 'click':
@@ -100,13 +115,28 @@ export default class CookieAutomator {
                 for (const timer of Object.values(this.timers)) {
                     if (timer.type === 'clicker') timer.start();
                 }
+                this.tick();
                 break;
             case 'on':
                 this.applyState('off');
-                this.startDate = Date.now();
                 for (const timer of Object.values(this.timers)) timer.start();
+                this.tick();
                 break;
         }
+    }
+
+    tick() {
+        clearTimeout(this.timeout!);
+
+        for (const timer of Object.values(this.timers)) {
+            if (timer.isStopped) continue;
+            if (this.tickCounter % timer.timeout !== 0) continue;
+            if (timer.startDelay() && this.tickCounter === 0) continue;
+            timer.run();
+        }
+
+        ++this.tickCounter;
+        setTimeout(() => this.tick(), options.tickMs);
     }
 
     updateDom() {
@@ -120,7 +150,10 @@ export default class CookieAutomator {
     }
 
     get realCps() {
-        return Math.round(Game.cookiesPs + Game.computedMouseCps * (1000 / options.cookieClickTimeout));
+        return Math.round(
+            Game.cookiesPs +
+            Game.computedMouseCps * this.timers.ClickCookieTimer.defaultTimeoutMs
+        );
     }
 
     log(msg: string, { eta, extra, color }: Pick<LogMessage, 'color' | 'extra' | 'eta'> = {}) {

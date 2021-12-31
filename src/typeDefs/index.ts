@@ -3,14 +3,16 @@ import { Building, BuildingName, Garden } from './buildings';
 export * from './buildings';
 
 export interface Options {
-    cookieClickTimeout: number,
+    /**
+     * Delay between each game loop (in ms)
+     * Good idea to keep it >= 4ms
+     */
+    tickMs: number;
     showLogs: number,
     /** what % [0-1] of the building price to start waiting to buy */
     buildingWait: number,
     /** what % [0-1] of the upgrade price to start waiting to buy */
     upgradeWait: number,
-    /** pop a wrinkler every X ms */
-    wrinklerPopTime: number,
     /**
      * refresh the page every X minutes if there isn't an active buff.
      * @deprecated not needed, page does not crash if left open
@@ -35,7 +37,7 @@ export interface Options {
         log: string,
     },
     garden: {
-        /** leave 50% of plots empty for mutations */
+        /** leave N % of plots empty for mutations [0-1] */
         usedPlotsRatio: number,
         /** harvest when there at most 1 tick left before decay */
         harvestDecayTicks: number,

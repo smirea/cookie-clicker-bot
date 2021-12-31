@@ -1,13 +1,13 @@
-import Timer from 'src/Timer';
-import options from 'src/options';
+import Timer from 'src/timers/Timer';
+import options, { msToTicks } from 'src/options';
 import { Game } from 'src/utils';
 
 export default class WrinklerTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = options.wrinklerPopTime;
+    defaultTimeout = msToTicks(8 * 60e3);
 
-    startDelay() { return 60e3; }
+    startDelay() { return msToTicks(60e3); }
 
     execute(): void {
         const { cpsMultiple } = this.context.getBuffs();

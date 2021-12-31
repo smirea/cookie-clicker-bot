@@ -1,11 +1,11 @@
-import Timer from 'src/Timer';
+import Timer from 'src/timers/Timer';
 import { Building } from 'src/typeDefs';
 import { fixMenuBug, formatAmount, Game } from 'src/utils';
 
 export default class BuyTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = 500;
+    defaultTimeout = 5;
 
     execute(): void {
         this.context.cpsCache = {};

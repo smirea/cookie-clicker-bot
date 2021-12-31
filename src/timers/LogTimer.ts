@@ -1,4 +1,4 @@
-import Timer from 'src/Timer';
+import Timer from 'src/timers/Timer';
 import options from 'src/options';
 import packageJson from '../../package.json';
 import { formatAmount, formatDuration } from 'src/utils';
@@ -6,12 +6,12 @@ import { formatAmount, formatDuration } from 'src/utils';
 export default class LogTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = 1e3;
+    defaultTimeout = 100;
 
     private lastMessage?: LogMessage;
 
     // wait for random states to be initialized
-    startDelay() { return 100; }
+    startDelay() { return this.defaultTimeout; }
 
     execute(): void {
         this.printLog();

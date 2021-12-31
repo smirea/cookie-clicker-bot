@@ -4,14 +4,12 @@ import { Game } from './utils';
 const getLSKey = (name: string) =>
     `CookieAutomator_${name}_${Game.version}_${Game.beta}`;
 
-const options: Options = {
-    cookieClickTimeout: 1000 / 15.1, // sneaky
+const options: Readonly<Options> = {
+    tickMs: 5,
     showLogs: 25,
-    buildingWait: 0.35, // what % [0-1] of the building price to start waiting to buy
-    upgradeWait: 0.35, // what % [0-1] of the upgrade price to start waiting to buy
-    wrinklerPopTime: 8 * 60e3, // pop a wrinkler every X ms
-    // note: disabled for now, re-enable if page crashes
-    autoReloadMinutes: 0, // refresh the page every X minutes if there isn't an active buff
+    buildingWait: 0.35,
+    upgradeWait: 0.35,
+    autoReloadMinutes: 0,
     achievementThresholds: {
         Default: [1, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600],
         Cursor: [1, 2, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900],
@@ -21,13 +19,11 @@ const options: Options = {
         'Elder Pledge': true, // peace was never an option
     },
     dragon: {
-        /** for each dragon purchase type, at what cookie % should you start waiting */
         waitRatios: {
             cookie: 0.4,
             building: 0.6,
             all: 0.75,
         },
-        /** order in which aura is chosen. If it's not on this list, it won't be selected */
         auras: [
             'Radiant Appetite',
             'Dragonflight',
@@ -38,11 +34,8 @@ const options: Options = {
         log: getLSKey('log'),
     },
     garden: {
-        /** leave 50% of plots empty for mutations */
         usedPlotsRatio: 0.55,
-        /** harvest when there at most 1 tick left before decay */
         harvestDecayTicks: 1,
-        /** if CPS % is greated, do not plant new seeds (default cps% = 1) */
         maxCpsBuff: 1,
         soil: 'fertilizer',
         plantOdds: {
@@ -56,5 +49,7 @@ const options: Options = {
         },
     },
 };
+
+export const msToTicks = (ms: number) => Math.max(1, Math.floor(ms / options.tickMs));
 
 export default options;

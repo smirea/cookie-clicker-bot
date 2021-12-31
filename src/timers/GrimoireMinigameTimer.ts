@@ -1,11 +1,11 @@
-import Timer from 'src/Timer';
+import Timer from 'src/timers/Timer';
 import { Grimoire } from 'src/typeDefs';
 import { Game } from 'src/utils';
 
 export default class GrimoireMinigameTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = 2e3;
+    defaultTimeout = 500;
 
     startDelay() { return this.defaultTimeout; }
 

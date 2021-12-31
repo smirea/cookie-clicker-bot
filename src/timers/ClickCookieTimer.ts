@@ -1,11 +1,11 @@
 import { Game } from 'src/utils';
-import options from 'src/options';
-import Timer from 'src/Timer';
+import Timer from 'src/timers/Timer';
+import { msToTicks } from 'src/options';
 
 export default class ClickCookieTimer extends Timer {
     type = 'clicker' as const;
 
-    defaultTimeout = options.cookieClickTimeout;
+    defaultTimeout = msToTicks(1000 / 15.1);
 
     execute(): void {
         Game.ClickCookie();
