@@ -12,9 +12,9 @@ setTimeout(() => {
     const { global, Game } = require('./utils');
 
     Game.volume = 0; // prevent DOM error
-    global.myCookieAutomator?.stop();
-    global.myCookieAutomator = new CookieAutomator;
-    global.myCookieAutomator.start();
+    global.Automator?.stop();
+    global.Automator = new CookieAutomator;
+    global.Automator.start();
 }, 500);
 
 '🍪🚜';

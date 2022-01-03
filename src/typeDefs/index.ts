@@ -73,6 +73,7 @@ export interface GameT {
     /** >= 1 <= 14 */
     readonly santaLevel: number;
     readonly UpgradeSanta: () => number;
+    readonly getWrinklersMax: () => number;
     readonly PopRandomWrinkler: () => void;
     readonly CollectWrinklers: () => void;
     readonly buffs: Record<string, Buff>;

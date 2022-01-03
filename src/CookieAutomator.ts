@@ -8,6 +8,7 @@ import type {
     Upgrade,
 } from './typeDefs';
 import { $$, cleanHTML, Game, getAffordableBuildingMultiple, getCostOfNBuildings, global, units } from './utils';
+import * as utils from './utils';
 import options from './options';
 
 import BuyTimer from './timers/BuyTimer';
@@ -45,6 +46,8 @@ export default class CookieAutomator {
     state: typeof STATES[number] = 'off';
     timeout?: NodeJS.Timeout;
     tickCounter = 0;
+    /** @deprecated keep for debug only in the console */
+    utils = utils;
 
     constructor() {
         let existingLog = [];

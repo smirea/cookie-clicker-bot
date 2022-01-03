@@ -58,7 +58,7 @@ export const formatAmount = (
     let value = Math.floor(number / Math.pow(10, floorPower));
     value += Math.round(Math.floor(number / Math.pow(10, floorPower - 2)) % 100) / 100;
     value = Math.round(value * 100) / 100;
-    const unit = format === 'full' ? ' ' + units.list[floorPower] : 'e' + floorPower;
+    const unit = format === 'full' ? ' ' + units.list[floorPower / 3 - 1] : 'e' + floorPower;
 
     return (cookies ? '🍪' : '') + String(value) + unit;
 }
