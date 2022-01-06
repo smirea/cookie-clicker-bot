@@ -35,7 +35,9 @@ export default class GardenMinigameTimer extends Timer {
                 const plant = garden.plantsById[plantId - 1];
 
                 // send really old plants to a farm upstate
-                if (age >= plant.mature && this.getDecayTicks(x, y) <= options.garden.harvestDecayTicks) {
+                if (age >= plant.mature &&
+                    (plant.weed || this.getDecayTicks(x, y) <= options.garden.harvestDecayTicks)
+                ) {
                     if (garden.harvest(x, y)) {
                         this.context.log(`🥀 Harvested ${plant.name} at [${x - x1}, ${y - y1}]`);
                         emptyPlots.push({ x, y });

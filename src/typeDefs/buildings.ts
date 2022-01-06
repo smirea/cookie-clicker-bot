@@ -212,6 +212,7 @@ export namespace Garden {
         onHarvest?: (x: number, y: number, age: number) => void;
         plantable: boolean;
         unlocked: 0 | 1;
+        weed?: boolean;
     }
 
     export interface Soil {
