@@ -109,6 +109,10 @@ export interface GameT {
     }>;
     readonly season: SeasonKey;
     readonly seasons: Record<SeasonKey, Season>;
+    readonly tickerL: HTMLDivElement;
+    /** the news ticker message */
+    readonly Ticker: string;
+    readonly TickerEffect: number | { type: 'fortune' };
 
     // ---- Season stuff ----
 

@@ -22,6 +22,7 @@ import ShimmerTimer from './timers/ShimmerTimer';
 import SugarLumpTimer from './timers/SugarLumpTimer';
 import WrinklerTimer from './timers/WrinklerTimer';
 import SeasonTimer from './timers/SeasonTimer';
+import ClickNewsTimer from './timers/ClickNewsTimer';
 
 const STATES = ['off', 'on', 'click'] as const;
 
@@ -35,9 +36,10 @@ export default class CookieAutomator {
     timers = {
         BuyTimer: new BuyTimer(this),
         ClickCookieTimer: new ClickCookieTimer(this),
+        ClickNewsTimer: new ClickNewsTimer(this),
         DragonAuraTimer: new DragonAuraTimer(this),
-        GrimoireMinigameTimer: new GrimoireMinigameTimer(this),
         GardenMinigameTimer: new GardenMinigameTimer(this),
+        GrimoireMinigameTimer: new GrimoireMinigameTimer(this),
         LogTimer: new LogTimer(this),
         PageReloadTimer: new PageReloadTimer(this),
         SeasonTimer: new SeasonTimer(this),
