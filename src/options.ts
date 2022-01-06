@@ -48,6 +48,10 @@ const options: Readonly<Options> = {
             chocoroot: 1.5,
         },
     },
+    season: {
+        default: 'christmas',
+        exclude: ['fools'],
+    },
 };
 
 export const msToTicks = (ms: number) => Math.max(1, Math.floor(ms / options.tickMs));

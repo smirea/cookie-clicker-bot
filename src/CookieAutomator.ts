@@ -21,6 +21,7 @@ import PageReloadTimer from './timers/PageReloadTimer';
 import ShimmerTimer from './timers/ShimmerTimer';
 import SugarLumpTimer from './timers/SugarLumpTimer';
 import WrinklerTimer from './timers/WrinklerTimer';
+import SeasonTimer from './timers/SeasonTimer';
 
 const STATES = ['off', 'on', 'click'] as const;
 
@@ -39,6 +40,7 @@ export default class CookieAutomator {
         GardenMinigameTimer: new GardenMinigameTimer(this),
         LogTimer: new LogTimer(this),
         PageReloadTimer: new PageReloadTimer(this),
+        SeasonTimer: new SeasonTimer(this),
         ShimmerTimer: new ShimmerTimer(this),
         SugarLumpTimer: new SugarLumpTimer(this),
         WrinklerTimer: new WrinklerTimer(this),

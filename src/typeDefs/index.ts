@@ -8,21 +8,21 @@ export interface Options {
      * Good idea to keep it >= 4ms
      */
     tickMs: number;
-    showLogs: number,
+    showLogs: number;
     /** what % [0-1] of the building price to start waiting to buy */
-    buildingWait: number,
+    buildingWait: number;
     /** what % [0-1] of the upgrade price to start waiting to buy */
-    upgradeWait: number,
+    upgradeWait: number;
     /**
      * refresh the page every X minutes if there isn't an active buff.
      * @deprecated not needed, page does not crash if left open
      */
-    autoReloadMinutes: 0,
+    autoReloadMinutes: 0;
     achievementThresholds: (
         { Default: number[] } &
         { [key in BuildingName | 'Default']?: number[]; }
-    ),
-    bannedUpgrades: Record<string, boolean>,
+    );
+    bannedUpgrades: Record<string, boolean>;
     dragon: {
         /** for each dragon purchase type, at what cookie % should you start waiting */
         waitRatios: {
@@ -32,20 +32,24 @@ export interface Options {
         },
         /** order in which aura is chosen. If it's not on this list, it won't be selected */
         auras: Array<GameT['dragonAuras'][number]['name']>,
-    },
+    };
     localStorage: {
-        log: string,
-    },
+        log: string;
+    };
     garden: {
         /** leave N % of plots empty for mutations [0-1] */
-        usedPlotsRatio: number,
+        usedPlotsRatio: number;
         /** harvest when there at most 1 tick left before decay */
-        harvestDecayTicks: number,
+        harvestDecayTicks: number;
         /** if CPS % is greated, do not plant new seeds (default cps% = 1) */
-        maxCpsBuff: number,
-        soil: Garden.Soil['key'],
-        plantOdds: { [key in Garden.Plant['key']]?: number },
-    },
+        maxCpsBuff: number;
+        soil: Garden.Soil['key'];
+        plantOdds: { [key in Garden.Plant['key']]?: number };
+    };
+    season: {
+        default: SeasonKey;
+        exclude: SeasonKey[];
+    };
 }
 
 /**
@@ -103,12 +107,45 @@ export interface GameT {
         order: number;
         diabled: 0 | 1;
     }>;
+    readonly season: SeasonKey;
+    readonly seasons: Record<SeasonKey, Season>;
 
-    // Actually writeable props!
+    // ---- Season stuff ----
+
+    readonly GetHowManyEggs: () => number;
+    readonly GetHowManyHalloweenDrops: () => number;
+    readonly GetHowManyHeartDrops: () => number;
+    readonly GetHowManyReindeerDrops: () => number;
+    readonly GetHowManySantaDrops: () => number;
+    readonly eggDrops: Array<Upgrade['name']>;
+    readonly halloweenDrops: Array<Upgrade['name']>;
+    readonly heartDrops: Array<Upgrade['name']>;
+    readonly rareEggDrops: Array<Upgrade['name']>;
+    readonly reindeerDrops: Array<Upgrade['name']>;
+    readonly santaDrops: Array<Upgrade['name']>;
+    readonly seasonDrops: Array<Upgrade['name']>;
+
+    // ---- Actually writeable props ----
 
     promptOn: 0 | 1;
     wrinklers: Wrinkler[];
     specialTab: string;
+}
+
+export type SeasonKey = (
+    | 'christmas'
+    | 'easter'
+    | 'fools'
+    | 'halloween'
+    | 'valentines'
+);
+
+export interface Season {
+    name: string;
+    over: string;
+    start: string;
+    trigger: Upgrade['name'];
+    triggerUpgrade: Upgrade;
 }
 
 export interface Buyable {
