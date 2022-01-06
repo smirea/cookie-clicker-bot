@@ -1,8 +1,11 @@
+import type CookieAutomator from 'src/CookieAutomator';
 import { Building, BuildingName, Garden } from './buildings';
 
 export * from './buildings';
 
 export interface Options {
+    /** What state should the automator start in on page load */
+    startupState: typeof CookieAutomator['prototype']['state'];
     /**
      * Delay between each game loop (in ms)
      * Good idea to keep it >= 4ms
