@@ -20,11 +20,17 @@ export default class SeasonTimer extends Timer {
             return true;
         }
 
-        for (const [key, { getCount, getTotal }] of Object.entries(config)) {
-            if (options.season.exclude.includes(key as SeasonKey)) continue;
+        const tuples = Object.entries(config)
+            .sort((a, b) => a[0].localeCompare(b[0])) as Array<[SeasonKey, SeasonConfig]>;
+
+        for (const [key, { getCount, getTotal }] of tuples) {
+            if (options.season.exclude.includes(key)) continue;
             if (getCount() >= getTotal()) continue; // season done
-            if (Game.season === key) continue; // already current season
-            if (setSeason(key as SeasonKey)) return;
+            if (Game.season === key) return; // already current season, nothing to do
+
+            setSeason(key);
+            return;
+
         }
 
         // when everything is done and we've reverted to the default season, we're done for this ascention
@@ -35,10 +41,9 @@ export default class SeasonTimer extends Timer {
     }
 }
 
-const config: Record<
-    SeasonKey,
-    { getCount: () => number; getTotal: () => number; }
-> = {
+type SeasonConfig = { getCount: () => number; getTotal: () => number; };
+
+const config: Record<SeasonKey, SeasonConfig> = {
     christmas: {
         getCount: () => Game.GetHowManySantaDrops(),
         getTotal: () => Game.santaDrops.length,
