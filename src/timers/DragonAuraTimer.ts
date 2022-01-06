@@ -39,7 +39,7 @@ export default class DragonAuraTimer extends Timer {
 
             const btn = $('#promptOption0');
             if (!btn || btn.innerText.trim().toLowerCase() !== 'confirm') {
-                console.warn('[CookieAutomator.dragonAuraTimer()] FML the confirm changed');
+                console.warn('[DragonAuraTimer] FML the confirm changed');
                 break;
             }
             btn.click();

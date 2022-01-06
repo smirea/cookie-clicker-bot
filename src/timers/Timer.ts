@@ -1,5 +1,5 @@
 import options from 'src/options';
-import type CookieAutomator from '../CookieAutomator';
+import type Automator from '../Automator';
 
 export default abstract class Timer {
     abstract readonly type: 'default' | 'clicker';
@@ -8,7 +8,7 @@ export default abstract class Timer {
     timeout = 0;
     counter = 0;
 
-    constructor(protected context: CookieAutomator) {}
+    constructor(protected context: Automator) {}
 
     abstract execute(): void;
 

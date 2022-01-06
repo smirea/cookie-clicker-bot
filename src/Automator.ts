@@ -26,7 +26,7 @@ import ClickNewsTimer from './timers/ClickNewsTimer';
 
 const STATES = ['off', 'on', 'click'] as const;
 
-export default class CookieAutomator {
+export default class Automator {
     logMessages: LogMessage[];
     upgradeFatigue = 1; // prevent buying too many updates one after another
     cpsCache: { [key in BuildingName]?: number } = {};
@@ -235,7 +235,7 @@ export default class CookieAutomator {
 
     buy(obj: { name?: string; buy: Buyable['buy']; [key: string]: any }, amount = 1) {
         if (typeof amount === 'number' && amount < 1) {
-            console.warn('[CookieAutomator.buy()] Cannot get <1 amount: %s of %s', amount, (obj as any).name)
+            console.warn('[Automator.buy()] Cannot get <1 amount: %s of %s', amount, (obj as any).name)
             return;
         }
 
@@ -434,7 +434,7 @@ export default class CookieAutomator {
         const unit = match[2];
 
         if (!amount || Number.isNaN(amount) || !unit) {
-            console.warn('[CookieAutomator:getDragonStats()] Cannot parse: %s', lvl.costStr());
+            console.warn('[Automator:getDragonStats()] Cannot parse: %s', lvl.costStr());
             return {};
         }
 
@@ -461,7 +461,7 @@ export default class CookieAutomator {
         }
 
         if (!handlers[unit]) {
-            console.warn('[CookieAutomator:getDragonStats()] Unknown unit: %s', lvl.costStr());
+            console.warn('[Automator:getDragonStats()] Unknown unit: %s', lvl.costStr());
             return {};
         }
 
