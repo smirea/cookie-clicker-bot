@@ -1,13 +1,5 @@
-import type {
-    Building,
-    BuildingName,
-    BuildingStats,
-    Buyable,
-    DragonLevel,
-    DragonLevelGoal,
-    Upgrade,
-} from './typeDefs';
-import { $$, cleanHTML, Game, getAffordableBuildingMultiple, getCostOfNBuildings, global, units } from './utils';
+import type { BuildingMeta, BuildingName, Buyable, Upgrade } from './typeDefs';
+import { $$, cleanHTML, Game, global, units } from './utils';
 import * as utils from './utils';
 import options from './options';
 
@@ -31,7 +23,7 @@ export default class Automator {
     upgradeFatigue = 1; // prevent buying too many updates one after another
     cpsCache: { [key in BuildingName]?: number } = {};
     startDate!: number;
-    lastState: { buildings: BuildingStats } = {} as any;
+    lastState: { buildings: BuildingMeta[] } = {} as any;
     domNode: HTMLDivElement;
     timers = {
         BuyTimer: new BuyTimer(this),
@@ -203,14 +195,13 @@ export default class Automator {
     }
 
     getAvailableUpgrades() {
-        return Game.UpgradesInStore
-            .filter(x =>
-                !options.bannedUpgrades[x.name] &&
-                !x.bought &&
-                x.unlocked &&
-                x.pool !== 'toggle' &&
-                x.pool !== 'debug'
-            );
+        return Game.UpgradesInStore.filter(x =>
+            !options.bannedUpgrades[x.name] &&
+            !x.bought &&
+            x.unlocked &&
+            x.pool !== 'toggle' &&
+            x.pool !== 'debug'
+        );
     }
 
     getActiveWrinklers() {
@@ -279,198 +270,5 @@ export default class Automator {
         this.cpsCache[name] = cps;
 
         return cps;
-    }
-
-    getBuildingStats(): BuildingStats {
-        const sorted: BuildingStats['sorted'] = Game.ObjectsById
-            .filter(x => !x.locked)
-            .map((obj, index) => ({
-                name: obj.name,
-                price: obj.price,
-                cps: this.getCps(obj.name),
-                pricePerCps: Math.max(0.01, Math.round(obj.price / this.getCps(obj.name))),
-                index,
-                obj,
-                relativeValue: 0, // overwritten bellow
-            }))
-            .filter(obj => obj.cps)
-            .sort((a, b) => a.pricePerCps - b.pricePerCps);
-        const min = sorted[0]?.pricePerCps || 1;
-
-        // {
-        //     const table = {};
-        //     for (const item of Array.from(sorted).sort((a, b) => a.index - b.index)) {
-        //         table[item.name] = {
-        //             cps: item.cps,
-        //             price: item.price,
-        //             pricePerCps: item.pricePerCps,
-        //         };
-        //     }
-        //     console.table(table);
-        // }
-
-        for (const obj of sorted) {
-            obj.relativeValue = Math.round(obj.pricePerCps / min * 10) / 10;
-        }
-
-        const active = Game.ObjectsById.filter(x => !x.bought);
-        const next = sorted[0]?.obj;
-        const nextWait = active.find(x => Game.cookies >= x.price * options.buildingWait);
-        const nextNew = active.find(x => x.price <= Game.cookies);
-        let nextHighValue: Building | undefined = sorted.find(item =>
-            !item.obj.locked && item.obj.amount == 0 && item.obj.price <= Game.cookies
-        )?.obj;
-        nextHighValue ||= sorted.slice(1, 7).find((item, index) => {
-            return sorted[0].price <= Game.cookies &&
-                item.relativeValue - sorted[0].relativeValue >= 10 + (2.5 ** (index + 2));
-        }) && sorted[0].obj;
-
-        return {
-            next,
-            nextNew,
-            nextWait,
-            nextHighValue: nextHighValue
-                ? {
-                    obj: nextHighValue,
-                    amount: getAffordableBuildingMultiple(nextHighValue, [50, 40, 30, 20, 10, 1])!,
-                }
-                : null,
-            sorted,
-        };
-    }
-
-    getUpgradeStats() {
-        if (Game.cookiesPs < 1) return {};
-
-        const getPrice = (upg: Upgrade) => { // takes into account willingness factor, used for sorting
-            let result = upg.getPrice();
-            if (/cookie production multiplier/i.test(upg.desc)) result *= 1.2;
-            else if (/clicking gains/i.test(upg.desc)) result *= 0.8;
-            else if (/grandmas|twice/i.test(upg.desc)) result *= 0.6;
-            else if (/mouse and cursor/i.test(upg.desc)) result *= 0.5;
-            return result;
-        }
-        const active = this.getAvailableUpgrades().sort((a, b) => getPrice(a) - getPrice(b));
-        const next = active[0]?.canBuy()
-            ? active[0]
-            // just buy really cheap upgrades
-            : active.find(x => x.getPrice() <= Game.cookies * 0.01);
-        const waitPrice = active[0]?.getPrice() * options.upgradeWait * (this.upgradeFatigue || 1);
-        const nextWait = (
-            active[0] && Game.cookies >= 30e3 && Game.cookies >= waitPrice
-                ? active[0]
-                : null
-        );
-        const waitPct = nextWait && (Math.round(Game.cookies / active[0].getPrice() * 100) + '%') || undefined;
-
-        return { next, nextWait, waitPct };
-    }
-
-    getSantaStats() {
-        if (Game.cookiesPs < 1e3) return {};
-
-        const price = Math.pow(Game.santaLevel + 1, Game.santaLevel + 1);
-
-        if (
-            Game.santaLevel >= 14 ||
-            // ho ho hold on a bit
-            (price > 30 && Game.cookiesPs < 1000)
-        ) return { wait: null, buy: null, price: 0 };
-
-        const buy = Game.cookies >= price;
-        const wait = !buy && Game.cookies >= price * 0.75;
-
-        return { wait, buy, price };
-    }
-
-    getAchievementThresholdStats() {
-        if (Game.cookiesPs < 1e3) return null;
-
-        const active = [];
-
-        for (const obj of Game.ObjectsById) {
-            if (!obj.bought || obj.amount <= 1) continue;
-            const ranges = options.achievementThresholds[obj.name] || options.achievementThresholds.Default;
-            if (obj.amount >= ranges[ranges.length - 1]) continue;
-            const index = ranges.findIndex((start, i) => start <= obj.amount && obj.amount < ranges[i + 1]);
-            const nextAmount = ranges[index + 1];
-            const nextPrice = getCostOfNBuildings(obj, nextAmount);
-            const toBuy = nextAmount - obj.amount;
-            active.push({
-                obj,
-                toBuy,
-                nextAmount,
-                nextPrice,
-                available: nextPrice <= Game.cookies,
-                wait: Game.cookies >= nextPrice * 0.8,
-            });
-        }
-
-        if (!active.length) return null;
-
-        active.sort((a, b) => a.nextPrice - b.nextPrice);
-        return active[0];
-    }
-
-    getDragonStats(): { buy?: DragonLevel; wait?: { lvl: DragonLevel; goal: DragonLevelGoal } } {
-        if (Game.cookiesPs < 1e5 || Game.dragonLevel >= Game.dragonLevels.length - 1) {
-            return {};
-        }
-
-        // buy cheap upgrades first
-        if (Game.UpgradesInStore.find(x => !x.pool && x.getPrice() <= 10e6)) return {};
-
-        // higher value = lower priority
-        // once your favorite aura has been researched, deprioritize dragon upgrades till you have the 2nd one
-        const priorityMultiple = this.getAvailableDragonAuras().byName[options.dragon.auras[0]]
-            ? 1.25
-            : 1;
-
-        const lvl = Game.dragonLevels[Game.dragonLevel];
-        if (lvl.cost()) return { buy: lvl };
-
-        const match = lvl.costStr().match(/^(\d+) (.*)$/) || [];
-        const amount = parseInt(match[1]);
-        const unit = match[2];
-
-        if (!amount || Number.isNaN(amount) || !unit) {
-            console.warn('[Automator:getDragonStats()] Cannot parse: %s', lvl.costStr());
-            return {};
-        }
-
-        const handlers: Record<string, () => DragonLevelGoal> = {
-            'million cookies': () => ({ type: 'cookie', amount, cookies: amount }) as const,
-            'of every building': () => ({
-                type: 'all',
-                amount,
-                cookies: Game.ObjectsById.find(x => x.locked)
-                    ? Infinity // unlock all buildings first
-                    : Game.ObjectsById
-                        .map(obj => getCostOfNBuildings(obj, amount))
-                        .reduce((s, x) => s + x, 0),
-            }) as const,
-        };
-
-        for (const obj of Game.ObjectsById) {
-            handlers[obj.plural] = () => ({
-                type: 'building',
-                value: obj.name,
-                amount,
-                cookies: getCostOfNBuildings(obj, amount),
-            }) as const;
-        }
-
-        if (!handlers[unit]) {
-            console.warn('[Automator:getDragonStats()] Unknown unit: %s', lvl.costStr());
-            return {};
-        }
-
-        const goal = handlers[unit]();
-
-        if (Game.cookies >= goal.cookies * priorityMultiple * options.dragon.waitRatios[goal.type]) {
-            return { wait: { lvl, goal } };
-        }
-
-        return {};
     }
 }

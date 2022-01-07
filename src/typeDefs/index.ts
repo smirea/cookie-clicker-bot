@@ -77,8 +77,8 @@ export interface GameT {
     readonly ObjectsById: Building[];
     readonly Upgrades: Record<string, Upgrade>;
     readonly UpgradesInStore: Upgrade[];
-    /** >= 1 <= 14 */
     readonly santaLevel: number;
+    readonly santaLevels: string[];
     readonly UpgradeSanta: () => number;
     readonly getWrinklersMax: () => number;
     readonly PopRandomWrinkler: () => void;
@@ -169,6 +169,7 @@ export interface Upgrade extends Buyable {
     unlocked: boolean;
     getPrice: () => number;
     canBuy: () => boolean;
+    buy: () => 0 | 1;
 }
 
 export interface Buff {
@@ -192,7 +193,7 @@ export interface DragonLevel {
 }
 
 export type DragonLevelGoal = (
-    { cookies: number; amount: number } & (
+    { cookies: number; amount: number; buy: () => void } & (
         | { type: 'cookie' }
         | { type: 'all' }
         | { type: 'building', value: BuildingName }
@@ -213,18 +214,12 @@ export type Wrinkler = {
     y: number;
 };
 
-export interface BuildingStats {
-    next?: Building;
-    nextNew?: Building;
-    nextWait?: Building;
-    nextHighValue?: undefined | null | { obj: Building; amount: number };
-    sorted: Array<{
-        name: string;
-        price: number;
-        cps: number;
-        pricePerCps: number;
-        index: number;
-        obj: Building;
-        relativeValue: number;
-    }>
+export interface BuildingMeta {
+    name: string;
+    price: number;
+    cps: number;
+    pricePerCps: number;
+    index: number;
+    obj: Building;
+    relativeValue: number;
 }

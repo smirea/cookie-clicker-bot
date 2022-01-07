@@ -9,10 +9,12 @@ export const Game = (global as any).Game as GameT;
 export const getAffordableBuildingMultiple = (obj: Building, choices: number[]) =>
     choices.find(end => getCostOfNBuildings(obj, obj.amount + end) <= Game.cookies) || null;
 
-export const getCostOfNBuildings = (obj: Building, end: number) =>
-    obj.amount >= end
-        ? 0
-        : obj.basePrice * (1.15 ** end - 1.15 ** obj.amount) / 0.15;
+export const getCostOfNBuildings = (obj: Building, end: number, amount = obj.amount) =>
+    Math.round(
+        amount >= end
+            ? 0
+            : obj.basePrice * (1.15 ** end - 1.15 ** amount) / 0.15
+    );
 
 export const cleanHTML = (html: string) =>
     html.replace(/<q>.*<\/q>/g, '')
