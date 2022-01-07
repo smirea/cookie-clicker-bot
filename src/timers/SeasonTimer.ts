@@ -12,7 +12,9 @@ export default class SeasonTimer extends Timer {
 
     execute(): void {
         const setSeason = (key: SeasonKey) => {
-            const { name, triggerUpgrade } = Game.seasons[key as SeasonKey];
+            if (Game.season === key) return true;
+
+            const { name, triggerUpgrade } = Game.seasons[key];
             if (!triggerUpgrade.canBuy()) return false;
 
             this.context.buy(triggerUpgrade);
@@ -20,47 +22,49 @@ export default class SeasonTimer extends Timer {
             return true;
         }
 
-        const tuples = Object.entries(config)
-            .sort((a, b) => a[0].localeCompare(b[0])) as Array<[SeasonKey, SeasonConfig]>;
-
-        for (const [key, { getCount, getTotal }] of tuples) {
-            if (options.season.exclude.includes(key)) continue;
-            if (getCount() >= getTotal()) continue; // season done
-            if (Game.season === key) return; // already current season, nothing to do
-
-            setSeason(key);
-            return;
-
+        if (Game.season) { // there's still work to be done on the current season
+            const season = config[Game.season];
+            if (season.getCount() < season.getTotal()) return;
         }
 
-        // when everything is done and we've reverted to the default season, we're done for this ascention
-        if (Game.season === options.season.default) return this.stop();
+        const available = Object.values(config)
+            .filter(s => !options.season.exclude.includes(s.key))
+            .filter(s => s.getCount() < s.getTotal())
+            .sort((a, b) => a.key.localeCompare(b.key));
 
-        // if no other season has been set, try to revert to the default season
-        setSeason(options.season.default);
+        if (available.length) {
+            setSeason(available[0].key);
+        } else if (setSeason(options.season.default)) {
+            this.stop();
+        }
     }
 }
 
 type SeasonConfig = { getCount: () => number; getTotal: () => number; };
 
-const config: Record<SeasonKey, SeasonConfig> = {
+const config: { [Key in SeasonKey]: SeasonConfig & { key: Key } } = {
     christmas: {
+        key: 'christmas',
         getCount: () => Game.GetHowManySantaDrops(),
         getTotal: () => Game.santaDrops.length,
     },
     easter: {
+        key: 'easter',
         getCount: () => Game.GetHowManyEggs(),
-        getTotal: () => Game.eggDrops.length,
+        getTotal: () => Game.easterEggs.length,
     },
     fools: {
+        key: 'fools',
         getCount: () => 0,
         getTotal: () => 0,
     },
     halloween: {
+        key: 'halloween',
         getCount: () => Game.GetHowManyHalloweenDrops(),
         getTotal: () => Game.halloweenDrops.length,
     },
     valentines: {
+        key: 'valentines',
         getCount: () => Game.GetHowManyHeartDrops(),
         getTotal: () => Game.heartDrops.length,
     },

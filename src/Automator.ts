@@ -159,7 +159,7 @@ export default class Automator {
     get realCps() {
         return Math.round(
             Game.cookiesPs +
-            Game.computedMouseCps * this.timers.ClickCookieTimer.defaultTimeoutMs
+            Game.computedMouseCps * (this.timers.ClickCookieTimer?.defaultTimeoutMs ?? 0)
         );
     }
 

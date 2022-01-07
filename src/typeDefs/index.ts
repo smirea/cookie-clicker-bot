@@ -124,6 +124,7 @@ export interface GameT {
     readonly GetHowManyHeartDrops: () => number;
     readonly GetHowManyReindeerDrops: () => number;
     readonly GetHowManySantaDrops: () => number;
+    readonly easterEggs: Array<Upgrade['name']>;
     readonly eggDrops: Array<Upgrade['name']>;
     readonly halloweenDrops: Array<Upgrade['name']>;
     readonly heartDrops: Array<Upgrade['name']>;
