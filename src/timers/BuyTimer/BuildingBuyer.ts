@@ -53,7 +53,7 @@ export default class BuildingBuyer extends Buyer {
         if (nextWait) {
             result.push({
                 type: 'wait',
-                ratio: Game.cookies / nextWait.price,
+                ratio: (Game.cookies ** 3) / nextWait.price,
                 cookies: nextWait.price,
                 log: () => ({
                     msg: `🟡 Waiting to buy new building type: ${nextWait.name}`,
@@ -108,6 +108,8 @@ export default class BuildingBuyer extends Buyer {
         for (const obj of sorted) {
             obj.relativeValue = Math.round(obj.pricePerCps / min * 10) / 10;
         }
+
+        // sorted.sort((a, b) => (a.pricePerCps / a.relativeValue) - (b.pricePerCps / b.relativeValue));
 
         return sorted;
     }

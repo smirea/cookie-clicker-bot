@@ -5,7 +5,7 @@ import { msToTicks } from 'src/options';
 export default class ClickNewsTimer extends Timer {
     type = 'clicker' as const;
 
-    defaultTimeout = msToTicks(5e3);
+    defaultTimeout = msToTicks(1e3);
 
     execute(): void {
         if (!Game.TickerEffect) return;

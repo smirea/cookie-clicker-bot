@@ -38,7 +38,7 @@ const options: Readonly<Options> = {
         usedPlotsRatio: 0.55,
         harvestDecayTicks: 1,
         maxCpsBuff: 1,
-        soil: 'fertilizer',
+        soil: 'clay',
         plantOdds: {
             bakerWheat: 1,
             thumbcorn: 0.75,

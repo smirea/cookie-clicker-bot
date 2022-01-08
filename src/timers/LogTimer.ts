@@ -1,7 +1,7 @@
 import Timer from 'src/timers/Timer';
 import options from 'src/options';
 import packageJson from '../../package.json';
-import { formatAmount, formatDuration } from 'src/utils';
+import { formatAmount, formatDuration, Game } from 'src/utils';
 
 export default class LogTimer extends Timer {
     type = 'default' as const;
@@ -65,9 +65,10 @@ export default class LogTimer extends Timer {
             console.clear();
             console.log('%c%s v%s', 'color:gray', packageJson.name, packageJson.version);
             console.log(
-                `upgradeFatigue: %s | realCps: %s`,
+                `upgradeFatigue: %s | realCps: %s (clicks: %s)`,
                 upgradeFatigue ? Math.round(upgradeFatigue * 100) / 100 + 'x' : 'disabled',
-                formatAmount(realCps)
+                formatAmount(realCps),
+                formatAmount(realCps - Game.cookiesPs)
             );
             console.log('%cBuy Order:', 'font-weight:bold');
             for (const obj of buildings) {

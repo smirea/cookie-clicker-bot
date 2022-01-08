@@ -149,9 +149,11 @@ export default class Automator {
     }
 
     get realCps() {
+        const clickTimer = this.timers.ClickCookieTimer;
+        if (!clickTimer || clickTimer.isStopped) return Game.cookiesPs;
         return Math.round(
             Game.cookiesPs +
-            Game.computedMouseCps * (this.timers.ClickCookieTimer?.defaultTimeoutMs ?? 0)
+            Game.computedMouseCps * 1000 / clickTimer.defaultTimeoutMs
         );
     }
 

@@ -51,9 +51,10 @@ export const formatAmount = (
     } = {}
 ): string => {
     number = Math.floor(number);
+    const prefix = cookies ? '🍪' : '';
 
-    if (number < 1e3) return String(number);
-    if (number < 1e6) return `${Math.floor(number / 1e3)},${number % 1000}`;
+    if (number < 1e3) return prefix + String(number);
+    if (number < 1e6) return prefix + `${Math.floor(number / 1e3)},${number % 1000}`;
 
     const power = Math.floor(Math.log10(number));
     const floorPower = power - (power % 3);
@@ -62,7 +63,7 @@ export const formatAmount = (
     value = Math.round(value * 100) / 100;
     const unit = format === 'full' ? ' ' + units.list[floorPower / 3 - 1] : 'e' + floorPower;
 
-    return (cookies ? '🍪' : '') + String(value) + unit;
+    return prefix + String(value) + unit;
 }
 
 export const units = (() => {

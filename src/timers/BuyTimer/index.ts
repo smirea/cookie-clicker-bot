@@ -29,8 +29,7 @@ export default class BuyTimer extends Timer {
         }
 
         const orders = this.getBuyOrders();
-        const next = orders.find(o => o.type === 'buy');
-        const nextWait = orders.find(o => o.type === 'wait');
+        const next = orders[0];
         const log = (item: { log?: typeof orders[number]['log'] }) => {
             if (!item.log) return;
             const { msg, ...config } = item.log();
@@ -40,8 +39,8 @@ export default class BuyTimer extends Timer {
         if (next?.type === 'buy') {
             log(next); // must happen before buy() since it might use the current state to log
             next.buy();
-        } else if (nextWait?.type === 'wait') {
-            log(nextWait);
+        } else if (next?.type === 'wait') {
+            log(next);
             this.scaleTimeout(5);
         } else {
             this.scaleTimeout(10);
