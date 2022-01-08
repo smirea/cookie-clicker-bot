@@ -5,9 +5,12 @@ import { msToTicks } from 'src/options';
 export default class ClickCookieTimer extends Timer {
     type = 'clicker' as const;
 
-    defaultTimeout = msToTicks(1000 / 15.1);
+    defaultTimeout = msToTicks(51);
+
+    // mouseEvent = new MouseEvent('click', { detail: 1 });
+    mouseEvent = undefined;
 
     execute(): void {
-        Game.ClickCookie();
+        Game.ClickCookie(this.mouseEvent);
     }
 }

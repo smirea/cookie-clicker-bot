@@ -71,7 +71,7 @@ export interface GameT {
     readonly lumpT: number;
     readonly lumpMatureAge: number;
     /** the name of the game */
-    readonly ClickCookie: () => void;
+    readonly ClickCookie: (event?: MouseEvent) => void;
     readonly clickLump: () => void;
     readonly Objects: { [Name in BuildingName]: Building & { name: Name } };
     readonly ObjectsById: Building[];
