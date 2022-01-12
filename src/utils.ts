@@ -95,3 +95,9 @@ export const fixMenuBug = () => {
     Game.specialTab = 'test';
     Game.ToggleSpecialMenu(false);
 }
+
+export const clamp = (value: number, min: number, max?: number): number => {
+    if (value < min) value = min;
+    if (max != null && value > max) value = max;
+    return value;
+};

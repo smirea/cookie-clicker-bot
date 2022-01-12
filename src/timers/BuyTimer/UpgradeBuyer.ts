@@ -65,6 +65,7 @@ export default class UpgradeBuyer extends Buyer {
         else if (/clicking gains/i.test(upgrade.desc)) price *= 0.8;
         else if (/grandmas|twice/i.test(upgrade.desc)) price *= 0.6;
         else if (/mouse and cursor/i.test(upgrade.desc)) price *= 0.5;
+        else if (/prestige/i.test(upgrade.desc)) price *= 0.01; // highest value
 
         return price;
     }

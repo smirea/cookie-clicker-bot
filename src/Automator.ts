@@ -153,7 +153,8 @@ export default class Automator {
         if (!clickTimer || clickTimer.isStopped) return Game.cookiesPs;
         return Math.round(
             Game.cookiesPs +
-            Game.computedMouseCps * 1000 / clickTimer.defaultTimeoutMs
+            // 0.95 since timers are not reaaaly exact
+            0.95 * Game.computedMouseCps * 1000 / clickTimer.defaultTimeoutMs
         );
     }
 
