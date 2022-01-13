@@ -45,18 +45,19 @@ export interface Options {
             conditions: {
                 minSeeds: number;
             };
+            optimalMutationStrategy?: boolean;
             /** leave N % of plots empty for mutations [0-1] */
-            usedPlotsRatio: number;
+            usedPlotsRatio?: number;
             /** harvest when there at most 1 tick left before decay */
-            harvestDecayTicks: number;
+            harvestDecayTicks?: number;
             /** if CPS % is greater, do not plant new seeds (default cps% = 1) */
-            maxCpsBuff: number;
-            soil: Garden.Soil['key'];
-            defaultOdds: {
+            maxCpsBuff?: number;
+            soil?: Garden.Soil['key'];
+            defaultOdds?: {
                 weed: number;
                 default: number;
             },
-            plantOdds: { [key in Garden.Plant['key']]?: number };
+            plantOdds?: { [key in Garden.Plant['key']]?: number };
         }>;
     };
     season: {

@@ -5,6 +5,7 @@ export default class SantaBuyer extends Buyer {
     scale(x: number) { return x ** 2; }
 
     getOrders(): GetOrdersResult {
+        if (!Game.Upgrades['A festive hat'].bought) return null;
         if (Game.cookiesPs < 1e3) return null;
         if (Game.santaLevel >= Game.santaLevels.length - 1) return null;
 

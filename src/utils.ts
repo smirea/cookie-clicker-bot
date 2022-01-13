@@ -101,3 +101,5 @@ export const clamp = (value: number, min: number, max?: number): number => {
     if (max != null && value > max) value = max;
     return value;
 };
+
+export const sample = <T>(list: T[]): T => list[Math.floor(Math.random() * list.length)];

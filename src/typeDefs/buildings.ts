@@ -177,7 +177,7 @@ export namespace Garden {
         readonly nextFreeze: number;
         readonly nextSoil: number;
         readonly nextStep: number;
-        readonly plants: Record<string, Plant>;
+        readonly plants: Record<PlantKey, Plant>;
         readonly plantsById: Plant[];
         readonly plantsN: number;
         readonly plantsUnlockedN: number;

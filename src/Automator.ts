@@ -183,6 +183,8 @@ export default class Automator {
         if (this.logMessages.length > 1000) {
             this.logMessages.splice(0, this.logMessages.length - 1000);
         }
+
+        // console.log(msg);
     }
 
     getBuffs() {

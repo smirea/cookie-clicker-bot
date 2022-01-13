@@ -57,6 +57,7 @@ export default class DragonBuyer extends Buyer {
     }
 
     getOrders(): GetOrdersResult {
+        if (!Game.Upgrades['A crumbly egg'].bought) return null;
         if (Game.cookiesPs < 1e5 || Game.dragonLevel >= Game.dragonLevels.length - 1) return null;
 
         // higher value = lower priority
