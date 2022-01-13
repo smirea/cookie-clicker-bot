@@ -13,7 +13,7 @@ export default class GardenMinigameTimer extends Timer {
     strategy!: Required<Options['garden']['strategies'][number]>;
 
     execute(): void {
-        const { garden, totalPlots, x1, x2, y1, y2 } = this.config;
+        const { garden, totalPlots, lvl, x1, x2, y1, y2 } = this.config;
         if (!garden) return this.scaleTimeout(10); // git gud first
 
         this.setStrategy();
@@ -21,12 +21,17 @@ export default class GardenMinigameTimer extends Timer {
 
         const emptyPlots: Coordinate[] = [];
         const usedPlots: Array<Coordinate & { age: number; plant: Garden.Plant }> = [];
-        const shouldHarvest = (plant: Garden.Plant, age: number) => {
+        const layout = MUTATION_LAYOUTS.double[lvl](x1, y1);
+        const shouldHarvest = (plant: Garden.Plant, x: number, y: number, age: number) => {
             const isMature = age >= plant.mature;
+            const isCloseToDeath = isMature && (plant.weed || this.getDecayTicks(x, y) <= this.strategy.harvestDecayTicks);
 
-            if (this.strategy.optimalMutationStrategy) return isMature || plant.weed;
+            if (this.strategy.optimalMutationStrategy) {
+                if (layout.get(x, y)) return isCloseToDeath;
+                return isMature || plant.weed;
+            }
 
-            return isMature && (plant.weed || this.getDecayTicks(x, y) <= this.strategy.harvestDecayTicks);
+            return isCloseToDeath;
         }
 
         for (let x = x1; x < x2; ++x) {
@@ -41,7 +46,7 @@ export default class GardenMinigameTimer extends Timer {
 
                 const plant = garden.plantsById[plantId - 1];
 
-                if (shouldHarvest(plant, age)) {
+                if (shouldHarvest(plant, x, y, age)) {
                     if (garden.harvest(x, y)) {
                         this.context.log(`🥀 Harvested ${plant.name} at [${x - x1}, ${y - y1}]`);
                         emptyPlots.push({ x, y });
@@ -54,7 +59,7 @@ export default class GardenMinigameTimer extends Timer {
         }
 
         if (this.strategy.optimalMutationStrategy) {
-            return void this.runOptimalMutationStrategy();
+            return void this.runOptimalMutationStrategy(layout);
         }
 
         // wait for stuff to be done if too many plots are used
@@ -121,9 +126,8 @@ export default class GardenMinigameTimer extends Timer {
         return true;
     }
 
-    runOptimalMutationStrategy() {
+    runOptimalMutationStrategy(layout: Layout) {
         const { garden, lvl, x1, x2, y1, y2 } = this.config;
-        const layout = MUTATION_LAYOUTS.double[lvl](x1, y1);
 
         const getParents = (ox: number, oy: number) => {
             const parents: Garden.Plant[] = [];

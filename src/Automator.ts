@@ -189,14 +189,20 @@ export default class Automator {
 
     getBuffs() {
         let cpsMultiple = 1;
+        let multClick = 1;
         let negativeBuffs = 0;
         let positiveBuffs = 0;
         for (const buff of Object.values(Game.buffs)) {
-            if (!buff.visible || !buff.multCpS) continue;
-            cpsMultiple *= buff.multCpS;
-            if (buff.multCpS < 1) ++negativeBuffs; else ++positiveBuffs;
+            if (!buff.visible) continue;
+            if (buff.multCpS) {
+                cpsMultiple *= buff.multCpS;
+                if (buff.multCpS < 1) ++negativeBuffs; else ++positiveBuffs;
+            }
+            if (buff.multClick) {
+                multClick *= buff.multClick;
+            }
         }
-        return { cpsMultiple, negativeBuffs, positiveBuffs };
+        return { cpsMultiple, negativeBuffs, positiveBuffs, multClick };
     }
 
     getAvailableUpgrades() {

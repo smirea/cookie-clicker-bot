@@ -13,7 +13,7 @@ export default class GrimoireMinigameTimer extends Timer {
         const grimoire = Game.Objects['Wizard tower'].minigame;
         if (!grimoire) return this.scaleTimeout(10); // git gud first
 
-        const { cpsMultiple, negativeBuffs, positiveBuffs } = this.context.getBuffs();
+        const { cpsMultiple, multClick, negativeBuffs, positiveBuffs } = this.context.getBuffs();
         const pctMagic = grimoire.magic / grimoire.magicM;
 
         const cast = (spell: Grimoire.Spell): void => {
@@ -26,7 +26,12 @@ export default class GrimoireMinigameTimer extends Timer {
             }
         }
 
-        if (cpsMultiple > 100 || (cpsMultiple > 5 && pctMagic > 0.65 && !negativeBuffs)) {
+        if (
+            cpsMultiple > 100
+            || (cpsMultiple > 5 && pctMagic > 0.65 && !negativeBuffs)
+            || multClick > 100
+            || (multClick > 5 && pctMagic > 0.65 && !negativeBuffs)
+        ) {
             return cast(grimoire.spells['stretch time']);
         }
 
