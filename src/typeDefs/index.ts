@@ -190,7 +190,8 @@ export interface Buff {
     maxTime: number;
     visible: boolean;
     desc: string;
-    multCpS: number;
+    multCpS?: number;
+    multClick?: number;
     aura: number;
 }
 

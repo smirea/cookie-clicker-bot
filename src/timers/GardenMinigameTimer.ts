@@ -21,6 +21,13 @@ export default class GardenMinigameTimer extends Timer {
 
         const emptyPlots: Coordinate[] = [];
         const usedPlots: Array<Coordinate & { age: number; plant: Garden.Plant }> = [];
+        const shouldHarvest = (plant: Garden.Plant, age: number) => {
+            const isMature = age >= plant.mature;
+
+            if (this.strategy.optimalMutationStrategy) return isMature || plant.weed;
+
+            return isMature && (plant.weed || this.getDecayTicks(x, y) <= this.strategy.harvestDecayTicks);
+        }
 
         for (let x = x1; x < x2; ++x) {
             for (let y = y1; y < y2; ++y) {
@@ -34,15 +41,11 @@ export default class GardenMinigameTimer extends Timer {
 
                 const plant = garden.plantsById[plantId - 1];
 
-                if (
-                    // send really old plants to a farm upstate
-                    age >= plant.mature &&
-                    (plant.weed || this.getDecayTicks(x, y) <= this.strategy.harvestDecayTicks)
-                ) {
+                if (shouldHarvest(plant, age)) {
                     if (garden.harvest(x, y)) {
                         this.context.log(`🥀 Harvested ${plant.name} at [${x - x1}, ${y - y1}]`);
                         emptyPlots.push({ x, y });
-                        continue;
+                        return;
                     }
                 }
 
@@ -145,22 +148,24 @@ export default class GardenMinigameTimer extends Timer {
 
                 const parents = getParents(x, y);
 
-                if (!parents.length) {
+                const plantIndependent = () => {
                     const options = garden.plantsById
                         .filter(plant => !plant.unlocked)
                         .map(plant => MUTATION_RULES[plant.key].map(opt => ({ plant, ...opt })))
                         .flat()
                         .filter(option => option.parents.every(key => garden.plants[key].unlocked));
 
-                    if (!options.length) continue;
+                    if (!options.length) return;
 
                     const choice = sample(options);
                     const toPlant = garden.plants[sample(choice.parents)];
-                    if (toPlant.weed) continue;
+                    if (toPlant.weed) return;
 
                     // console.log('0 | plant %s at [%d, %d] to get %s', toPlant.key, x, y, choice.plant.key);
-                    return this.plant(toPlant, x, y);
+                    this.plant(toPlant, x, y);
                 }
+
+                if (!parents.length) return plantIndependent();
 
                 const mates = parents.map(parent =>
                     parent.children
@@ -189,8 +194,8 @@ export default class GardenMinigameTimer extends Timer {
                 const other = sample(mates);
                 if (other) {
                     // console.log('1 | plant %s at [%d, %d] to get %s', other.parent.key, x, y, other.child);
-                    return this.plant(other.parent, x, y);
-                }
+                    this.plant(other.parent, x, y);
+                } else plantIndependent();
             }
         }
     }
