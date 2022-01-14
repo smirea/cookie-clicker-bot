@@ -4,4 +4,5 @@ Todo:
     ☐ detect prestige and reset state or reload (e.g. upgrade fatigue stays disabled) @low
     ☐ REALLY figure out proper CPS, buildings aren't being bought on ascension @high
     ☐ building: include price in buy decision, 2 buildings with roughly the same cpsPriceRatio should buy the cheaper one @high
+    ☐ offline tactics: leave wrinklers on in the evening, turn on golden switch at say 8pm
     ✔ Refactor BuyTimer to be modular @started(22-01-07 09:50) @done(22-01-07 17:07) @lasted(7h17m31s)

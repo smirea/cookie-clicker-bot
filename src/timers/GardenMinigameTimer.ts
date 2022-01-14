@@ -127,7 +127,7 @@ export default class GardenMinigameTimer extends Timer {
     }
 
     runOptimalMutationStrategy(layout: Layout) {
-        const { garden, lvl, x1, x2, y1, y2 } = this.config;
+        const { garden, x1, x2, y1, y2 } = this.config;
 
         const getParents = (ox: number, oy: number) => {
             const parents: Garden.Plant[] = [];
@@ -281,6 +281,12 @@ class Layout {
     }
 
     get(x: number, y: number) { return this.matrix[y - this.y1][x - this.x1]; }
+
+    print() {
+        for (const row of this.matrix) {
+            console.log(row.map(x => x ? x : '.').join(' '));
+        }
+    }
 }
 
 const parseLayouts = (str: string) =>
@@ -300,50 +306,50 @@ const parseLayouts = (str: string) =>
 
 // from: https://cookieclicker.fandom.com/wiki/Garden#Mutation_Setups
 const MUTATION_LAYOUTS = {
-    single: parseLayouts(`
-        1 1
-        . .
+    // single: parseLayouts(`
+    //     1 1
+    //     . .
 
-        . 1 .
-        . 1 .
+    //     . 1 .
+    //     . 1 .
 
-        . . .
-        1 1 1
-        . . .
+    //     . . .
+    //     1 1 1
+    //     . . .
 
-        . . . .
-        1 1 1 1
-        . . . .
+    //     . . . .
+    //     1 1 1 1
+    //     . . . .
 
-        1 . . 1
-        . . 1 .
-        . 1 . .
-        1 . . 1
+    //     1 . . 1
+    //     . . 1 .
+    //     . 1 . .
+    //     1 . . 1
 
-        1 . 1 . 1
-        . . . . .
-        1 1 . 1 1
-        . . . . .
+    //     1 . 1 . 1
+    //     . . . . .
+    //     1 1 . 1 1
+    //     . . . . .
 
-        1 1 . 1 1
-        . . . . .
-        . . . . .
-        1 1 . 1 1
-        . . . . .
+    //     1 1 . 1 1
+    //     . . . . .
+    //     . . . . .
+    //     1 1 . 1 1
+    //     . . . . .
 
-        . 1 . . 1 .
-        . 1 . . 1 .
-        . . . . . .
-        . 1 . . 1 .
-        . 1 . . 1 .
+    //     . 1 . . 1 .
+    //     . 1 . . 1 .
+    //     . . . . . .
+    //     . 1 . . 1 .
+    //     . 1 . . 1 .
 
-        . . . . . .
-        1 1 . 1 1 1
-        . . . . . .
-        . . . . . .
-        1 1 . 1 1 1
-        . . . . . .
-    `),
+    //     . . . . . .
+    //     1 1 . 1 1 1
+    //     . . . . . .
+    //     . . . . . .
+    //     1 1 . 1 1 1
+    //     . . . . . .
+    // `),
 
     double: parseLayouts(`
         1 2

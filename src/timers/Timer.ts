@@ -12,6 +12,9 @@ export default abstract class Timer {
 
     abstract execute(): void;
 
+    /** @override add side-effects to the timer that are always run regardless if the timer is started */
+    sideEffects(): void {};
+
     get isRunning() { return this.timeout > 0; }
     get isStopped() { return this.timeout <= 0; }
 

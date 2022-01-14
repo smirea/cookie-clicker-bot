@@ -128,9 +128,10 @@ export default class Automator {
         clearTimeout(this.timeout!);
 
         for (const timer of Object.values(this.timers)) {
-            if (timer.isStopped) continue;
             if (this.tickCounter % timer.timeout !== 0) continue;
             if (timer.startDelay() && this.tickCounter === 0) continue;
+            timer.sideEffects(); // always runs even when the timer is stopped
+            if (timer.isStopped) continue;
             timer.run();
         }
 

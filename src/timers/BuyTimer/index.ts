@@ -20,10 +20,12 @@ export default class BuyTimer extends Timer {
         UpgradeBuyer: new UpgradeBuyer(this.context),
     };
 
-    execute(): void {
+    sideEffects(): void {
         this.context.cpsCache = {};
         this.context.lastState.buildings = this.buyers.BuildingBuyer?.getSortedBuildings() ?? [];
+    }
 
+    execute(): void {
         if (this.context.upgradeFatigue > 0 && Game.cookiesPs >= 1e10) {
             this.context.upgradeFatigue = 0;
         }
