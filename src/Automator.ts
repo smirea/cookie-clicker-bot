@@ -197,6 +197,7 @@ export default class Automator {
         let positiveBuffs = 0;
         for (const buff of Object.values(Game.buffs)) {
             if (!buff.visible) continue;
+            if (buff.name === 'Devastation') continue; // this happens all the time so just ignore it
             if (buff.multCpS) {
                 cpsMultiple *= buff.multCpS;
                 if (buff.multCpS < 1) ++negativeBuffs; else ++positiveBuffs;
@@ -210,7 +211,6 @@ export default class Automator {
             negativeBuffs,
             positiveBuffs,
             multClick,
-            buffs: Object.keys(Game.buffs),
         };
     }
 

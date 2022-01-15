@@ -1,5 +1,5 @@
 import Timer from 'src/timers/Timer';
-import { Game } from 'src/utils';
+import { formatAmount, Game } from 'src/utils';
 
 import BuildingBuyer from './BuildingBuyer';
 import DragonBuyer from './DragonBuyer';
@@ -72,7 +72,7 @@ export default class BuyTimer extends Timer {
             if (count > 1) name += '_' + count;
             table[name] = {
                 score,
-                cookies,
+                cookies: formatAmount(cookies),
                 log: log?.().msg ?? null,
             };
         }

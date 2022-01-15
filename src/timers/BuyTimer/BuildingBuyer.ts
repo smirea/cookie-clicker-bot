@@ -37,7 +37,10 @@ export default class BuildingBuyer extends Buyer {
         }
 
         if (nextHighValue) {
-            const amount = getAffordableBuildingMultiple(nextHighValue, [50, 40, 30, 20, 10, 1]) || 1;
+            const amount = getAffordableBuildingMultiple(
+                nextHighValue,
+                [600, 500, 400, 300, 200, 100, 50, 40, 30, 20, 10, 1]
+            ) || 1;
             const price = nextHighValue.price * amount;
 
             result.push({
