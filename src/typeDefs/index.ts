@@ -1,5 +1,5 @@
 import type Automator from 'src/Automator';
-import { Building, BuildingName, Garden } from './buildings';
+import { Building, BuildingName, Garden, Pantheon } from './buildings';
 
 export * from './buildings';
 
@@ -39,6 +39,9 @@ export interface Options {
     localStorage: {
         log: string;
     };
+    pantheon: {
+        layout: [null | Pantheon.GodKey, null | Pantheon.GodKey, null | Pantheon.GodKey];
+    },
     garden: {
         strategies: Array<{
             name: string;

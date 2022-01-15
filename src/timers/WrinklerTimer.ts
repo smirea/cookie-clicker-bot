@@ -1,5 +1,5 @@
 import Timer from 'src/timers/Timer';
-import options, { msToTicks } from 'src/options';
+import { msToTicks } from 'src/options';
 import { Game } from 'src/utils';
 
 export default class WrinklerTimer extends Timer {
@@ -11,30 +11,16 @@ export default class WrinklerTimer extends Timer {
     startDelay() { return msToTicks(60e3); }
 
     execute(): void {
-        const { cpsMultiple } = this.context.getBuffs();
         const numWrinkers = this.context.getActiveWrinklers().length;
+        if (numWrinkers < Game.getWrinklersMax()) return;
 
-        if (numWrinkers === Game.getWrinklersMax()) ++this.maxCounter;
-        else this.maxCounter = 0;
+        ++this.maxCounter;
+        if (this.maxCounter < 100) return;
 
-        if (this.maxCounter >= 3) {
-            const elderPledge = Game.Upgrades['Elder Pledge'];
-            if (elderPledge.canBuy()) {
-                this.context.log('🐛 Taking a break from the grannies');
-                this.context.buy(elderPledge);
-            } else {
-                this.context.log('🐛 POP go the wrinklers');
-                Game.CollectWrinklers();
-            }
+        if (this.context.timers.PantheonMinigameTimer?.slotGod('scorn', 0)) {
             this.maxCounter = 0;
-            return
+            this.context.log('🐛 POP go the wrinklers');
+            Game.CollectWrinklers();
         }
-
-        // lets pop more at once
-        if (numWrinkers <= Game.wrinklers.length / 2) return;
-
-        if (cpsMultiple < 1) return Game.CollectWrinklers();
-
-        if (cpsMultiple === 1) return Game.PopRandomWrinkler();
     }
 }

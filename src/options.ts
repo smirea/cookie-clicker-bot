@@ -34,6 +34,9 @@ const options: Readonly<Options> = {
     localStorage: {
         log: getLSKey('log'),
     },
+    pantheon: {
+        layout: ['ruin', 'labor', 'scorn'],
+    },
     garden: {
         strategies: [
             // {

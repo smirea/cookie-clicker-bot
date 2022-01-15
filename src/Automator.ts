@@ -5,16 +5,17 @@ import options from './options';
 
 import BuyTimer from './timers/BuyTimer';
 import ClickCookieTimer from './timers/ClickCookieTimer';
+import ClickNewsTimer from './timers/ClickNewsTimer';
 import DragonAuraTimer from './timers/DragonAuraTimer';
 import GardenMinigameTimer from './timers/GardenMinigameTimer';
 import GrimoireMinigameTimer from './timers/GrimoireMinigameTimer';
 import LogTimer from './timers/LogTimer';
 import PageReloadTimer from './timers/PageReloadTimer';
+import PantheonMinigameTimer from './timers/PantheonMinigameTimer';
+import SeasonTimer from './timers/SeasonTimer';
 import ShimmerTimer from './timers/ShimmerTimer';
 import SugarLumpTimer from './timers/SugarLumpTimer';
 import WrinklerTimer from './timers/WrinklerTimer';
-import SeasonTimer from './timers/SeasonTimer';
-import ClickNewsTimer from './timers/ClickNewsTimer';
 
 const STATES = ['off', 'on', 'click'] as const;
 
@@ -34,6 +35,7 @@ export default class Automator {
         GrimoireMinigameTimer: new GrimoireMinigameTimer(this),
         LogTimer: new LogTimer(this),
         PageReloadTimer: new PageReloadTimer(this),
+        PantheonMinigameTimer: new PantheonMinigameTimer(this),
         SeasonTimer: new SeasonTimer(this),
         ShimmerTimer: new ShimmerTimer(this),
         SugarLumpTimer: new SugarLumpTimer(this),

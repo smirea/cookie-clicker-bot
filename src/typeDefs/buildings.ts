@@ -108,6 +108,7 @@ export interface Shipment extends DefaultBuilding {
 
 export interface Temple extends DefaultBuilding {
     name: 'Temple';
+    minigame?: Pantheon.Minigame;
 }
 
 export interface TimeMachine extends DefaultBuilding {
@@ -273,4 +274,43 @@ export namespace Garden {
         | 'everdaisy'
         | 'ichorpuff'
     );
+}
+
+export namespace Pantheon {
+    export interface Minigame {
+        name: 'Pantheon';
+        dragGod: (god: God) => void;
+        dragging?: God;
+        dropGod: () => void;
+        hoverSlot: (id: God['id']) => void;
+        gods: Record<GodKey, God>;
+        godsById: God[];
+        slot: [diamond: number, ruby: number, jade: number],
+        slotNames: string[];
+        swaps: number;
+    }
+
+    export type GodKey = (
+        | 'ages'
+        | 'asceticism'
+        | 'creation'
+        | 'decadence'
+        | 'industry'
+        | 'labor'
+        | 'mother'
+        | 'order'
+        | 'ruin'
+        | 'scorn'
+        | 'seasons'
+    );
+
+    export interface God {
+        id: number;
+        name: string;
+        desc1: string;
+        desc2: string;
+        desc3: string;
+        quote: string;
+        slot: -1 | '0' | '1' | '2';
+    };
 }

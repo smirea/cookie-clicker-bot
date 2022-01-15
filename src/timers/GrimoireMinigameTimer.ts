@@ -1,11 +1,12 @@
+import { msToTicks } from 'src/options';
 import Timer from 'src/timers/Timer';
 import { Grimoire } from 'src/typeDefs';
 import { Game } from 'src/utils';
 
 export default class GrimoireMinigameTimer extends Timer {
     type = 'default' as const;
-
-    defaultTimeout = 500;
+    maxCounter = 0;
+    defaultTimeout = msToTicks(500);
 
     startDelay() { return this.defaultTimeout; }
 
@@ -16,31 +17,37 @@ export default class GrimoireMinigameTimer extends Timer {
         const { cpsMultiple, multClick, negativeBuffs, positiveBuffs } = this.context.getBuffs();
         const pctMagic = grimoire.magic / grimoire.magicM;
 
-        const cast = (spell: Grimoire.Spell): void => {
-            if (grimoire.getSpellCost(spell) <= grimoire.magic) {
-                if (grimoire.castSpell(spell)) {
-                    this.context.log(`🪄 Abra Cadabra: ${spell.name}\n(${spell.desc})`);
-                } else {
-                    this.context.log(`🪄 Abra Ca..Whoops!: ${spell.name}\n(${spell.failDesc})`);
-                }
-            }
-        }
-
         if (
             cpsMultiple > 100
             || (cpsMultiple > 5 && pctMagic > 0.65 && !negativeBuffs)
             || multClick > 100
             || (multClick > 5 && pctMagic > 0.65 && !negativeBuffs)
         ) {
-            return cast(grimoire.spells['stretch time']);
+            return this.cast(grimoire.spells['stretch time']);
         }
 
         if (grimoire.magic === grimoire.magicM) {
-            if (!positiveBuffs) return cast(grimoire.spells['hand of fate']);
+            ++this.maxCounter;
+            if (this.maxCounter < 10) return; // wait a bit in case others want to use the book
+
+            if (!positiveBuffs) return this.cast(grimoire.spells['hand of fate']);
 
             if (Game.cookies >= this.context.realCps * 20) {
-                return cast(grimoire.spells['conjure baked goods']);
+                return this.cast(grimoire.spells['conjure baked goods']);
             }
+        }
+    }
+
+    cast(spell: Grimoire.Spell): void {
+        const grimoire = Game.Objects['Wizard tower'].minigame!;
+        if (grimoire.getSpellCost(spell) > grimoire.magic) return;
+
+        this.maxCounter = 0;
+
+        if (grimoire.castSpell(spell)) {
+            this.context.log(`🪄 Abra Cadabra: ${spell.name}\n(${spell.desc})`);
+        } else {
+            this.context.log(`🪄 Abra Ca..Whoops!: ${spell.name}\n(${spell.failDesc})`);
         }
     }
 }

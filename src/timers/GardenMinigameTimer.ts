@@ -13,9 +13,10 @@ export default class GardenMinigameTimer extends Timer {
     strategy!: Required<Options['garden']['strategies'][number]>;
 
     execute(): void {
-        const { garden, totalPlots, lvl, x1, x2, y1, y2 } = this.config;
+        const garden = this.garden;
         if (!garden) return this.scaleTimeout(10); // git gud first
 
+        const { totalPlots, lvl, x1, x2, y1, y2 } = this.config;
         this.setStrategy();
         this.setSoil();
 
