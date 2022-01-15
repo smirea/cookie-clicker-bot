@@ -41,6 +41,8 @@ export interface Options {
     };
     pantheon: {
         layout: [null | Pantheon.GodKey, null | Pantheon.GodKey, null | Pantheon.GodKey];
+        /** Which buildings to sell to get the Godzamok buff */
+        sellForRuin: Array<BuildingName>;
     },
     garden: {
         strategies: Array<{
@@ -230,11 +232,14 @@ export type Wrinkler = {
 };
 
 export interface BuildingMeta {
-    name: string;
+    name: Building['name'];
     price: number;
+    basePrice: number;
+    amount: number;
+    locked: boolean;
     cps: number;
+    bought: number;
     pricePerCps: number;
-    index: number;
-    obj: Building;
     relativeValue: number;
+    building: Building;
 }

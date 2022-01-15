@@ -36,6 +36,7 @@ const options: Readonly<Options> = {
     },
     pantheon: {
         layout: ['ruin', 'labor', 'scorn'],
+        sellForRuin: ['Mine', 'Factory', 'Bank', 'Temple', 'Shipment'],
     },
     garden: {
         strategies: [

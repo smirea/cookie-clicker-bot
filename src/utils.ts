@@ -6,10 +6,10 @@ export const $$ = (selector: string): HTMLDivElement[] => Array.from(document.qu
 export const global = window.unsafeWindow || window;
 export const Game = (global as any).Game as GameT;
 
-export const getAffordableBuildingMultiple = (obj: Building, choices: number[]) =>
+export const getAffordableBuildingMultiple = (obj: Pick<Building, 'amount' | 'basePrice'>, choices: number[]) =>
     choices.find(end => getCostOfNBuildings(obj, obj.amount + end) <= Game.cookies) || null;
 
-export const getCostOfNBuildings = (obj: Building, end: number, amount = obj.amount) =>
+export const getCostOfNBuildings = (obj: Pick<Building, 'amount' | 'basePrice'>, end: number, amount = obj.amount) =>
     Math.round(
         amount >= end
             ? 0

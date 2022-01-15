@@ -31,7 +31,7 @@ export default abstract class Buyer {
     }
 }
 
-type BuyOrder<T extends Record<string, any>> = (
+export type BuyOrder<T extends Record<string, any>> = (
     T &
     { cookies: number; log?: () => Omit<LogMessage, 'id' | 'count' | 'time'>; } &
     (

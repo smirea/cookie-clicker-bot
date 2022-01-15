@@ -1,4 +1,4 @@
-import type { BuildingMeta, BuildingName, Buyable, Upgrade } from './typeDefs';
+import type { Building, BuildingMeta, BuildingName, Buyable, Upgrade } from './typeDefs';
 import { $$, cleanHTML, Game, global, units } from './utils';
 import * as utils from './utils';
 import options from './options';
@@ -205,7 +205,13 @@ export default class Automator {
                 multClick *= buff.multClick;
             }
         }
-        return { cpsMultiple, negativeBuffs, positiveBuffs, multClick };
+        return {
+            cpsMultiple,
+            negativeBuffs,
+            positiveBuffs,
+            multClick,
+            buffs: Object.keys(Game.buffs),
+        };
     }
 
     getAvailableUpgrades() {

@@ -6,5 +6,5 @@ Todo:
     ☐ building: include price in buy decision, 2 buildings with roughly the same cpsPriceRatio should buy the cheaper one @high
     ☐ offline tactics: leave wrinklers on in the evening, turn on golden switch at say 8pm
     ☐ reincarnate optimization - buying too many early buildings
-    ☐ better pantheon logic: use the sell buildings guy
+    ✔ better pantheon logic: use the sell buildings guy @done(22-01-15 12:21)
     ✔ Refactor BuyTimer to be modular @started(22-01-07 09:50) @done(22-01-07 17:07) @lasted(7h17m31s)

@@ -5,7 +5,7 @@ import { Game } from 'src/utils';
 
 export default class PantheonMinigameTimer extends Timer {
     type = 'default' as const;
-
+    ruinCounter = 0;
     defaultTimeout = msToTicks(1000);
 
     startDelay() { return this.defaultTimeout; }
@@ -24,6 +24,8 @@ export default class PantheonMinigameTimer extends Timer {
             this.slotGod(god, slot);
             return;
         }
+
+        if (++this.ruinCounter > 10) this.runRuin();
     }
 
     slotGod(_god: Pantheon.God | Pantheon.GodKey, slot: number): boolean {
@@ -38,5 +40,19 @@ export default class PantheonMinigameTimer extends Timer {
         this.context.log(`🙏 Started worshipping ${god.name} in ${pantheon.slotNames[slot]}\n${((god as any)['desc' + (slot + 1)])}`);
 
         return true;
+    }
+
+    runRuin() {
+        if (Game.cookiesPs < 1e6) return;
+        if (Game.buffs.Devastation) return false;
+        if (this.pantheon?.slot[0] !== this.pantheon?.gods.ruin.id) return;
+
+        this.ruinCounter = 0;
+        for (const buildingKey of options.pantheon.sellForRuin) {
+            const building = Game.Objects[buildingKey];
+            const toSell = building.amount - 1;
+            building.sell(toSell);
+            this.context.log(`🙏 Sacrificing for Godzamok: ${toSell} ✕ ${building.name}`);
+        }
     }
 }

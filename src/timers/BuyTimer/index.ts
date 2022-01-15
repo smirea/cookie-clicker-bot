@@ -2,7 +2,6 @@ import Timer from 'src/timers/Timer';
 import { Game } from 'src/utils';
 
 import BuildingBuyer from './BuildingBuyer';
-import BuildingThresholdBuyer from './BuildingThresholdBuyer';
 import DragonBuyer from './DragonBuyer';
 import SantaBuyer from './SantaBuyer';
 import UpgradeBuyer from './UpgradeBuyer';
@@ -14,7 +13,6 @@ export default class BuyTimer extends Timer {
 
     buyers = {
         BuildingBuyer: new BuildingBuyer(this.context),
-        BuildingThresholdBuyer: new BuildingThresholdBuyer(this.context),
         DragonBuyer: new DragonBuyer(this.context),
         SantaBuyer: new SantaBuyer(this.context),
         UpgradeBuyer: new UpgradeBuyer(this.context),
