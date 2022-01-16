@@ -38,7 +38,7 @@ const options: Readonly<Options> = {
         log: getLSKey('log'),
     },
     pantheon: {
-        layout: ['ruin', 'labor', 'scorn'],
+        layout: ['ruin', 'mother', 'labor'],
         sellForRuin: ['Mine', 'Factory', 'Bank', 'Temple', 'Shipment', 'Alchemy lab'],
     },
     garden: {
