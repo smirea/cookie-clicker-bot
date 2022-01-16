@@ -41,8 +41,8 @@ export interface Options {
     };
     pantheon: {
         layout: [null | Pantheon.GodKey, null | Pantheon.GodKey, null | Pantheon.GodKey];
-        /** Which building to sell to get the Godzamok buff */
-        sellForRuin: BuildingName;
+        /** Which buildings to sell to get the Godzamok buff. NOTE: multiple buildings stack but tooltip does not update */
+        sellForRuin: BuildingName[];
     },
     garden: {
         strategies: Array<{

@@ -48,7 +48,7 @@ export default class PantheonMinigameTimer extends Timer {
         if (this.pantheon?.slot[0] !== this.pantheon?.gods.ruin.id) return;
 
         this.ruinCounter = 0;
-        for (const buildingKey of [options.pantheon.sellForRuin]) {
+        for (const buildingKey of options.pantheon.sellForRuin) {
             const building = Game.Objects[buildingKey];
             const toSell = building.amount - 1;
             building.sell(toSell);
