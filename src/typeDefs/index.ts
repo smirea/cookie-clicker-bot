@@ -26,6 +26,10 @@ export interface Options {
         { [key in BuildingName | 'Default']?: number[]; }
     );
     bannedUpgrades: Record<string, boolean>;
+    grandmapocalypse: {
+        /** grandmapocalypse causes wrath cookies which seem to be worse overall. It is mainly useful when idling */
+        enabled: boolean;
+    },
     dragon: {
         /** for each dragon purchase type, at what cookie % should you start waiting */
         waitRatios: {

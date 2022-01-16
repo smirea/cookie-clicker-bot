@@ -19,6 +19,9 @@ const options: Readonly<Options> = {
         'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse
         'Elder Pledge': true, // peace was never an option
     },
+    grandmapocalypse: {
+        enabled: false,
+    },
     dragon: {
         waitRatios: {
             cookie: 0.4,
