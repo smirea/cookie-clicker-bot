@@ -92,8 +92,8 @@ export const units = (() => {
 })();
 
 export const fixMenuBug = () => {
-    Game.specialTab = 'test';
-    Game.ToggleSpecialMenu(false);
+    Game.specialTab = '';
+    Game.ToggleSpecialMenu(0);
 }
 
 export const clamp = (value: number, min: number, max?: number): number => {

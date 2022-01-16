@@ -5,7 +5,7 @@ import options from 'src/options';
 export default class DragonAuraTimer extends Timer {
     type = 'default' as const;
 
-    defaultTimeout = 2000;
+    defaultTimeout = 500;
 
     startDelay() { return this.defaultTimeout; }
 
@@ -14,6 +14,14 @@ export default class DragonAuraTimer extends Timer {
         const has2Auras = Game.dragonLevel >= Game.dragonLevels.length - 1;
         const toSelectIds = options.dragon.auras.map(name => auras.byName[name]?.index ?? -1);
         let choices = has2Auras ? 2 : 1;
+
+        // incessively pet to get the dragon upgrades
+        if (Game.Has('Pet the dragon')) {
+            Game.specialTab = 'dragon';
+            Game.ToggleSpecialMenu(1);
+            Game.ClickSpecialPic();
+            Game.ToggleSpecialMenu(0);
+        }
 
         for (const name of options.dragon.auras) {
             if (choices <= 0) break;

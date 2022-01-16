@@ -88,7 +88,10 @@ export interface GameT {
     readonly lumpMatureAge: number;
     /** the name of the game */
     readonly ClickCookie: (event?: MouseEvent) => void;
+    /** pet the dragon */
+    readonly ClickSpecialPic: () => void;
     readonly clickLump: () => void;
+    readonly Has: (upgrade: string) => boolean;
     readonly Objects: { [Name in BuildingName]: Building & { name: Name } };
     readonly ObjectsById: Building[];
     readonly Upgrades: Record<string, Upgrade>;
@@ -118,7 +121,7 @@ export interface GameT {
         wrath: 0 | 1;
         life: number;
     }>;
-    readonly ToggleSpecialMenu: (on: boolean) => void;
+    readonly ToggleSpecialMenu: (on: 0 | 1) => void;
     readonly Achievements: Record<string, {
         name: string;
         won: 0 | 1;
