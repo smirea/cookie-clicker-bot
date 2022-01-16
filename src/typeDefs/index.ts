@@ -189,6 +189,7 @@ export interface Upgrade extends Buyable {
     getPrice: () => number;
     canBuy: () => boolean;
     buy: () => 0 | 1;
+    tier: number | 'synergy1' | 'synergy2' | 'fortune';
 }
 
 export interface Buff {

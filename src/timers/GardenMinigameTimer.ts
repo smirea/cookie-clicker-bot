@@ -4,7 +4,7 @@ import { Garden, Options } from 'src/typeDefs';
 import options, { msToTicks } from 'src/options';
 
 export default class GardenMinigameTimer extends Timer {
-    type = 'default' as const;
+    type = 'clicker' as const;
 
     defaultTimeout = msToTicks(1000);
 

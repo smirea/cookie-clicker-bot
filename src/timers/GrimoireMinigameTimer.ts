@@ -4,7 +4,7 @@ import { Grimoire } from 'src/typeDefs';
 import { Game } from 'src/utils';
 
 export default class GrimoireMinigameTimer extends Timer {
-    type = 'default' as const;
+    type = 'clicker' as const;
     maxCounter = 0;
     defaultTimeout = msToTicks(500);
 

@@ -3,7 +3,7 @@ import Timer from 'src/timers/Timer';
 import options from 'src/options';
 
 export default class DragonAuraTimer extends Timer {
-    type = 'default' as const;
+    type = 'clicker' as const;
 
     defaultTimeout = 500;
 
