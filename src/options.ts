@@ -5,7 +5,7 @@ const getLSKey = (name: string) =>
     `CookieAutomator_${name}_${Game.version}_${Game.beta}`;
 
 const options: Readonly<Options> = {
-    startupState: 'on',
+    status: 'off',
     tickMs: 5,
     showLogs: 25,
     buildingWait: 0.35,

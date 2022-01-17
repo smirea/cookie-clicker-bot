@@ -1,7 +1,9 @@
-import type { Building, BuildingMeta, BuildingName, Buyable, Upgrade } from './typeDefs';
-import { $$, cleanHTML, Game, global, units } from './utils';
+import type { BuildingMeta, BuildingName, Buyable, Options, STATUSES, Upgrade } from './typeDefs';
+import { cleanHTML, Game, global } from './utils';
 import * as utils from './utils';
 import options from './options';
+
+import initializeApp from './ui/initializeApp';
 
 import BuyTimer from './timers/BuyTimer';
 import ClickCookieTimer from './timers/ClickCookieTimer';
@@ -17,15 +19,12 @@ import ShimmerTimer from './timers/ShimmerTimer';
 import SugarLumpTimer from './timers/SugarLumpTimer';
 import WrinklerTimer from './timers/WrinklerTimer';
 
-const STATES = ['off', 'on', 'click'] as const;
-
 export default class Automator {
     logMessages: LogMessage[];
     upgradeFatigue = 1; // prevent buying too many updates one after another
     cpsCache: { [key in BuildingName]?: number } = {};
     startDate!: number;
     lastState: { buildings: BuildingMeta[] } = {} as any;
-    domNode: HTMLDivElement;
     timers = {
         BuyTimer: new BuyTimer(this),
         ClickCookieTimer: new ClickCookieTimer(this),
@@ -41,11 +40,11 @@ export default class Automator {
         SugarLumpTimer: new SugarLumpTimer(this),
         WrinklerTimer: new WrinklerTimer(this),
     };
-    state: typeof STATES[number] = 'off';
     timeout?: NodeJS.Timeout;
     tickCounter = 0;
     /** @deprecated keep for debug only in the console */
     utils = utils;
+    updateReact!: (options: Options) => void;
 
     constructor() {
         let existingLog = [];
@@ -54,44 +53,24 @@ export default class Automator {
         } catch (ex) {}
         this.logMessages = global.__automateLog = global.__automateLog || existingLog;
 
-        $$('.CookieAutomator').forEach(el => el.remove());
-        this.domNode = document.createElement('div');
-        document.body.appendChild(this.domNode);
-        this.domNode.classList.add('CookieAutomator');
-        this.domNode.setAttribute('style', 'position:fixed;z-index:999999999999;top:35px;left:5px;cursor:pointer;display:flex;align-items:center;color:white;cursor:pointer;background:rgba(0,0,0,0.95);padding:5px;');
-        this.domNode.innerHTML = `
-            <span>Automator: </span>
-            <span style='margin-left:5px'></span>
-            <span class='icon' style='width:10px;height:10px;border-radius:50%;margin-left:5px;'></span>
-        `;
-        this.domNode.addEventListener('click', () => {
-            this.switchState();
-        });
-        this.updateDom();
+        initializeApp(updateReact => { this.updateReact = updateReact; });
     }
 
-    start() { this.switchState('on'); }
-    stop() { this.switchState('off'); }
+    changeOptions(diff: Partial<Options>) {
+        Object.assign(options, diff);
+        if (diff.status) this.applyStatus();
+        this.updateReact({ ...options });
+    }
+
+    start() { this.changeOptions({ status: 'on' }); }
+    stop() { this.changeOptions({ status: 'off' }); }
     reset() {
         this.stop();
         for (const key in options.localStorage) delete localStorage[key];
         location.reload();
     }
 
-    switchState(next?: typeof STATES[number]) {
-        if (!next) {
-            const index = STATES.findIndex(x => x === this.state);
-            next = STATES[(index + 1) % STATES.length];
-        }
-
-        if (next === this.state) return;
-
-        this.state = next;
-        this.applyState(this.state);
-        this.updateDom();
-    }
-
-    applyState(state: typeof STATES[number]) {
+    applyStatus(state: typeof STATUSES[number] = options.status) {
         this.startDate = this.startDate || Date.now();
         this.tickCounter = this.tickCounter || 0;
 
@@ -112,14 +91,14 @@ export default class Automator {
                 for (const timer of Object.values(this.timers)) timer.stop();
                 break;
             case 'click':
-                this.applyState('off');
+                this.applyStatus('off');
                 for (const timer of Object.values(this.timers)) {
                     if (timer.type === 'clicker') timer.start();
                 }
                 this.tick();
                 break;
             case 'on':
-                this.applyState('off');
+                this.applyStatus('off');
                 for (const timer of Object.values(this.timers)) timer.start();
                 this.tick();
                 break;
@@ -143,16 +122,6 @@ export default class Automator {
         }
 
         setTimeout(() => this.tick(), options.tickMs);
-    }
-
-    updateDom() {
-        const [, text, icon] = this.domNode.children as unknown as HTMLDivElement[];
-        text.innerHTML = this.state;
-        switch(this.state) {
-            case 'off': icon.style.background = 'red'; break;
-            case 'click': icon.style.background = 'orange'; break;
-            case 'on': icon.style.background = 'lightgreen'; break;
-        }
     }
 
     get realCps() {

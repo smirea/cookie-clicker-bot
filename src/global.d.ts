@@ -15,3 +15,8 @@ interface LogMessage {
 
 /** global export from library */
 const l: (id: string) => HTMLDivElement | null;
+
+declare module '*.styl' {
+    const styles: Record<string, string>;
+    export default styles;
+}

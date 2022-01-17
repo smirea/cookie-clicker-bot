@@ -17,10 +17,14 @@ module.exports = {
     },
 
     resolve: {
-        extensions: ['.ts'],
+        extensions: ['.ts', '.tsx', '.styl'],
         plugins: [],
         alias: {
             src: path.resolve('./src'),
+            'react': 'preact/compat',
+            'react-dom/test-utils': 'preact/test-utils',
+            'react-dom': 'preact/compat',     // Must be below test-utils
+            'react/jsx-runtime': 'preact/jsx-runtime',
         },
     },
 
@@ -33,9 +37,25 @@ module.exports = {
                     {
                         loader: 'ts-loader',
                         options: {
-                            transpileOnly: true
+                            transpileOnly: true,
                         },
                     },
+                ],
+            },
+            {
+                test: /\.styl$/,
+                exclude: /node_modules/,
+                use: [
+                    'style-loader',
+                    {
+                        loader: 'css-loader',
+                        options: {
+                            modules: {
+                                localIdentName: 'Automator_[local]__[hash:base64:5]',
+                            },
+                        },
+                    },
+                    'stylus-loader',
                 ],
             },
         ],

@@ -3,15 +3,18 @@ import { Building, BuildingName, Garden, Pantheon } from './buildings';
 
 export * from './buildings';
 
+export const STATUSES = ['off', 'on', 'click'] as const;
+
 declare global {
     interface Window {
         Automator?: Automator;
     }
 }
 
+export type ContextConnector = (updater: (options: Options) => void) => void;
+
 export interface Options {
-    /** What state should the automator start in on page load */
-    startupState: typeof Automator['prototype']['state'];
+    status: typeof STATUSES[number];
     /**
      * Delay between each game loop (in ms)
      * Good idea to keep it >= 4ms

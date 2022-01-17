@@ -1,0 +1,29 @@
+.root
+    position fixed
+    z-index 999999999999
+    top 35px
+    left 5px
+    cursor pointer
+    display flex
+    align-items center
+    color white
+    cursor pointer
+    background rgba(0, 0, 0, 0.95)
+    padding 5px
+
+.statusText
+    margin 0 5px
+
+.statusIcon
+    border-radius 50%
+    width 10px
+    height 10px
+
+    &[data-status='on']
+        background lightgreen
+
+    &[data-status='click']
+        background orange
+
+    &[data-status='off']
+        background red

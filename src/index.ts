@@ -10,7 +10,6 @@ function init (): any {
 
     // importing inline so the Game object has time be defined
     const { default: Automator } = require('./Automator') as typeof import('./Automator');
-    const { default: options } = require('./options') as typeof import('./options');
 
     Game.volume = 0; // prevent DOM error
     Game.prefs.notifs = 0; // there's gonna be a lot of notifications
@@ -19,8 +18,6 @@ function init (): any {
     global.Automator?.stop(); // stop previous instance if any
 
     const instance = new Automator;
-    instance.switchState(options.startupState);
-
     global.Automator = instance; // save to window for debugging
 };
 
