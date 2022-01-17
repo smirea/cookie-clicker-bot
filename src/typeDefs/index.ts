@@ -3,6 +3,12 @@ import { Building, BuildingName, Garden, Pantheon } from './buildings';
 
 export * from './buildings';
 
+declare global {
+    interface Window {
+        Automator?: Automator;
+    }
+}
+
 export interface Options {
     /** What state should the automator start in on page load */
     startupState: typeof Automator['prototype']['state'];
@@ -144,6 +150,7 @@ export interface GameT {
     readonly OnAscend: 0 | 1;
     /** it's non-0 during the ascend animation */
     readonly AscendTimer: number;
+    readonly prefs: Record<string, any>;
 
     // ---- Season stuff ----
 
@@ -167,6 +174,7 @@ export interface GameT {
     wrinklers: Wrinkler[];
     specialTab: string;
     permanentUpgrades: number[];
+    volume: number;
 }
 
 export type SeasonKey = (

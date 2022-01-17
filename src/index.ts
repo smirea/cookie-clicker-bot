@@ -1,18 +1,19 @@
-import type AutomatorT from './Automator';
-import options from './options';
+import { global, getGame } from './utils';
 
-declare global {
-    interface Window {
-        Automator?: AutomatorT;
+function init (): any {
+    const Game = getGame();
+
+    if (!Game) {
+        console.log('[Automator] Waiting for the Game to start');
+        return setTimeout(init, 500);
     }
-}
 
-setTimeout(() => {
     // importing inline so the Game object has time be defined
-    const Automator = require('./Automator').default as typeof AutomatorT;
-    const { global, Game } = require('./utils');
+    const { default: Automator } = require('./Automator') as typeof import('./Automator');
+    const { default: options } = require('./options') as typeof import('./options');
 
     Game.volume = 0; // prevent DOM error
+    Game.prefs.notifs = 0; // there's gonna be a lot of notifications
 
     global.Automator?.stop(); // stop previous instance if any
 
@@ -20,6 +21,10 @@ setTimeout(() => {
     instance.switchState(options.startupState);
 
     global.Automator = instance; // save to window for debugging
-}, 500);
+};
+
+export default null;
+
+init();
 
 '🍪🚜';

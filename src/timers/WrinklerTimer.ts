@@ -13,9 +13,9 @@ export default class WrinklerTimer extends Timer {
     execute(): void {
         if (!options.grandmapocalypse.enabled) {
             const elderPledgeUpgrade = Game.Upgrades['Elder Pledge'];
-            if (elderPledgeUpgrade.canBuy()) {
+            if (elderPledgeUpgrade.unlocked && elderPledgeUpgrade.canBuy()) {
                 this.context.buy(elderPledgeUpgrade);
-                this.context.log('👵 A truce was signed');
+                this.context.log('👵 A truce was signed', { color: 'orange' });
             }
             return;
         }

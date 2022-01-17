@@ -1,4 +1,4 @@
-import { Options } from './typeDefs';
+import type { Options } from './typeDefs';
 import { Game } from './utils';
 
 const getLSKey = (name: string) =>
@@ -17,7 +17,7 @@ const options: Readonly<Options> = {
     },
     bannedUpgrades: {
         'Elder Covenant': true, // don't stop, can't stop, won't stop the grandmapocalypse
-        'Elder Pledge': true, // peace was never an option
+        // 'Elder Pledge': true, // peace was never an option
     },
     grandmapocalypse: {
         enabled: false,

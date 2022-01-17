@@ -4,7 +4,18 @@ export const $ = (selector: string): HTMLDivElement | null => document.querySele
 export const $$ = (selector: string): HTMLDivElement[] => Array.from(document.querySelectorAll(selector));
 // in Tampermonkey context, "unsafeWindow" is the global window
 export const global = window.unsafeWindow || window;
-export const Game = (global as any).Game as GameT;
+
+export const getGame = (): GameT | null => {
+    // ObjectsById determines if the game has initialized
+    const Game = (global as any).Game;
+    if (!Game?.ObjectsById) return null;
+
+    module.exports.Game = Game;
+
+    return Game;
+}
+
+export let Game = getGame() as GameT;
 
 export const getAffordableBuildingMultiple = (obj: Pick<Building, 'amount' | 'basePrice'>, choices: number[]) =>
     choices.find(end => getCostOfNBuildings(obj, obj.amount + end) <= Game.cookies) || null;
