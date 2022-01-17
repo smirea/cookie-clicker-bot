@@ -18,9 +18,9 @@ export default class GrimoireMinigameTimer extends Timer {
         const pctMagic = grimoire.magic / grimoire.magicM;
 
         if (cpsMultiple > 100
-           || (cpsMultiple > 5 && pctMagic > 0.65 && !negativeBuffs)
+           || (cpsMultiple > 10 && pctMagic > 0.65 && !negativeBuffs)
            || multClick > 100
-           || (multClick > 5 && pctMagic > 0.65 && !negativeBuffs)
+           || (multClick > 10 && pctMagic > 0.65 && !negativeBuffs)
         ) {
             return this.cast(grimoire.spells['stretch time']);
         }

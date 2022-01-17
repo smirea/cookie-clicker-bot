@@ -201,6 +201,8 @@ export default class GardenMinigameTimer extends Timer {
                     // console.log('1 | plant %s at [%d, %d] to get %s', other.parent.key, x, y, other.child);
                     this.plant(other.parent, x, y);
                 } else plantIndependent();
+
+                return // lets do a single seed at a time
             }
         }
     }
@@ -423,8 +425,8 @@ const MUTATION_RULES: Record<
         { odds: 0.007, parents: ['clover', 'clover'] },
     ],
     goldenClover: [
-        { odds: 0.07, parents: ['bakerWheat', 'gildmillet'] },
-        { odds: 0.001, parents: ['clover', 'clover'] },
+        { odds: 0.0007, parents: ['bakerWheat', 'gildmillet'] },
+        // { odds: 0.0001, parents: ['clover', 'clover'] }, // not worth it, has extra requirements
         // 4 parents layout?!
     ],
     shimmerlily: [

@@ -4,7 +4,7 @@ import { Game } from 'src/utils';
 import Buyer, { GetOrdersResult } from './Buyer';
 
 export default class UpgradeBuyer extends Buyer {
-    scale(x: number) { return x; }
+    scale(x: number) { return x ** 2; }
 
     get upgradeFatigue() { return this.context.upgradeFatigue || 1; }
 
@@ -66,7 +66,7 @@ export default class UpgradeBuyer extends Buyer {
         else if (/grandmas|twice/i.test(upgrade.desc)) price *= 0.6;
         else if  (upgrade.tier === 'fortune') price *= 0.5;
         else if (/mouse and cursor/i.test(upgrade.desc)) price *= 0.4;
-        else if (/prestige/i.test(upgrade.desc)) price *= 0.01; // highest value
+        else if (/prestige/i.test(upgrade.desc)) price *= 0.0001; // highest value
 
         return price;
     }

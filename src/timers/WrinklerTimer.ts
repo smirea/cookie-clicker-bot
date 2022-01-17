@@ -6,7 +6,7 @@ export default class WrinklerTimer extends Timer {
     type = 'clicker' as const;
     maxCounter = 0;
 
-    defaultTimeout = msToTicks(1 * 60e3);
+    defaultTimeout = msToTicks(0.25 * 60e3);
 
     startDelay() { return msToTicks(5e3); }
 
@@ -24,7 +24,7 @@ export default class WrinklerTimer extends Timer {
         if (numWrinkers < Game.getWrinklersMax()) return;
 
         ++this.maxCounter;
-        if (this.maxCounter < 200) return;
+        if (this.maxCounter < 1000) return;
 
         const pantheonSlots = Game.Objects.Temple.minigame?.slot ?? 0;
         if (pantheonSlots >= 2 && this.context.timers.PantheonMinigameTimer?.slotGod('scorn', 0)) {

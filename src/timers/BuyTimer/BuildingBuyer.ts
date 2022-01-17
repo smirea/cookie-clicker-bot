@@ -125,7 +125,7 @@ export default class BuildingBuyer extends Buyer {
         if (!next) return [];
 
         const base = {
-            ratio: Game.cookies / next.price,
+            ratio: Game.cookies * 1e4 / next.price,
             cookies: next.price,
         };
 
@@ -162,7 +162,7 @@ export default class BuildingBuyer extends Buyer {
         if (Game.cookiesPs > 1e9) {
             //  buildings that are primarily used for sacrifice are much less appealling
             if (options.pantheon.sellForRuin.includes(building.name)) {
-                return building.price * 1e5;
+                return building.price * 1e4;
             }
         }
 

@@ -139,6 +139,11 @@ export interface GameT {
     /** the news ticker message */
     readonly Ticker: string;
     readonly TickerEffect: number | { type: 'fortune' };
+    readonly BuildAscendTree: () => void;
+    /** 1 when in the ascention screen */
+    readonly OnAscend: 0 | 1;
+    /** it's non-0 during the ascend animation */
+    readonly AscendTimer: number;
 
     // ---- Season stuff ----
 
@@ -161,6 +166,7 @@ export interface GameT {
     promptOn: 0 | 1;
     wrinklers: Wrinkler[];
     specialTab: string;
+    permanentUpgrades: number[];
 }
 
 export type SeasonKey = (
@@ -186,6 +192,7 @@ export interface Buyable {
 }
 
 export interface Upgrade extends Buyable {
+    id: number;
     type: 'upgrade';
     pool: '' | 'cookie' | 'debug' | 'prestige' | 'tech' | 'toggle';
     desc: string;

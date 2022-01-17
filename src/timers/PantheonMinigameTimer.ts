@@ -25,7 +25,7 @@ export default class PantheonMinigameTimer extends Timer {
             return;
         }
 
-        if (++this.ruinCounter > 10) this.runRuin();
+        if (++this.ruinCounter >= 10) this.runRuin();
     }
 
     slotGod(_god: Pantheon.God | Pantheon.GodKey, slot: number): boolean {
@@ -48,11 +48,15 @@ export default class PantheonMinigameTimer extends Timer {
         if (this.pantheon?.slot[0] !== this.pantheon?.gods.ruin.id) return;
 
         this.ruinCounter = 0;
+        const sold: Array<[number, string]> = [];
         for (const buildingKey of options.pantheon.sellForRuin) {
             const building = Game.Objects[buildingKey];
             const toSell = building.amount - 1;
-            building.sell(toSell);
-            this.context.log(`🙏 Sacrificing for Godzamok: ${toSell} ✕ ${building.name}`);
+            if (toSell) {
+                building.sell(toSell);
+                sold.push([toSell, building.name]);
+            }
         }
+        this.context.log(`🙏 Sacrificed for Godzamok: ${sold.map(x => `${x[0]} ✕ ${x[1]}`).join(', ')}`);
     }
 }

@@ -129,15 +129,19 @@ export default class Automator {
     tick() {
         clearTimeout(this.timeout!);
 
-        for (const timer of Object.values(this.timers)) {
-            if (this.tickCounter % timer.timeout !== 0) continue;
-            if (timer.startDelay() && this.tickCounter === 0) continue;
-            timer.sideEffects(); // always runs even when the timer is stopped
-            if (timer.isStopped) continue;
-            timer.run();
+        if (this.isAscended()) {
+            this.ascendSetup();
+        } else {
+            for (const timer of Object.values(this.timers)) {
+                if (this.tickCounter % timer.timeout !== 0) continue;
+                if (timer.startDelay() && this.tickCounter === 0) continue;
+                timer.sideEffects(); // always runs even when the timer is stopped
+                if (timer.isStopped) continue;
+                timer.run();
+            }
+            ++this.tickCounter;
         }
 
-        ++this.tickCounter;
         setTimeout(() => this.tick(), options.tickMs);
     }
 
@@ -290,5 +294,48 @@ export default class Automator {
         this.cpsCache[name] = cps;
 
         return cps;
+    }
+
+    /** returns if in the middle of ascending animation OR in the ascend screen */
+    isAscended() { return !!(Game.OnAscend || Game.AscendTimer); }
+
+    ascendSetup() {
+        if (!Game.OnAscend) return;
+
+        const upgradeSlots = (
+            Game.Upgrades['Permanent upgrade slot V']?.bought ? 5 :
+            Game.Upgrades['Permanent upgrade slot IV']?.bought ? 4 :
+            Game.Upgrades['Permanent upgrade slot III']?.bought ? 3 :
+            Game.Upgrades['Permanent upgrade slot II']?.bought ? 2 :
+            Game.Upgrades['Permanent upgrade slot I']?.bought ? 1 :
+            0
+        );
+
+        const upgrades = Object.values(Game.Upgrades)
+            .filter(y => y.bought && y.pool === '')
+            .sort((a, b) => b.getPrice() - a.getPrice());
+        const buckets = {
+            kittens: [] as Upgrade[],
+            other: [] as Upgrade[],
+        } as const;
+        for (const upgrade of upgrades) {
+            if (upgrade.name.startsWith('Kitten')) buckets.kittens.push(upgrade);
+            else buckets.other.push(upgrade);
+        }
+        const old = Game.permanentUpgrades;
+        // inspiration: https://pastebin.com/ppKuiupm
+        const next = [
+            ...buckets.kittens.slice(0, 1),
+            ...buckets.other,
+        ].slice(0, upgradeSlots);
+        Game.permanentUpgrades = next.map(x => x.id);
+        Game.BuildAscendTree();
+
+        if (old.join(',') !== Game.permanentUpgrades.join(',')) {
+            this.log(
+                '🏆 Set permanent ascention upgrades:\n' +
+                next.map((x, i) => `${i + 1}) ${x.name}: ${x.desc}`).join('\n')
+            );
+        }
     }
 }
