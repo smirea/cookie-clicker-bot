@@ -14,6 +14,7 @@ function init (): any {
 
     Game.volume = 0; // prevent DOM error
     Game.prefs.notifs = 0; // there's gonna be a lot of notifications
+    Game.prefs.showBackupWarning = 0;
 
     global.Automator?.stop(); // stop previous instance if any
 

@@ -43,8 +43,8 @@ export default class PantheonMinigameTimer extends Timer {
     }
 
     runRuin() {
-        if (Game.cookiesPs < 1e6) return;
-        if (Game.buffs.Devastation) return false;
+        if (!this.context.useGodzamok()) return;
+        if (Game.buffs.Devastation) return;
         if (this.pantheon?.slot[0] !== this.pantheon?.gods.ruin.id) return;
 
         this.ruinCounter = 0;

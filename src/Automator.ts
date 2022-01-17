@@ -349,4 +349,14 @@ export default class Automator {
             );
         }
     }
+
+    useGodzamok(): boolean {
+        const pantheon = Game.Objects.Temple.minigame;
+
+        return !!(
+            Game.cookiesPs > 1e9 &&
+            pantheon &&
+            pantheon.slot[0] === pantheon.gods.ruin.id
+        );
+    }
 }
