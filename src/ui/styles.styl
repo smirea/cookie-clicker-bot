@@ -4,26 +4,55 @@
     top 35px
     left 5px
     cursor pointer
-    display flex
-    align-items center
     color white
     cursor pointer
     background rgba(0, 0, 0, 0.95)
     padding 5px
 
-.statusText
-    margin 0 5px
+    table
+        thead > tr:last-child
+            border-bottom 1px solid white
+        tr:hover
+            background rgba(255, 255, 255, 0.2)
+        th
+            // font-weight bold
+            text-align left
+        td, th
+            padding 3px 10px 3px 0
+            &.numeric
+                text-align right
 
-.statusIcon
-    border-radius 50%
-    width 10px
-    height 10px
+.numeric
+    font-family monospace
 
-    &[data-status='on']
-        background lightgreen
+.statusRoot
+    display flex
+    align-items center
 
-    &[data-status='click']
-        background orange
+    &:not(:last-child)
+        margin-bottom 10px
 
-    &[data-status='off']
-        background red
+    .statusText
+        margin 0 5px
+
+    .statusIcon
+        border-radius 50%
+        width 10px
+        height 10px
+
+        &[data-status='on']
+            background lightgreen
+
+        &[data-status='click']
+            background orange
+
+        &[data-status='off']
+            background red
+
+.collapsible
+    .title
+        font-weight bold
+        margin-bottom 5px
+
+    .content
+        padding-left 12px

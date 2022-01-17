@@ -14,6 +14,7 @@ export default function initializeApp(onChangeEvent: ContextConnector) {
     render(
         <AppContextProvider onChangeEvent={onChangeEvent}>
             <App />
-        </AppContextProvider>
-        , root);
+        </AppContextProvider>,
+        root
+    );
 }

@@ -1,4 +1,4 @@
-import type { BuildingMeta, BuildingName, Buyable, Options, STATUSES, Upgrade } from './typeDefs';
+import type { BuildingMeta, BuildingName, Buyable, Options, ReactUpdater, STATUSES, Upgrade } from './typeDefs';
 import { cleanHTML, Game, global } from './utils';
 import * as utils from './utils';
 import options from './options';
@@ -22,9 +22,8 @@ import WrinklerTimer from './timers/WrinklerTimer';
 export default class Automator {
     logMessages: LogMessage[];
     upgradeFatigue = 1; // prevent buying too many updates one after another
-    cpsCache: { [key in BuildingName]?: number } = {};
     startDate!: number;
-    lastState: { buildings: BuildingMeta[] } = {} as any;
+    lastState: Readonly<{ buildings: BuildingMeta[] }> = { buildings: [] };
     timers = {
         BuyTimer: new BuyTimer(this),
         ClickCookieTimer: new ClickCookieTimer(this),
@@ -44,7 +43,7 @@ export default class Automator {
     tickCounter = 0;
     /** @deprecated keep for debug only in the console */
     utils = utils;
-    updateReact!: (options: Options) => void;
+    updateReact: ReactUpdater = () => {};
 
     constructor() {
         let existingLog = [];
@@ -53,13 +52,22 @@ export default class Automator {
         } catch (ex) {}
         this.logMessages = global.__automateLog = global.__automateLog || existingLog;
 
-        initializeApp(updateReact => { this.updateReact = updateReact; });
+        this.applyStatus(options.status);
+
+        setTimeout(() => {
+            initializeApp(updateReact => { this.updateReact = updateReact; });
+        }, 1);
     }
 
     changeOptions(diff: Partial<Options>) {
         Object.assign(options, diff);
         if (diff.status) this.applyStatus();
-        this.updateReact({ ...options });
+        this.updateReact(['options']);
+    }
+
+    changeLastState(diff: Partial<Automator['lastState']>) {
+        Object.assign(this.lastState, diff);
+        this.updateReact(['lastState']);
     }
 
     start() { this.changeOptions({ status: 'on' }); }

@@ -1,20 +1,29 @@
-import { useContext } from 'react';
-import { STATUSES } from 'src/typeDefs';
-import AppContext from './AppContext';
 import styles from './styles.styl';
 
+import BuyStats from './components/BuyStats';
+import Status from './components/Status';
+import { useEffect, useState } from 'react';
+
 export default function App() {
-    const { options, updateOptions } = useContext(AppContext);
-
-    const onClick = () => {
-        const index = STATUSES.findIndex(x => x === options.status);
-        const next = STATUSES[(index + 1) % STATUSES.length];
-        updateOptions({ status: next });
-    }
-
-    return <div className={styles.root} onClick={onClick}>
-        <span>Automator: </span>
-        <span className={styles.statusText}>{options.status}</span>
-        <span className={styles.statusIcon} data-status={options.status} />
+    return <div className={styles.root}>
+        <Status />
+        <Collapsible
+            title='Building Stats'
+            render={() => <BuyStats />}
+        />
     </div>;
+}
+
+const Collapsible: React.FC<{
+    title: string;
+    expanded?: boolean;
+    render: () => any;
+}> = ({ title, expanded = true, render }) => {
+    const [show, setShow] = useState(expanded);
+    useEffect(() => { setShow(expanded); }, [expanded]);
+
+    return <div className={styles.collapsible}>
+        <div className={styles.title} onClick={() => setShow(!show)}>{show ? '▾' : '▸'} {title}</div>
+        {show && <div className={styles.content}>{render()}</div>}
+    </div>
 }

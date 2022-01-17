@@ -70,10 +70,10 @@ export default class LogTimer extends Timer {
                 formatAmount(realCps),
                 formatAmount(realCps - Game.cookiesPs)
             );
-            console.log('%cBuy Order:', 'font-weight:bold');
-            for (const obj of buildings) {
-                console.log('   - %s: %sx', obj.name, obj.relativeValue);
-            }
+            // console.log('%cBuy Order:', 'font-weight:bold');
+            // for (const obj of buildings) {
+            //     console.log('   - %s: %sx', obj.name, obj.relativeValue);
+            // }
             for (const line of logMessages.slice(-1 * options.showLogs)) printLogLine(line);
         }
     }

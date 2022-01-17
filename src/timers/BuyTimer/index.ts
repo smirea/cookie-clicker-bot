@@ -19,8 +19,9 @@ export default class BuyTimer extends Timer {
     };
 
     sideEffects(): void {
-        this.context.cpsCache = {};
-        this.context.lastState.buildings = this.buyers.BuildingBuyer?.getSortedBuildings() ?? [];
+        this.context.changeLastState({
+            buildings: this.buyers.BuildingBuyer?.getSortedBuildings() ?? [],
+        });
     }
 
     execute(): void {

@@ -7,11 +7,12 @@ export const STATUSES = ['off', 'on', 'click'] as const;
 
 declare global {
     interface Window {
-        Automator?: Automator;
+        Automator: Automator;
     }
 }
 
-export type ContextConnector = (updater: (options: Options) => void) => void;
+export type ReactUpdater = (changes: Array<'options' | 'lastState'>) => void;
+export type ContextConnector = (updater: ReactUpdater) => void;
 
 export interface Options {
     status: typeof STATUSES[number];
