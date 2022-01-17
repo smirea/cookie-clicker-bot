@@ -1,4 +1,4 @@
-import { Buyable, Upgrade } from '.';
+import type { Buyable, Upgrade } from '.';
 
 export type Building = (
     | AlchemyLab
@@ -25,8 +25,11 @@ export type Building = (
 export type BuildingName = Building['name'];
 
 interface DefaultBuilding extends Buyable {
+    id: number;
     amount: number;
     baseCps: number;
+    /** computed CPS for all buildings of this kind */
+    storedTotalCps: number;
     basePrice: number;
     /** returns base cps? I think i dunno it's very confusing */
     cps: (me: DefaultBuilding) => number;
@@ -38,6 +41,7 @@ interface DefaultBuilding extends Buyable {
     price: number;
     sell: (amount?: number) => void;
     tooltip: () => string;
+    synergies: Upgrade[];
 }
 
 export interface AlchemyLab extends DefaultBuilding {

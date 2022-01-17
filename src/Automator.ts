@@ -267,33 +267,44 @@ export default class Automator {
     }
 
     getCps(name: BuildingName): number {
-        this.cpsCache = this.cpsCache || {};
-        if (this.cpsCache[name]) return this.cpsCache[name]!;
+        const building = Game.Objects[name];
+        if (!building.amount) return building.baseCps * Game.globalCpsMult;
 
-        const obj = Game.Objects[name];
-        const tooltip = obj.tooltip();
-        const match = units.strReplace(tooltip).match(/produces <b>([^\s]+) cookies/) || [];
-        let cps = parseFloat(match[1] || '');
+        const ownCps = building.storedTotalCps / building.amount * Game.globalCpsMult;
 
-        // @TODO: figure out a better way instead of obj.baseCps, it's way too low
-        if (Number.isNaN(cps)) return obj.bought ? obj.baseCps : 0;
+        // --- Mostly copy-pasted directly from the game code ---
 
-        if (obj.name === 'Grandma') {
-            for (const x of Game.ObjectsById) {
-                if (x.name === 'Grandma') continue;
-                if (!x.grandma?.bought) continue;
-                const match = x.grandma.desc.match(/gain <b>\+(\d+).*<\/b> per (\d+)? grandma/i) || [];
-                const pct = parseFloat(match[1]);
-                const multiplier = parseInt(match[2] || '1', 10);
-                if (!pct || !multiplier || Number.isNaN(pct) || Number.isNaN(multiplier)) continue;
-                const childCps = x.cps(x);
-                cps = cps + childCps * (pct / 100) * Math.floor(Game.Objects.Grandma.amount / multiplier);
+        let synergyBoost = 0;
+
+        if (building.name == 'Grandma') {
+            for (let i in Game.GrandmaSynergies) {
+                if (Game.Has(Game.GrandmaSynergies[i])) {
+                    const other = Game.Upgrades[Game.GrandmaSynergies[i]].buildingTie!;
+                    const mult = building.amount * 0.01 * (1 / (other.id - 1));
+                    const boost = (other.storedTotalCps * Game.globalCpsMult) - (other.storedTotalCps * Game.globalCpsMult) / (1 + mult);
+                    synergyBoost += boost;
+                }
+            }
+        } else if (building.name == 'Portal' && Game.Has('Elder Pact')) {
+            const other = Game.Objects['Grandma'];
+            const boost = (building.amount * 0.05 * other.amount) * Game.globalCpsMult;
+            synergyBoost += boost;
+        }
+
+        for (let i in building.synergies) {
+            const it = building.synergies[i];
+            if (Game.Has(it.name)) {
+                let weight = 0.05;
+                let other = it.buildingTie1!;
+                if (building == it.buildingTie1) { weight = 0.001; other = it.buildingTie2!; }
+                const boost = (other.storedTotalCps * Game.globalCpsMult) - (other.storedTotalCps * Game.globalCpsMult) / (1 + building.amount * weight);
+                synergyBoost += boost;
             }
         }
 
-        this.cpsCache[name] = cps;
+        // --- end mostly copy-pasted code ---
 
-        return cps;
+        return ownCps + synergyBoost;
     }
 
     /** returns if in the middle of ascending animation OR in the ascend screen */

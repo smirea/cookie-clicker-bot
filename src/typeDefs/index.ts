@@ -93,6 +93,7 @@ export interface GameT {
     readonly cookiesPs: number;
     /** How many cookies / click */
     readonly computedMouseCps: number;
+    readonly globalCpsMult: number;
     /** Date.now() when the current sugar lump was created */
     readonly lumpT: number;
     readonly lumpMatureAge: number;
@@ -151,6 +152,7 @@ export interface GameT {
     /** it's non-0 during the ascend animation */
     readonly AscendTimer: number;
     readonly prefs: Record<string, any>;
+    readonly GrandmaSynergies: Upgrade['name'][];
 
     // ---- Season stuff ----
 
@@ -209,6 +211,9 @@ export interface Upgrade extends Buyable {
     canBuy: () => boolean;
     buy: () => 0 | 1;
     tier: number | 'synergy1' | 'synergy2' | 'fortune';
+    buildingTie?: Building;
+    buildingTie1?: Building;
+    buildingTie2?: Building;
 }
 
 export interface Buff {
