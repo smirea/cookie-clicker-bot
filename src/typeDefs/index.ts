@@ -273,5 +273,7 @@ export interface BuildingMeta {
     bought: number;
     pricePerCps: number;
     relativeValue: number;
+    relativePrice: number;
+    opportunityCost: number;
     building: Building;
 }

@@ -1,11 +1,11 @@
 import styles from './styles.styl';
 
-import BuyStats from './components/BuyStats';
+import BuyStats from './components/BuildingStats';
 import Status from './components/Status';
 import { useEffect, useState } from 'react';
 
 export default function App() {
-    const [open, setOpen] = useState<number[]>([]);
+    const [open, setOpen] = useState<number[]>(PANELS.map((p, i) => i));
 
     return <div className={styles.root}>
         <div className={styles.nav}>
@@ -38,7 +38,7 @@ export default function App() {
 
 const PANELS: Array<{ title: string; render: () => any }> = [
     {
-        title: 'Buy Stats',
+        title: 'Buildings',
         render: () => <BuyStats />,
     }
 ];

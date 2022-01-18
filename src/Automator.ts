@@ -281,7 +281,7 @@ export default class Automator {
 
         // --- end mostly copy-pasted code ---
 
-        return ownCps + (synergyBoost / building.amount);
+        return ownCps + synergyBoost;
     }
 
     /** returns if in the middle of ascending animation OR in the ascend screen */

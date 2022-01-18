@@ -3,7 +3,7 @@ import { formatAmount } from 'src/utils';
 import { useAppContext } from '../AppContext';
 import styles from '../styles.styl'
 
-export default function BuyStats() {
+export default function BuildingStats() {
     const { lastState: { buildings } } = useAppContext();
 
     return <div>
@@ -12,17 +12,21 @@ export default function BuyStats() {
                 <tr>
                     <th />
                     <th>Building</th>
-                    <th>Relative Price</th>
-                    <th>Cost</th>
+                    <th>Score</th>
+                    <th>Δ Value</th>
+                    <th>Δ Price</th>
+                    {/* <th>Cookies</th> */}
                 </tr>
             </thead>
             <tbody>
-                {buildings.map(({ name, relativeValue, price, building }) =>
+                {buildings.map(({ name, relativeValue, relativePrice, opportunityCost, price, building }) =>
                     <tr key={name}>
                         <td><BuildingIcon building={building} /></td>
                         <td>{name}</td>
-                        <td className={styles.numeric}>{relativeValue >= 10 ? Math.round(relativeValue) : relativeValue}x</td>
-                        <td className={styles.numeric}>{formatAmount(price, { cookies: false })}</td>
+                        <td className={styles.numeric}>{numberFormat(opportunityCost)}</td>
+                        <td className={styles.numeric}>{numberFormat(relativeValue)}x</td>
+                        <td className={styles.numeric}>{numberFormat(relativePrice)}x</td>
+                        {/* <td className={styles.numeric}>{formatAmount(price, { cookies: false })}</td> */}
                     </tr>
                 )}
             </tbody>
@@ -37,4 +41,10 @@ const BuildingIcon: React.FC<{ building: Building; size?: number }> = ({ buildin
             backgroundPosition: `0 -${building.icon * 64}px`,
             zoom: size / 64,
         }}
-    />
+    />;
+
+const numberFormat = (num: number): string => {
+    let precision = num >= 100 ? 0 : num >= 10 ? 1 : 2;
+    num = Math.round(num * 100) / 100;
+    return String(num.toFixed(precision)).replace(/\.(\d+)/, (_, d) => '.' + d.slice(0, precision));
+}

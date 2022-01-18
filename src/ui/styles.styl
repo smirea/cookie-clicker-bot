@@ -3,6 +3,7 @@
     z-index 999999999999
     top 35px
     left 5px
+    font-family system-ui, tahoma, arial
     color white
     background rgba(0, 0, 0, 0.95)
     padding 5px
@@ -15,7 +16,7 @@
         th
             text-align left
         td, th
-            padding 3px 10px 3px 0
+            padding 3px 15px 3px 0
             vertical-align middle
             &.numeric
                 text-align right
@@ -34,9 +35,6 @@
         cursor pointer
         user-select none
         transition all .3s ease
-        &:before
-            position relative
-            bottom 1px
         &[data-open=true]
             box-shadow 0 1px 1px 0 white
             &:before

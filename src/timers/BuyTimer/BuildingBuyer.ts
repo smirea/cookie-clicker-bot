@@ -170,10 +170,19 @@ export default class BuildingBuyer extends Buyer {
     }
 
     getSortedBuildings(): BuildingMeta[] {
-        const sorted: BuildingMeta[] = Game.ObjectsById
+        let minPricePerCps: number | undefined;
+        let minPrice: number | undefined;
+
+        const filtered: BuildingMeta[] = Game.ObjectsById
             .filter(x => !x.locked)
             .map(obj => {
                 const price = this.getBuildingPrice(obj);
+                const cps = this.context.getCps(obj.name);
+                const pricePerCps = price / cps;
+
+                if (minPrice == null || price < minPrice) minPrice = price;
+                if (minPricePerCps == null || pricePerCps < minPricePerCps) minPricePerCps = pricePerCps;
+
                 return {
                     name: obj.name,
                     price,
@@ -181,20 +190,33 @@ export default class BuildingBuyer extends Buyer {
                     locked: obj.locked,
                     amount: obj.amount,
                     basePrice: obj.basePrice * (price / obj.price),
-                    cps: this.context.getCps(obj.name),
-                    pricePerCps: Math.max(0.01, Math.round(price / this.context.getCps(obj.name))),
-                    relativeValue: 0, // overwritten bellow
+                    cps,
+                    pricePerCps,
                     building: Game.Objects[obj.name],
+                    // overwritten bellow
+                    relativeValue: 0,
+                    relativePrice: 0,
+                    opportunityCost: 0,
                 };
             })
             .filter(obj => obj.cps)
-            .sort((a, b) => a.pricePerCps - b.pricePerCps);
 
-        const min = sorted[0]?.pricePerCps || 1;
-        for (const obj of sorted) {
-            obj.relativeValue = Math.round(obj.pricePerCps / min * 10) / 10;
+        if (!minPricePerCps || !minPrice) return [];
+
+        for (const obj of filtered) {
+            const relativeValue = obj.pricePerCps / minPricePerCps;
+            const relativePrice = obj.price / minPrice;
+            obj.relativeValue = Math.round(relativeValue * 100) / 100;
+            obj.relativePrice = Math.round(Math.log2(relativePrice) * 100) / 100;
+            obj.opportunityCost = Math.round(relativeValue * relativePrice * 100) / 100;
         }
 
-        return sorted;
+        filtered.sort((a, b) => a.opportunityCost - b.opportunityCost);
+
+        return filtered;
     }
 }
+
+// relativeValue * relativePrice
+// obj.pricePerCps / minPricePerCps * obj.price / minPrice
+// price / cps / minPricePerCps * price / minPrice
