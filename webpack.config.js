@@ -50,6 +50,7 @@ module.exports = {
                     {
                         loader: 'css-loader',
                         options: {
+                            url: false,
                             modules: {
                                 localIdentName: 'Automator_[local]__[hash:base64:5]',
                             },

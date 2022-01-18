@@ -42,6 +42,8 @@ interface DefaultBuilding extends Buyable {
     sell: (amount?: number) => void;
     tooltip: () => string;
     synergies: Upgrade[];
+    /** index in mural. Each icon is 64x64 */
+    icon: number;
 }
 
 export interface AlchemyLab extends DefaultBuilding {

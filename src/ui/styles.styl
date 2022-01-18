@@ -3,9 +3,7 @@
     z-index 999999999999
     top 35px
     left 5px
-    cursor pointer
     color white
-    cursor pointer
     background rgba(0, 0, 0, 0.95)
     padding 5px
 
@@ -15,25 +13,47 @@
         tr:hover
             background rgba(255, 255, 255, 0.2)
         th
-            // font-weight bold
             text-align left
         td, th
             padding 3px 10px 3px 0
+            vertical-align middle
             &.numeric
                 text-align right
 
 .numeric
     font-family monospace
 
-.statusRoot
+.nav
     display flex
     align-items center
 
-    &:not(:last-child)
-        margin-bottom 10px
+    > * + *
+        margin-left 10px
+
+    .navItem
+        cursor pointer
+        user-select none
+        transition all .3s ease
+        &:before
+            position relative
+            bottom 1px
+        &[data-open=true]
+            box-shadow 0 1px 1px 0 white
+            &:before
+                content '■ '
+        &[data-open=false]:before
+            content '□ '
+        &:hover
+            box-shadow 0 1px 1px 0 white
+
+
+.statusRoot
+    display flex
+    align-items center
+    margin-right 10px
 
     .statusText
-        margin 0 5px
+        margin-left 5px
 
     .statusIcon
         border-radius 50%
@@ -50,9 +70,17 @@
             background red
 
 .collapsible
+    margin-top 10px
     .title
         font-weight bold
         margin-bottom 5px
 
     .content
         padding-left 12px
+
+.buildingIcon
+    display inline-block
+    width 64px
+    height 64px
+    background url(img/buildings.png?v=6)
+    background-repeat no-repeat

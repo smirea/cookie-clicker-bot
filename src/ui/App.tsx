@@ -5,14 +5,43 @@ import Status from './components/Status';
 import { useEffect, useState } from 'react';
 
 export default function App() {
+    const [open, setOpen] = useState<number[]>([]);
+
     return <div className={styles.root}>
-        <Status />
-        <Collapsible
-            title='Building Stats'
-            render={() => <BuyStats />}
-        />
+        <div className={styles.nav}>
+            <Status />
+            {PANELS.map(({ title }, index) =>
+                <div
+                    key={index}
+                    data-open={String(open.includes(index))}
+                    className={styles.navItem}
+                    onClick={() =>
+                        setOpen(
+                            open.includes(index)
+                                ? open.filter(x => x !== index)
+                                : [...open, index]
+                        )
+                    }
+                >{title}</div>
+            )}
+        </div>
+
+        {PANELS.map(({ title, render }, index) =>
+            open.includes(index) &&
+                <div className={styles.collapsible}>
+                    <div className={styles.title}>{title}</div>
+                    <div className={styles.content}>{render()}</div>
+                </div>
+        )}
     </div>;
 }
+
+const PANELS: Array<{ title: string; render: () => any }> = [
+    {
+        title: 'Buy Stats',
+        render: () => <BuyStats />,
+    }
+];
 
 const Collapsible: React.FC<{
     title: string;

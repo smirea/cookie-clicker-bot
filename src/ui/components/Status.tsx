@@ -11,9 +11,8 @@ export default function Status() {
         updateOptions({ status: next });
     }
 
-    return <div onClick={onClick} className={styles.statusRoot}>
-        <span>Automator: </span>
-        <span className={styles.statusText}>{options.status}</span>
+    return <div onClick={onClick} className={`${styles.statusRoot} ${styles.navItem}`}>
         <span className={styles.statusIcon} data-status={options.status} />
+        <span className={styles.statusText}>{options.status}</span>
     </div>
 }
