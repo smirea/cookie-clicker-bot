@@ -12,7 +12,7 @@ const options: Readonly<Options> = {
     upgradeWait: 0.35,
     autoReloadMinutes: 0,
     achievementThresholds: {
-        Default: [1, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600],
+        Default: [1, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500, 550, 600, 650],
         Cursor: [1, 2, 50, 100, 200, 300, 400, 500, 600, 700, 800, 900],
     },
     bannedUpgrades: {
@@ -36,6 +36,7 @@ const options: Readonly<Options> = {
     },
     localStorage: {
         log: getLSKey('log'),
+        uiConfig: getLSKey('uiConfig'),
     },
     pantheon: {
         layout: ['ruin', 'mother', 'labor'],
@@ -69,7 +70,7 @@ const options: Readonly<Options> = {
             },
             {
                 name: 'Focus on CPS',
-                conditions: { minSeeds: 20 },
+                conditions: { minSeeds: 30 },
                 usedPlotsRatio: 1,
                 harvestDecayTicks: 1,
                 maxCpsBuff: 1.5,

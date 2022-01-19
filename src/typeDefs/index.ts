@@ -52,6 +52,7 @@ export interface Options {
     };
     localStorage: {
         log: string;
+        uiConfig: string;
     };
     pantheon: {
         layout: [null | Pantheon.GodKey, null | Pantheon.GodKey, null | Pantheon.GodKey];

@@ -12,7 +12,7 @@ function init (): any {
     const { default: Automator } = require('./Automator') as typeof import('./Automator');
 
     Game.volume = 0; // prevent DOM error
-    Game.prefs.notifs = 0; // there's gonna be a lot of notifications
+    Game.prefs.notifs = 1; // there's gonna be a lot of notifications
     Game.prefs.showBackupWarning = 0;
 
     global.Automator?.stop(); // stop previous instance if any

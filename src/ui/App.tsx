@@ -3,31 +3,36 @@ import styles from './styles.styl';
 import BuyStats from './components/BuildingStats';
 import Status from './components/Status';
 import { useEffect, useState } from 'react';
+import { useAppContext } from './AppContext';
 
 export default function App() {
-    const [open, setOpen] = useState<number[]>(PANELS.map((p, i) => i));
+    const { uiConfig: { panels }, updateUiConfig } = useAppContext();
 
     return <div className={styles.root}>
         <div className={styles.nav}>
             <Status />
-            {PANELS.map(({ title }, index) =>
-                <div
-                    key={index}
-                    data-open={String(open.includes(index))}
+            {PANELS.map(({ id, title }) => {
+                const isOpen = panels.includes(id);
+
+                return <div
+                    key={id}
+                    data-open={String(isOpen)}
                     className={styles.navItem}
                     onClick={() =>
-                        setOpen(
-                            open.includes(index)
-                                ? open.filter(x => x !== index)
-                                : [...open, index]
-                        )
+                        updateUiConfig({
+                            panels: isOpen
+                                ? panels.filter(x => x !== id)
+                                : [...panels, id]
+                        })
                     }
-                >{title}</div>
-            )}
+                >
+                    {title}
+                </div>
+            })}
         </div>
 
-        {PANELS.map(({ title, render }, index) =>
-            open.includes(index) &&
+        {PANELS.map(({ id, title, render }) =>
+            panels.includes(id) &&
                 <div className={styles.collapsible}>
                     <div className={styles.title}>{title}</div>
                     <div className={styles.content}>{render()}</div>
@@ -36,11 +41,12 @@ export default function App() {
     </div>;
 }
 
-const PANELS: Array<{ title: string; render: () => any }> = [
+const PANELS: Array<{ id: string, title: string; render: () => any }> = [
     {
+        id: 'buildings',
         title: 'Buildings',
         render: () => <BuyStats />,
-    }
+    },
 ];
 
 const Collapsible: React.FC<{

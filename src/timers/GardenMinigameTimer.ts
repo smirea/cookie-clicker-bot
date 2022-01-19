@@ -25,11 +25,15 @@ export default class GardenMinigameTimer extends Timer {
         const layout = MUTATION_LAYOUTS.double[lvl](x1, y1);
         const shouldHarvest = (plant: Garden.Plant, x: number, y: number, age: number) => {
             const isMature = age >= plant.mature;
-            const isCloseToDeath = isMature && (plant.weed || this.getDecayTicks(x, y) <= this.strategy.harvestDecayTicks);
+            const isWeed = !!(plant.weed || ['brownMold'].includes(plant.key));
+            const isCloseToDeath = isMature && (isWeed || this.getDecayTicks(x, y) <= this.strategy.harvestDecayTicks);
+
+            if (plant.immortal && age >= plant.mature * 3) return true;
 
             if (this.strategy.optimalMutationStrategy) {
+                if (isWeed) return true;
                 if (layout.get(x, y)) return isCloseToDeath;
-                return isMature || plant.weed;
+                return isMature;
             }
 
             return isCloseToDeath;

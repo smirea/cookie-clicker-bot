@@ -207,11 +207,12 @@ export default class BuildingBuyer extends Buyer {
             const relativeValue = obj.pricePerCps / minPricePerCps;
             const relativePrice = obj.price / minPrice;
             obj.relativeValue = Math.round(relativeValue * 100) / 100;
-            obj.relativePrice = Math.round(Math.log2(relativePrice) * 100) / 100;
+            obj.relativePrice = Math.round(Math.log2(1 + relativePrice) * 100) / 100;
             obj.opportunityCost = Math.round(relativeValue * relativePrice * 100) / 100;
         }
 
-        filtered.sort((a, b) => a.opportunityCost - b.opportunityCost);
+        // filtered.sort((a, b) => a.opportunityCost - b.opportunityCost);
+        filtered.sort((a, b) => a.pricePerCps - b.pricePerCps);
 
         return filtered;
     }
