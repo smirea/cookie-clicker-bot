@@ -43,6 +43,7 @@ export default class Automator {
     tickCounter = 0;
     /** @deprecated keep for debug only in the console */
     utils = utils;
+    cpsCache: { [key in BuildingName]?: number } = {};
     updateReact: ReactUpdater = () => {};
 
     constructor() {
@@ -119,6 +120,7 @@ export default class Automator {
         if (this.isAscended()) {
             this.ascendSetup();
         } else {
+            this.cpsCache = {};
             for (const timer of Object.values(this.timers)) {
                 if (this.tickCounter % timer.timeout !== 0) continue;
                 if (timer.startDelay() && this.tickCounter === 0) continue;
@@ -244,6 +246,8 @@ export default class Automator {
     }
 
     getCps(name: BuildingName): number {
+        if (this.cpsCache[name]) return this.cpsCache[name]!;
+
         const building = Game.Objects[name];
         if (!building.amount) return building.baseCps * Game.globalCpsMult;
 
@@ -281,7 +285,10 @@ export default class Automator {
 
         // --- end mostly copy-pasted code ---
 
-        return ownCps + (synergyBoost / building.amount);
+        const final = ownCps + (synergyBoost / building.amount);
+        this.cpsCache[name] = final;
+
+        return final;
     }
 
     /** returns if in the middle of ascending animation OR in the ascend screen */
@@ -316,11 +323,14 @@ export default class Automator {
             ...buckets.kittens.slice(0, 1),
             ...buckets.other,
         ].slice(0, upgradeSlots);
-        Game.permanentUpgrades = next.map(x => x.id);
-        Game.BuildAscendTree();
 
-        if (old.join(',') !== Game.permanentUpgrades.join(',')) {
-            this.log(
+        if (old.join(',') === next.map(x => x.id).join(',')) {
+            // noop
+        } else {
+            Game.permanentUpgrades = next.map(x => x.id);
+            Game.BuildAscendTree();
+
+            console.log(
                 '🏆 Set permanent ascention upgrades:\n' +
                 next.map((x, i) => `${i + 1}) ${x.name}: ${x.desc}`).join('\n')
             );

@@ -63,6 +63,8 @@ export default class GardenMinigameTimer extends Timer {
             }
         }
 
+        if (this.context.getBuffs().cpsMultiple > 1) return; // only plant cheaply
+
         if (this.strategy.optimalMutationStrategy) {
             return void this.runOptimalMutationStrategy(layout);
         }
