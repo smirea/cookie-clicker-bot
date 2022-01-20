@@ -12,7 +12,7 @@ module.exports = {
     output: {
         pathinfo: true,
         path: path.resolve('dist'),
-        filename: 'CookieBot.js',
+        filename: 'cookie-clicker-bot.js',
         globalObject: 'this',
     },
 

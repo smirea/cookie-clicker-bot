@@ -13,7 +13,11 @@ Just paste the contents of [dist/CookieBot.js](./dist/CookieBot.js) into the con
 
 ### Automatic updates via [Tampermonkey chrome extension](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo?hl=en)
 
-You can setup the script to automatically update when refreshing tha page
+All the source is bundled under `dist/cookie-clicker-bot.js`
+
+For **production** use: a UserScript is also created under `dist/cookie-clicker-bot.userscript.js` that can be directly installed in Tampermonkey
+
+For **development**, you can replace the `@require` value to a `file:///<path_to_local_file>` by giving Tampermonkey access to your filesystem. That way the script refreshes on every page refresh
 
 ```js
 // ==UserScript==
