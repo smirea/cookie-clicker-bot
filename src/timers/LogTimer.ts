@@ -25,11 +25,11 @@ export default class LogTimer extends Timer {
     }
 
     printLog() {
-        const { logMessages, upgradeFatigue, realCps, lastState: { buildings } } = this.context;
+        const { logMessages, upgradeFatigue, realCps } = this.context;
         const last = logMessages[logMessages.length - 1];
 
         const printLogLine = (line: LogMessage) => {
-            const { time, msg, count, eta, extra, color = 'white' } = line;
+            const { time, msg, count, eta, extra, color } = line;
             this.lastMessage = { ...line };
 
             console.log(
