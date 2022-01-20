@@ -14,26 +14,12 @@ export default class GrimoireMinigameTimer extends Timer {
         const grimoire = Game.Objects['Wizard tower'].minigame;
         if (!grimoire) return this.scaleTimeout(10); // git gud first
 
-        const { cpsMultiple, multClick, negativeBuffs, positiveBuffs } = this.context.getBuffs();
-        const pctMagic = grimoire.magic / grimoire.magicM;
+        const { cpsMultiple } = this.context.getBuffs();
 
-        if (cpsMultiple > 100
-           || (cpsMultiple > 10 && pctMagic > 0.65 && !negativeBuffs)
-           || multClick > 100
-           || (multClick > 10 && pctMagic > 0.65 && !negativeBuffs)
+        if (cpsMultiple > 100 ||
+            (cpsMultiple > 10 && grimoire.magic === grimoire.magicM)
         ) {
-            return this.cast(grimoire.spells['stretch time']);
-        }
-
-        if (grimoire.magic === grimoire.magicM) {
-            ++this.maxCounter;
-            if (this.maxCounter < 10) return; // wait a bit in case others want to use the book
-
-            if (!positiveBuffs) return this.cast(grimoire.spells['hand of fate']);
-
-            if (Game.cookies >= this.context.realCps * 20) {
-                return this.cast(grimoire.spells['conjure baked goods']);
-            }
+            return this.cast(grimoire.spells['hand of fate']);
         }
     }
 

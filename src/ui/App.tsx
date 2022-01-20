@@ -4,9 +4,10 @@ import BuyStats from './components/BuildingStats';
 import Status from './components/Status';
 import { useEffect, useState } from 'react';
 import { useAppContext } from './AppContext';
+import Poll from './components/Poll';
 
 export default function App() {
-    const { uiConfig: { panels }, updateUiConfig } = useAppContext();
+    const { Automator, uiConfig: { panels }, updateUiConfig } = useAppContext();
 
     return <div className={styles.root}>
         <div className={styles.nav}>
@@ -29,6 +30,17 @@ export default function App() {
                     {title}
                 </div>
             })}
+            <Poll
+                time={500}
+                render={() => {
+                    const buffs = Automator.getBuffs();
+                    return <>
+                        <div>|</div>
+                        <div>cps: {Math.round(buffs.cpsMultiple * 10) / 10}x</div>
+                        <div>click: {Math.round(buffs.multClick * buffs.devastationMultiple * 10) / 10}x</div>
+                    </>
+                }}
+            />
         </div>
 
         {PANELS.map(({ id, title, render }) =>

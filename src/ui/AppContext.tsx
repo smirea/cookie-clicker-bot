@@ -11,6 +11,7 @@ export default AppContext;
 export const useAppContext = () => useContext(AppContext);
 
 export interface AppContextT {
+    Automator: Automator;
     options: Options;
     updateOptions: (diff: Partial<Options>) => void;
     lastState: Automator['lastState'];
@@ -57,7 +58,14 @@ export const AppContextProvider: React.FC<{ onChangeEvent: ContextConnector }> =
         });
     }, [onChangeEvent]);
 
-    return <AppContext.Provider value={{ options, lastState, updateOptions, uiConfig, updateUiConfig }}>
+    return <AppContext.Provider value={{
+        options,
+        lastState,
+        updateOptions,
+        uiConfig,
+        updateUiConfig,
+        Automator: global.Automator,
+    }}>
         {children}
     </AppContext.Provider>;
 }

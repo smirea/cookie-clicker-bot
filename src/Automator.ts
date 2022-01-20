@@ -177,9 +177,14 @@ export default class Automator {
         let multClick = 1;
         let negativeBuffs = 0;
         let positiveBuffs = 0;
+        let devastationMultiple = 1;
+
         for (const buff of Object.values(Game.buffs)) {
             if (!buff.visible) continue;
-            if (buff.name === 'Devastation') continue; // this happens all the time so just ignore it
+            if (buff.name === 'Devastation') {
+                devastationMultiple = buff.multClick!;
+                continue; // this happens all the time so just ignore it
+            }
             if (buff.multCpS) {
                 cpsMultiple *= buff.multCpS;
                 if (buff.multCpS < 1) ++negativeBuffs; else ++positiveBuffs;
@@ -188,11 +193,13 @@ export default class Automator {
                 multClick *= buff.multClick;
             }
         }
+
         return {
             cpsMultiple,
             negativeBuffs,
             positiveBuffs,
             multClick,
+            devastationMultiple,
         };
     }
 
