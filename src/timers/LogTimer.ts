@@ -33,12 +33,10 @@ export default class LogTimer extends Timer {
             this.lastMessage = { ...line };
 
             console.log(
-                `%c%s%c %s %c%s`,
-                'color:gray',
+                `%s%c %s %s`,
                 new Date(time).toISOString().slice(11, 19),
                 `color:${color}`,
                 msg,
-                'color:gray',
                 [
                     count > 1 ? `✕ ${count}` : '',
                     extra,
@@ -63,7 +61,7 @@ export default class LogTimer extends Timer {
             }
         } else { // clear and print everything
             console.clear();
-            console.log('%c%s v%s', 'color:gray', packageJson.name, packageJson.version);
+            console.log('%c%s v%s', 'font-weight:bold', packageJson.name, packageJson.version);
             console.log(
                 `upgradeFatigue: %s | realCps: %s (clicks: %s)`,
                 upgradeFatigue ? Math.round(upgradeFatigue * 100) / 100 + 'x' : 'disabled',

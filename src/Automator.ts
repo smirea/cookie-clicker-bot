@@ -116,6 +116,7 @@ export default class Automator {
 
     tick() {
         clearTimeout(this.timeout!);
+        setTimeout(() => this.tick(), options.tickMs);
 
         if (this.isAscended()) {
             this.ascendSetup();
@@ -130,8 +131,6 @@ export default class Automator {
             }
             ++this.tickCounter;
         }
-
-        setTimeout(() => this.tick(), options.tickMs);
     }
 
     get realCps() {

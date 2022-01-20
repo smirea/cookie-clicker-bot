@@ -5,8 +5,10 @@ export default abstract class Timer {
     abstract readonly type: 'default' | 'clicker';
     /** Int, # of ticks */
     abstract defaultTimeout: number;
-    timeout = 0;
     counter = 0;
+    private _timeout = 0;
+    get timeout() { return this._timeout; }
+    set timeout(val) { this._timeout = Math.floor(val); }
 
     constructor(protected context: Automator) {}
 
