@@ -1,4 +1,5 @@
 import type Automator from 'src/Automator';
+import type GardenMinigameTimer from 'src/timers/GardenMinigameTimer';
 import { Building, BuildingName, Garden, Pantheon } from './buildings';
 
 export * from './buildings';
@@ -64,6 +65,7 @@ export interface Options {
             name: string;
             conditions: {
                 minSeeds: number;
+                seends?: Garden.PlantKey[];
             };
             optimalMutationStrategy?: boolean;
             /** leave N % of plots empty for mutations [0-1] */
@@ -78,6 +80,7 @@ export interface Options {
                 default: number;
             },
             plantOdds?: { [key in Garden.Plant['key']]?: number };
+            layout?: (options: { x: number; y: number; timer: GardenMinigameTimer }) => Garden.PlantKey | null;
         }>;
     };
     season: {

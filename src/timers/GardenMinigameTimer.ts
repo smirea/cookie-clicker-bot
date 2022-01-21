@@ -69,6 +69,17 @@ export default class GardenMinigameTimer extends Timer {
             return void this.runOptimalMutationStrategy(layout);
         }
 
+        if (this.strategy.layout) {
+            for (const coords of emptyPlots) {
+                const seed = this.strategy.layout({
+                    ...coords,
+                    timer: this,
+                });
+                if (seed) return void this.plant(garden.plants[seed], coords.x, coords.y);
+            }
+            return
+        }
+
         // wait for stuff to be done if too many plots are used
         if (!emptyPlots.length || usedPlots.length >= totalPlots * this.strategy.usedPlotsRatio) return;
 
@@ -216,7 +227,10 @@ export default class GardenMinigameTimer extends Timer {
     setStrategy() {
         const garden = this.garden!;
         const seeds = garden.plantsById.filter(p => p.unlocked).length;
-        const active = options.garden.strategies.filter(s => seeds >= s.conditions.minSeeds);
+        const active = options.garden.strategies.filter(s =>
+            seeds >= s.conditions.minSeeds &&
+            (!s.conditions.seends || s.conditions.seends.every(seed => garden.plants[seed].unlocked))
+        );
         const nextStrategy = active[active.length - 1] || active[0];
 
         if (this.strategy?.name !== nextStrategy.name) {
@@ -230,7 +244,8 @@ export default class GardenMinigameTimer extends Timer {
             soil: 'clay',
             defaultOdds: { default: 1, weed: 0.25 },
             plantOdds: {},
-            optimalMutationStrategy: true,
+            optimalMutationStrategy: false,
+            layout: null as any,
             ...nextStrategy,
         };
     }

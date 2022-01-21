@@ -1,5 +1,5 @@
 import { Building } from 'src/typeDefs';
-import { formatAmount } from 'src/utils';
+import { formatAmount, Game } from 'src/utils';
 import { useAppContext } from '../AppContext';
 import styles from '../styles.styl'
 
@@ -15,17 +15,19 @@ export default function BuildingStats() {
                     <th>Score</th>
                     <th>Δ Value</th>
                     <th>Δ Price</th>
+                    <th>% CPS</th>
                     {/* <th>Cookies</th> */}
                 </tr>
             </thead>
             <tbody>
-                {buildings.map(({ name, relativeValue, relativePrice, opportunityCost, price, building }) =>
+                {buildings.map(({ name, relativeValue, relativePrice, opportunityCost, price, cps, building }) =>
                     <tr key={name}>
                         <td><BuildingIcon building={building} /></td>
                         <td>{name}</td>
                         <td className={styles.numeric}>{numberFormat(opportunityCost)}</td>
                         <td className={styles.numeric}>{numberFormat(relativeValue)}x</td>
                         <td className={styles.numeric}>{numberFormat(relativePrice)}x</td>
+                        <td className={styles.numeric}>{numberFormat(cps / Game.cookiesPs * 100)}</td>
                         {/* <td className={styles.numeric}>{formatAmount(price, { cookies: false })}</td> */}
                     </tr>
                 )}

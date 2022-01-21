@@ -44,22 +44,6 @@ const options: Readonly<Options> = {
     },
     garden: {
         strategies: [
-            // {
-            //     name: 'Focus on new seeds',
-            //     conditions: { minSeeds: 0 },
-            //     usedPlotsRatio: 0.5,
-            //     harvestDecayTicks: 10,
-            //     maxCpsBuff: 1,
-            //     soil: 'fertilizer',
-            //     defaultOdds: { default: 1, weed: 0.5 },
-            //     plantOdds: {
-            //         bakerWheat: 1,
-            //         thumbcorn: 2,
-            //         cronerice: 0.25,
-            //         gildmillet: 1.25,
-            //         chocoroot: 1.5,
-            //     },
-            // },
             {
                 name: 'Optimal mutations',
                 conditions: { minSeeds: 0 },
@@ -83,6 +67,15 @@ const options: Readonly<Options> = {
                     gildmillet: 1.25,
                     chocoroot: 1.5,
                 },
+            },
+            {
+                name: 'Max Golden Cookies',
+                conditions: {
+                    minSeeds: 20,
+                    seends: ['goldenClover'],
+                },
+                soil: 'clay',
+                layout: () => 'goldenClover',
             },
         ],
     },
