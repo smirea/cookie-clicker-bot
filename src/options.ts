@@ -70,12 +70,28 @@ const options: Readonly<Options> = {
             },
             {
                 name: 'Max Golden Cookies',
+                maxCpsBuff: 7, // allow Frenzy
+                harvestDecayTicks: 0, //  don't need to harvest these
                 conditions: {
                     minSeeds: 20,
                     seends: ['goldenClover'],
                 },
                 soil: 'clay',
                 layout: () => 'goldenClover',
+            },
+            {
+                name: 'Max Golden Cookies w/ Tulips',
+                maxCpsBuff: 7, // allow Frenzy
+                harvestDecayTicks: 0, //  don't need to harvest these
+                conditions: {
+                    minSeeds: 20,
+                    seends: ['goldenClover', 'nursetulip'],
+                },
+                soil: 'clay',
+                layout: ({ x, y }) =>
+                    (x === 1 || x === 4) && (y === 1 || y === 4)
+                        ? 'nursetulip'
+                        : 'goldenClover',
             },
         ],
     },

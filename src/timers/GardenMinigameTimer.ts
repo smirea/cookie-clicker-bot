@@ -63,7 +63,8 @@ export default class GardenMinigameTimer extends Timer {
             }
         }
 
-        if (this.context.getBuffs().cpsMultiple > 1) return; // only plant cheaply
+        const { cpsMultiple } = this.context.getBuffs();
+        if (cpsMultiple > this.strategy.maxCpsBuff) return; // only plant cheaply
 
         if (this.strategy.optimalMutationStrategy) {
             return void this.runOptimalMutationStrategy(layout);
@@ -82,9 +83,6 @@ export default class GardenMinigameTimer extends Timer {
 
         // wait for stuff to be done if too many plots are used
         if (!emptyPlots.length || usedPlots.length >= totalPlots * this.strategy.usedPlotsRatio) return;
-
-        const { cpsMultiple } = this.context.getBuffs();
-        if (cpsMultiple > this.strategy.maxCpsBuff) return;
 
         const availablePlants = garden.plantsById.filter(p => p.unlocked && garden.canPlant(p));
         if (!availablePlants.length) return;
